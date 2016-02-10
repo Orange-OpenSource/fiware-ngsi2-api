@@ -1,0 +1,38 @@
+[
+  {
+    "type": "Room",
+    "id": "DC_S1-D41",
+    "temperature": {
+      "value": 35.6,
+      "type": null,
+      "metadata": {}
+    }
+  },
+  {
+    "type": "Room",
+    "id": "Boe-Idearium",
+    "temperature": {
+      "value": 22.5,
+      "type": null,
+      "metadata": {}
+    }
+  },
+  {
+    "type": "Car",
+    "id": "P-9873-K",
+    "speed": {
+      "value": 100,
+      "type": "number",
+      "metadata": {
+        "accuracy": {
+          "value": 2,
+          "type": null
+        },
+        "timestamp": {
+          "value": "2015-06-04T07:20:27.378Z",
+          "type": "date"
+        }
+      }
+    }
+  }
+]

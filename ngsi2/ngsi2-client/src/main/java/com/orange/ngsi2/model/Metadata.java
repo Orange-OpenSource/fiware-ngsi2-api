@@ -26,6 +26,18 @@ public class Metadata {
 
     private String type;
 
+    public Metadata() {
+    }
+
+    public Metadata(Object value) {
+        this.value = value;
+    }
+
+    public Metadata(String type, Object value) {
+        this(value);
+        this.type = type;
+    }
+
     public Object getValue() {
         return value;
     }

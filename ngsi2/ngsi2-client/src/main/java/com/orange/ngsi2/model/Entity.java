@@ -44,6 +44,11 @@ public class Entity {
         this.type = type;
     }
 
+    public Entity(String id, String type, Map<String, Attribute> attributes) {
+        this(id, type);
+        this.attributes = attributes;
+    }
+
     public String getId() {
         return id;
     }
