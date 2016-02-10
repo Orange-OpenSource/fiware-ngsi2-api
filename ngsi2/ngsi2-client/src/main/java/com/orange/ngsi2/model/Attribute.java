@@ -17,6 +17,7 @@
 
 package com.orange.ngsi2.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Collections;
@@ -69,5 +70,13 @@ public class Attribute {
 
     public void setMetadata(Map<String, Metadata> metadata) {
         this.metadata = metadata;
+    }
+
+    @JsonIgnore
+    public void addMetadata(String key, Metadata metadata) {
+        if (this.metadata == null) {
+            this.metadata = new HashMap<String, Metadata>();
+        }
+        this.metadata.put(key, metadata);
     }
 }
