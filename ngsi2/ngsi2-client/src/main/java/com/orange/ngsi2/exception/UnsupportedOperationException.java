@@ -17,26 +17,36 @@
 
 package com.orange.ngsi2.exception;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Collection;
+
 /**
  * Created by pascale on 09/02/2016.
  */
 public class UnsupportedOperationException extends Exception {
 
-    private final String operationName;
+    private String error = "501";
+
+    private String description = null;
 
     public UnsupportedOperationException(String operationName) {
         super("");
-        this.operationName = operationName;
+        description = String.format("this operation '%s' is not implemented", operationName);
     }
 
     @Override
     public String getMessage() {
-        return "This " + this.operationName + " operation is not supported.";
+        return description;
     }
 
-    public String getOperationName() {
-        return operationName;
+    public String getError() {
+        return error;
     }
 
+    public String getDescription() {
+        return description;
+    }
 }
 

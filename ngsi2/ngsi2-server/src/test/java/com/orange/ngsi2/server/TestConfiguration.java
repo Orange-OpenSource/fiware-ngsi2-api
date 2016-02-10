@@ -17,8 +17,19 @@
 
 package com.orange.ngsi2.server;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+
+import java.io.IOException;
 
 /**
  * TestConfiguration for NGSI2 server tests
@@ -27,5 +38,12 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan("com.orange.ngsi2")
 public class TestConfiguration {
 
+    @Bean
+    public MappingJackson2HttpMessageConverter jsonV2Converter(ObjectMapper objectMapper) {
+
+        objectMapper.registerModule(new Jdk8Module());
+        return new MappingJackson2HttpMessageConverter(objectMapper);
+
+    }
 
 }
