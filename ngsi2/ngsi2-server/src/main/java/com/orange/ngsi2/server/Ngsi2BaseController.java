@@ -40,7 +40,7 @@ public class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
-    final public ResponseEntity<List<Entity>> getListEntities(@PathVariable Optional<String> id, @PathVariable Optional<String> type, @PathVariable Optional<String> idPattern, @PathVariable Optional<Integer> limit, @PathVariable Optional<Integer> offset, @PathVariable Optional<String> attrs) throws Exception {
+    final public ResponseEntity<List<Entity>> getListEntities(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
@@ -53,10 +53,18 @@ public class Ngsi2BaseController {
 
     @ExceptionHandler({UnsupportedOperationException.class})
     public ResponseEntity<Object> unsupportedOperation(UnsupportedOperationException exception) {
-        logger.error("Unsupported operation: {}", exception.toString());
+        logger.error("Unsupported operation: {}", exception.getMessage());
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
         return new ResponseEntity<Object>(error, HttpStatus.NOT_IMPLEMENTED);
+    }
+
+    @ExceptionHandler({IncompatibleParameterException.class})
+    public ResponseEntity<Object> incompatibleParameter(IncompatibleParameterException exception) {
+        logger.error("Incompatible parameter: {}", exception.getMessage());
+        Error error = new Error(exception.getError());
+        error.setDescription(Optional.of(exception.getDescription()));
+        return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
     }
 
     /*

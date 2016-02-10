@@ -17,31 +17,18 @@
 
 package com.orange.ngsi2.exception;
 
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+
 /**
  * Created by pascale on 10/02/2016.
  */
+public class IncompatibleParameterExceptionTest {
 
-public class IncompatibleParameterException extends Exception {
-
-    private String error = "400";
-
-    private String description = null;
-
-    public IncompatibleParameterException(String param1, String param2, String operationName) {
-        super("");
-        description = String.format("The incoming request is invalid in this context. The parameter %s is incompatible with %s in %s operation.", param1, param2, operationName);
-    }
-
-    @Override
-    public String getMessage() {
-        return description;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public String getDescription() {
-        return description;
+    @Test
+    public void checkProperties() {
+        IncompatibleParameterException exception = new IncompatibleParameterException("id", "idPattern", "List entities");
+        assertEquals("The incoming request is invalid in this context. The parameter id is incompatible with idPattern in List entities operation.", exception.getMessage());
     }
 }

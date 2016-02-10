@@ -61,11 +61,19 @@ public class Ngsi2BaseControllerTest {
     public void checkListEntitiesNotImplemented() throws Exception {
         mockMvc.perform(
                 get("/v2/ni/entities").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
-                .andDo(mvcResult -> System.out.println(mvcResult.getResponse().getContentAsString()))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'List Entities' is not implemented"))
                 .andExpect(status().isNotImplemented());
 
+    }
+
+    @Test
+    public void checkListEntitiesIncompatibleParameter() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Boe_Idearium").param("idPattern", "Bode_.*").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. The parameter Boe_Idearium is incompatible with Bode_.* in List entities operation."))
+                .andExpect(status().isBadRequest());
     }
 
 }
