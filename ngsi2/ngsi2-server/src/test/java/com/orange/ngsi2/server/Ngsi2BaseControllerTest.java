@@ -76,4 +76,14 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void checkListEntitiesInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Boe_Idearium?").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value("Boe_Idearium?"))
+                .andExpect(status().isBadRequest());
+    }
+
 }

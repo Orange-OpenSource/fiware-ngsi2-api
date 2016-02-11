@@ -18,6 +18,7 @@
 package com.orange.ngsi2.server;
 
 import com.orange.ngsi2.exception.IncompatibleParameterException;
+import com.orange.ngsi2.exception.InvalidatedSyntaxException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.model.Error;
@@ -28,8 +29,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Controller for the NGSI v2 requests
@@ -41,9 +45,18 @@ public class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
     final public ResponseEntity<List<Entity>> getListEntities(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
+        Collection<String> itemsToValidate = new ArrayList<>();
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
+        if (id.isPresent())
+            itemsToValidate.add(id.get());
+        if (type.isPresent())
+            itemsToValidate.add(type.get());
+        if (attrs.isPresent()) {
+            itemsToValidate.add(attrs.get());
+        }
+        syntaxValidation(itemsToValidate);
         return new ResponseEntity<List<Entity>>(getEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
     }
 
@@ -67,11 +80,33 @@ public class Ngsi2BaseController {
         return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({InvalidatedSyntaxException.class})
+    public ResponseEntity<Object> invalidSyntax(InvalidatedSyntaxException exception) {
+        logger.error("Invalid syntax: {}", exception.getAffectedItems().toString());
+        Error error = new Error(exception.getError());
+        error.setDescription(Optional.of(exception.getDescription()));
+        error.setAffectedItems(Optional.of(exception.getAffectedItems()));
+        return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+    }
+
     /*
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
 
     protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
          throw new UnsupportedOperationException("List Entities");
+    }
+
+    private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {
+        Collection<String> affectedItems = new ArrayList<>();
+
+        items.forEach(s -> {
+            if ((s.length() > 256 ) || (!Pattern.matches("\\w_-,", s)) ) {
+                affectedItems.add(s);
+            }
+        });
+        if (!affectedItems.isEmpty()) {
+            throw new InvalidatedSyntaxException(affectedItems);
+        }
     }
 }

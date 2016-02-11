@@ -17,18 +17,23 @@
 
 package com.orange.ngsi2.exception;
 
-/**
- * Created by pascale on 09/02/2016.
- */
-public class UnsupportedOperationException extends Exception {
+import java.util.Collection;
 
-    private String error = "501";
+/**
+ * Created by pascale on 11/02/2016.
+ */
+public class InvalidatedSyntaxException extends Exception {
+
+    private String error = "400";
 
     private String description = null;
 
-    public UnsupportedOperationException(String operationName) {
+    private Collection<String> affectedItems;
+
+    public InvalidatedSyntaxException(Collection<String> affectedItems) {
         super("");
-        description = String.format("this operation '%s' is not implemented", operationName);
+        description = String.format("Syntax invalid");
+        this.affectedItems = affectedItems;
     }
 
     @Override
@@ -43,5 +48,8 @@ public class UnsupportedOperationException extends Exception {
     public String getDescription() {
         return description;
     }
-}
 
+    public Collection<String> getAffectedItems() {
+        return affectedItems;
+    }
+}
