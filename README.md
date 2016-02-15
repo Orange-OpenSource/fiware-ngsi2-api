@@ -1,6 +1,6 @@
 # FIWARE NGSI API
 
-[![Coverage Status](https://coveralls.io/repos/github/Orange-OpenSource/fiware-ngsi2-api/badge.svg?branch=master)](https://coveralls.io/github/Orange-OpenSource/fiware-ngsi2-api?branch=master)
+[![Build Status](https://travis-ci.org/Orange-OpenSource/fiware-ngsi2-api.svg?branch=master)](https://travis-ci.org/Orange-OpenSource/fiware-ngsi2-api) [![Coverage Status](https://coveralls.io/repos/github/Orange-OpenSource/fiware-ngsi2-api/badge.svg?branch=master)](https://coveralls.io/github/Orange-OpenSource/fiware-ngsi2-api?branch=master)
 
 This project is the library of the [NGSI v2 API](http://telefonicaid.github.io/fiware-orion/api/v2/)
 
