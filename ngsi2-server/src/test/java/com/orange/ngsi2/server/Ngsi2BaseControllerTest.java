@@ -17,6 +17,7 @@
 
 package com.orange.ngsi2.server;
 
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,10 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
+import sun.text.resources.ar.CollationData_ar;
+
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -83,6 +88,32 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value("Boe_Idearium?"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListTypeInvalidSyntax() throws Exception {
+        String p257times = IntStream.range(0, 257)
+                .mapToObj(x -> "p")
+                .collect(Collectors.joining());
+        mockMvc.perform(
+                get("/v2/i/entities").param("type", p257times).contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value(p257times))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListAttrsInvalidSyntax() throws Exception {
+        String  invalidAttrs = IntStream.range(0, 257)
+                .mapToObj(x -> "?")
+                .collect(Collectors.joining());
+        mockMvc.perform(
+                get("/v2/i/entities").param("attrs", invalidAttrs).contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value(invalidAttrs))
                 .andExpect(status().isBadRequest());
     }
 
