@@ -29,6 +29,6 @@ public class IncompatibleParameterExceptionTest {
     @Test
     public void checkProperties() {
         IncompatibleParameterException exception = new IncompatibleParameterException("id", "idPattern", "List entities");
-        assertEquals("The incoming request is invalid in this context. The parameter id is incompatible with idPattern in List entities operation.", exception.getMessage());
+        assertEquals("error: 400 | description: The incoming request is invalid in this context. The parameter id is incompatible with idPattern in List entities operation. | affectedItems: null", exception.getMessage());
     }
 }

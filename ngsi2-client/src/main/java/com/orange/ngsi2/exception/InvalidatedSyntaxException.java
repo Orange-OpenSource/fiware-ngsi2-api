@@ -20,36 +20,12 @@ package com.orange.ngsi2.exception;
 import java.util.Collection;
 
 /**
- * Created by pascale on 11/02/2016.
+ * 400 Invalid syntax
  */
-public class InvalidatedSyntaxException extends Exception {
-
-    private String error = "400";
-
-    private String description = null;
-
-    private Collection<String> affectedItems;
+public class InvalidatedSyntaxException extends Ngsi2Exception {
 
     public InvalidatedSyntaxException(Collection<String> affectedItems) {
-        super("");
-        description = String.format("Syntax invalid");
-        this.affectedItems = affectedItems;
+        super("400", "Syntax invalid", affectedItems);
     }
 
-    @Override
-    public String getMessage() {
-        return description;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public Collection<String> getAffectedItems() {
-        return affectedItems;
-    }
 }

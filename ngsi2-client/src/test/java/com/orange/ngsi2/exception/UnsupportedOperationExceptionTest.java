@@ -32,7 +32,7 @@ public class UnsupportedOperationExceptionTest {
     @Test
     public void checkProperties() {
         UnsupportedOperationException exception = new UnsupportedOperationException("List Entities");
-        assertEquals("this operation 'List Entities' is not implemented", exception.getMessage());
+        assertEquals("error: 501 | description: this operation 'List Entities' is not implemented | affectedItems: null", exception.getMessage());
     }
 
 }

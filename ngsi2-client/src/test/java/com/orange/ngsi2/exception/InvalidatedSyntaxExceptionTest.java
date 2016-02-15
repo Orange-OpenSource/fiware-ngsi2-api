@@ -15,7 +15,7 @@ public class InvalidatedSyntaxExceptionTest {
     @Test
     public void checkProperties() {
         InvalidatedSyntaxException exception = new InvalidatedSyntaxException(Collections.singleton("DC_S1-D41?"));
-        assertEquals("Syntax invalid", exception.getMessage());
+        assertEquals("error: 400 | description: Syntax invalid | affectedItems: [DC_S1-D41?]", exception.getMessage());
         assertEquals("400", exception.getError());
         assertEquals(1, exception.getAffectedItems().size());
         exception.getAffectedItems().forEach(s -> assertEquals("DC_S1-D41?", s));
