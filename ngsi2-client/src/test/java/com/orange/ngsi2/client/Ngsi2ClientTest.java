@@ -18,10 +18,14 @@
 package com.orange.ngsi2.client;
 
 import com.orange.ngsi2.Utils;
+import com.orange.ngsi2.exception.Ngsi2Exception;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
+import com.orange.ngsi2.model.Paginated;
 import org.junit.*;
 
+import org.junit.rules.ExpectedException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -30,6 +34,8 @@ import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
@@ -49,6 +55,9 @@ public class Ngsi2ClientTest {
 
     private Ngsi2Client ngsiClient;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     public Ngsi2ClientTest() {
         AsyncRestTemplate asyncRestTemplate = new AsyncRestTemplate();
         //asyncRestTemplate.setMessageConverters(Collections.singletonList(new MappingJackson2HttpMessageConverter(Utils.objectMapper)));
@@ -56,22 +65,26 @@ public class Ngsi2ClientTest {
         mockServer = MockRestServiceServer.createServer(asyncRestTemplate);
     }
 
-    @Test(expected = HttpServerErrorException.class)
+    @Test
     public void testGetV2_ServerError() throws Exception {
+        thrown.expect(Ngsi2Exception.class);
+        thrown.expectMessage("error: 500 | description: Internal Server Error | affectedItems: [item1, item2, item3]");
 
         mockServer.expect(requestTo(baseURL + "/v2"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withServerError());
+                .andRespond(withServerError().body(Utils.loadResource("json/error500Response.json")));
 
         ngsiClient.getV2().get();
     }
 
-    @Test(expected = HttpClientErrorException.class)
+    @Test
     public void testGetV2_ClientError() throws Exception {
+        thrown.expect(Ngsi2Exception.class);
+        thrown.expectMessage("error: 400 | description: Bad Request | affectedItems: null");
 
         mockServer.expect(requestTo(baseURL + "/v2"))
                 .andExpect(method(HttpMethod.GET))
-                .andRespond(withBadRequest());
+                .andRespond(withBadRequest().body(Utils.loadResource("json/error400Response.json")));
 
         ngsiClient.getV2().get();
     }
@@ -99,23 +112,62 @@ public class Ngsi2ClientTest {
     }
 
     @Test
-    public void testGetEntities_OK() throws Exception {
+    public void testGetEntities_Defaults() throws Exception {
 
         mockServer.expect(requestTo(baseURL + "/v2/entities"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
 
-        Entity[] entities = ngsiClient.getEntities(null, null, null, null, null, null, null, null, null, 0, 0).get();
-
-        assertEquals(3, entities.length);
-        assertNotNull(entities[0]);
-        assertNotNull(entities[1]);
-        assertNotNull(entities[2]);
-        assertEquals("DC_S1-D41", entities[0].getId());
-        assertEquals("Room", entities[0].getType());
-        assertEquals(35.6, entities[0].getAttributes().get("temperature").getValue());
+        Paginated<Entity> entities = ngsiClient.getEntities(null, null, null, null, 0, 0, false).get();
+        assertEquals(3, entities.getItems().size());
+        assertNotNull(entities.getItems().get(0));
+        assertNotNull(entities.getItems().get(1));
+        assertNotNull(entities.getItems().get(2));
+        assertEquals("DC_S1-D41", entities.getItems().get(0).getId());
+        assertEquals("Room", entities.getItems().get(0).getType());
+        assertEquals(35.6, entities.getItems().get(0).getAttributes().get("temperature").getValue());
+        assertEquals(0, entities.getOffset());
+        assertEquals(0, entities.getLimit());
+        assertEquals(0, entities.getTotal());
     }
 
+    @Test
+    public void testGetEntities_Paginated() throws Exception {
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("X-Total-Count", "12");
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities?offset=2&limit=10&options=count"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON)
+                        .headers(responseHeader));
+
+        Paginated<Entity> entities = ngsiClient.getEntities(null, null, null, null, 2, 10, true).get();
+        assertEquals(2, entities.getOffset());
+        assertEquals(10, entities.getLimit());
+        assertEquals(12, entities.getTotal());
+    }
+
+    @Test
+    public void testGetEntities_AllParams() throws Exception {
+
+        Collection<String> ids = Arrays.asList("room1", "house1");
+        Collection<String> idPatterns = Arrays.asList("room.*", "house.*");
+        Collection<String> types = Arrays.asList("Room", "House");
+        Collection<String> params = Arrays.asList("temp", "pressure", "humidity");
+        String query = "temp>10";
+        String georel = "GEOREL";
+        String geometry = "GEOMETRY";
+        String coords = "COORDS";
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities?id=room1,house1&idPattern=room.*,house.*&" +
+                "type=Room,House&attrs=temp,pressure,humidity&query=temp%253E10&georel=GEOREL&geometry=GEOMETRY&coords=COORDS&" +
+                "offset=2&limit=10"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
+
+        ngsiClient.getEntities(ids, idPatterns, types, params, query, georel, geometry, coords, 2, 10, false).get();
+    }
 
     @Test
     public void testAddEntity_OK() throws Exception {
@@ -131,6 +183,54 @@ public class Ngsi2ClientTest {
         Entity e = new Entity("DC_S1-D41", "Room", Collections.singletonMap("temperature", new Attribute(35.6)));
 
         ngsiClient.addEntity(e).get();
+    }
+
+    @Test
+    public void testUpdateEntity_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.temperature.value").value(35.6))
+                .andRespond(withNoContent());
+
+        ngsiClient.updateEntity("room1", Collections.singletonMap("temperature", new Attribute(35.6)), false).get();
+    }
+
+    @Test
+    public void testUpdateEntity_Append() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1?options=append"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.temperature.value").value(35.6))
+                .andRespond(withNoContent());
+
+        ngsiClient.updateEntity("room1", Collections.singletonMap("temperature", new Attribute(35.6)), true).get();
+    }
+
+    @Test
+    public void testReplaceEntity_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1"))
+                .andExpect(method(HttpMethod.PUT))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.temperature.value").value(35.6))
+                .andRespond(withNoContent());
+
+        Entity e = new Entity("DC_S1-D41", "Room", Collections.singletonMap("temperature", new Attribute(35.6)));
+
+        ngsiClient.replaceEntity("room1", Collections.singletonMap("temperature", new Attribute(35.6))).get();
+    }
+
+    @Test
+    public void testDeleteEntity_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withNoContent());
+
+        ngsiClient.deleteEntity("room1").get();
     }
 
 }
