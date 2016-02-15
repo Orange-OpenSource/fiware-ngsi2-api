@@ -23,12 +23,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/v2/i")
 public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
+    @Override
+    protected Map<String, String> getResources() throws Exception {
+        return Util.createListResourcesReference();
+    }
     @Override
     protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
         return Util.createListEntitiesReference();

@@ -63,6 +63,16 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListResourcesNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve API Resources' is not implemented"))
+                .andExpect(status().isNotImplemented());
+
+    }
+
+    @Test
     public void checkListEntitiesNotImplemented() throws Exception {
         mockMvc.perform(
                 get("/v2/ni/entities").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))

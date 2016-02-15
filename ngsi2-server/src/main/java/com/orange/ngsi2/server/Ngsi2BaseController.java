@@ -29,10 +29,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -41,6 +38,12 @@ import java.util.regex.Pattern;
 public class Ngsi2BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(Ngsi2BaseController.class);
+
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/"})
+    final public ResponseEntity<Map<String,String>> getListResources() throws Exception {
+        return new ResponseEntity<Map<String,String>>(getResources(), HttpStatus.OK);
+    }
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
@@ -95,6 +98,10 @@ public class Ngsi2BaseController {
 
     protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
          throw new UnsupportedOperationException("List Entities");
+    }
+
+    protected Map<String,String> getResources() throws Exception {
+        throw new UnsupportedOperationException("Retrieve API Resources");
     }
 
     private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {

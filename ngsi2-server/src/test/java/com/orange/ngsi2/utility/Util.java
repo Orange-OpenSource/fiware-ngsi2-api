@@ -30,6 +30,17 @@ import java.util.*;
  */
 public class Util {
 
+    static public Map<String, String> createListResourcesReference() {
+        HashMap<String, String> resources = new HashMap<>();
+
+        resources.put("entities_url", "/v2/entities");
+        resources.put("types_url", "/v2/types");
+        resources.put("subscriptions_url", "/v2/subscriptions");
+        resources.put("registrations_url", "/v2/registrations");
+
+        return resources;
+    }
+
     static public List<Entity> createListEntitiesReference() {
 
         List<Entity> entities = new ArrayList<Entity>();
