@@ -1,0 +1,29 @@
+sudo: false
+language: java
+jdk:
+- oraclejdk8
+script: mvn test jacoco:report coveralls:report -q
+deploy:
+  - provider: script
+    script: mvn deploy -q -settings=settings.xml -DskipTests=true
+    skip_cleanup: true
+    on:
+        branch: master
+notifications:
+    webhooks: http://lametric-dev.kermit.orange-labs.fr/travis
+cache:
+  directories:
+    - $HOME/.m2
+env:
+  global:
+  # SONATYPE_USER, SONTAYPE_PASSWORD
+  - secure: "z9mRnyfsJbEhsMbkHoMh1yNZkq8u8bTDYfB5JZY2/zmijmOS7X10MF1oDovyfkGQ358eUBvy0vuksrdjGLiKGdkLVgqi05BtIOy+C3wxXGUpDj1cBSZ632jWbRub2stVs+SUiBHqMAXUlesy0+g3lqFl0XecLXpXRREREJWKmVrYPMzsbheOKaoeLniTXSkEz954imQrOyOhMpSX5awz3yZV1t3EUcGssR5rs3O1fB/5pJaR/yTp8Sb9ZSbScDi7XatSIyp5oHgqvl9ctD8OHQx5HkNYH2sewuFlQYD8NOZ0LMdJr84X06TPbkFafo4oVM3PU1dOnHYeBH+E9tSa5x9hspClE7fPyQilNKi3NJUDn1IjQNOnQjqjPTue60hLBqOQgXASjqS/QbdK2S5NsB9exqOoM5mXMiAVC9JIm/0tlhf7TgnhQqXzGBVsEtxCIGHQokUDUwvgMWlYXFoTKwaQxDX9uGwyfSsHg5HxlE+DtsQw6AG0Re+S2+G9QCMpEiF5AblItPNt+azYppsVAF38qdrN5uxwC5ewMoDIXKmqiwLi0v509T/u9uYcovWiYfv16rZHX3NhtHd2wTjDIp36Q2txrYil3XbHhxEoj36W8zavvZ1+mVkWHZBMyhpv1IPO1XtPryKZhtFlJZBOgYBELBemhbLnotuNWO14K0A="
+  - secure: "KgP6A/UVMUtbsSBjHDpQCowE78bG+KCwAgOiVaHZA5og7fAfJ4MwiQiujmO3lSMhxU2S46xuI1U+fhflBjvK9ynmnw054nxCtZG+Kn+/5vPnAeM61UmXDwvJlOiEDuF6emDZr5Ldy9hreE1Xja48BeQSa3f+v9Jm2cBrsfma8OwgQT7pBfDQuNSsHcqWZBULG142R0XxzxT9t14m64+dGsDXx9IQG5GYKQgPE4ITdgHZ2jYz+a8gvX/4Q0UgmqYb8QUi7qb+ZQwVoSxxtaXgw6haZe7a/CWfH7I1j+vRB5gNmfgVC+NqcutaBaf8pM5gkyEJpwenmZeTLaBNbvLAuNaPcGab7w2OxihfrpgvH1Zt7wSuwQSXiwUfBFsv+VT7Uf0hN7geCft5xOlZu+28qOhVJS8N7i6HvfEGWPKQOnNOoJNIP2aQnyM4qnvLs9zXxUtIZtut+nF0qOOmwPnvrGPXo+lEZ++HvULastbxQ0u5vzoYJyq9EvVhvMCkTVnybTfY1h6dIE4kE8OP3xpFb8oSHjP5NtErs3/xuuMdXuNRrO8Cgp2Ux67uriDYRBb01FYAQyhPtIYM96Gc+mBb08vQCTxcPUWnmNzebax/2Sd+MJ36c5V+k3/ANSLtu1YcKn8BcDtIH1zkmvAYSF2o8OD66AEfGqflOyEv8r6NaXU="
+addons:
+    coverity_scan:
+      project:
+        name: "Orange-OpenSource/fiware-ngsi2-api"
+      notification_email: pascale.borscia@orange.com
+      build_command_prepend: "mvn clean"
+      build_command:   "mvn -DskipTests=true compile"
+      branch_pattern: coverity_scan
