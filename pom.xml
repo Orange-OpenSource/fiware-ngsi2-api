@@ -126,6 +126,15 @@
                     <artifactId>jacoco-maven-plugin</artifactId>
                     <version>0.7.5.201505241946</version>
                 </plugin>
+                <plugin>
+                    <groupId>org.eluder.coveralls</groupId>
+                    <artifactId>coveralls-maven-plugin</artifactId>
+                    <version>4.1.0</version>
+                    <configuration>
+                        <repoToken>siwLOTjNMWEOSW2LP9zov12M4q06zpnpb</repoToken>
+                        <sourceEncoding>UTF-8</sourceEncoding>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
