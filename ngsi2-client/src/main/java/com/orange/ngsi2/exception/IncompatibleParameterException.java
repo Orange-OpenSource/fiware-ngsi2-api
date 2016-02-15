@@ -18,30 +18,15 @@
 package com.orange.ngsi2.exception;
 
 /**
- * Created by pascale on 10/02/2016.
+ * 400 Incompatible parameter
  */
 
-public class IncompatibleParameterException extends Exception {
+public class IncompatibleParameterException extends Ngsi2Exception {
 
-    private String error = "400";
-
-    private String description = null;
+    private final static String message = "The incoming request is invalid in this context. The parameter %s is incompatible with %s in %s operation.";
 
     public IncompatibleParameterException(String param1, String param2, String operationName) {
-        super("");
-        description = String.format("The incoming request is invalid in this context. The parameter %s is incompatible with %s in %s operation.", param1, param2, operationName);
+        super("400", String.format(message, param1, param2, operationName), null);
     }
 
-    @Override
-    public String getMessage() {
-        return description;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

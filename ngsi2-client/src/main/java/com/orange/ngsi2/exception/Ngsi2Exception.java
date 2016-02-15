@@ -1,11 +1,16 @@
 package com.orange.ngsi2.exception;
 
+import com.orange.ngsi2.model.Error;
+
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.concurrent.ExecutionException;
 
 /**
- * Created by pascale on 10/02/2016.
+ * Root exception for all NGSIv2 errors
  */
-public class Ngsi2Exception extends Exception {
+public class Ngsi2Exception extends RuntimeException {
 
     private String error;
 
@@ -13,16 +18,26 @@ public class Ngsi2Exception extends Exception {
 
     private Collection<String> affectedItems;
 
+    public Ngsi2Exception(Error error) {
+        this(error.getError(), error.getDescription().orElse(""), error.getAffectedItems().orElse(Collections.emptyList()));
+    }
+
     public Ngsi2Exception(String error, String description, Collection<String> affectedItems) {
-        super("");
+        super(String.format("error: %s | description: %s | affectedItems: %s", error, description, affectedItems));
         this.error = error;
         this.description = description;
         this.affectedItems = affectedItems;
     }
 
-    @Override
-    public String getMessage() {
-        return "error: " + error + " | description: " + description + " | affectedItems: " + affectedItems;
+    public String getError() {
+        return error;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public Collection<String> getAffectedItems() {
+        return affectedItems;
+    }
 }

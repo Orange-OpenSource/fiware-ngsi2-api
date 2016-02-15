@@ -18,30 +18,13 @@
 package com.orange.ngsi2.exception;
 
 /**
- * Created by pascale on 09/02/2016.
+ * 501 Unsupported operation
  */
-public class UnsupportedOperationException extends Exception {
+public class UnsupportedOperationException extends Ngsi2Exception {
 
-    private String error = "501";
-
-    private String description = null;
+    private final static String message = "this operation '%s' is not implemented";
 
     public UnsupportedOperationException(String operationName) {
-        super("");
-        description = String.format("this operation '%s' is not implemented", operationName);
-    }
-
-    @Override
-    public String getMessage() {
-        return description;
-    }
-
-    public String getError() {
-        return error;
-    }
-
-    public String getDescription() {
-        return description;
+        super("501", String.format(message, operationName), null);
     }
 }
-
