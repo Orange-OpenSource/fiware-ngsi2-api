@@ -30,10 +30,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.orange.ngsi2.utility.Utils.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -140,10 +144,46 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkCreateEntityFake() throws Exception {
         mockMvc.perform(
-                post("/v2/i/entities").content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)
+                post("/v2/i/entities").content(json(jsonV2Converter, createEntityBcnWelt())).content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(header().string("Location","/v2/entities/Bcn-Welt"))
                 .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void checkGetEntityByEntityIdNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'List Entities' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkGetEntityByEntityIdConflictingEntities() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("409"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Bcn-Welt used in the request. Instead of, you can use GET /v2/entities?id=Bcn-Welt"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void checkPattern() {
+        assertTrue(Pattern.matches("\\w*", "bcnwelt"));
+        assertTrue(Pattern.matches("\\w*", "BcnWelt"));
+        assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
+        assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));
+        String p257times = IntStream.range(0, 257)
+                .mapToObj(x -> "p")
+                .collect(Collectors.joining());
+        assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", p257times));
+        String invalid256times = IntStream.range(0, 256)
+                .mapToObj(x -> "?")
+                .collect(Collectors.joining());
+        assertFalse(Pattern.matches("[a-zA-Z0-9_,-]{256}", invalid256times));
     }
 
 }

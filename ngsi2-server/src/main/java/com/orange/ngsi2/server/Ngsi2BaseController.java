@@ -17,6 +17,7 @@
 
 package com.orange.ngsi2.server;
 
+import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.IncompatibleParameterException;
 import com.orange.ngsi2.exception.InvalidatedSyntaxException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
@@ -31,6 +32,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -40,6 +42,8 @@ import java.util.regex.Pattern;
 public class Ngsi2BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(Ngsi2BaseController.class);
+
+    Pattern p = Pattern.compile("[a-zA-Z0-9_,-]*");
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/"})
@@ -74,6 +78,27 @@ public class Ngsi2BaseController {
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/entities/{entityId}"})
+    final public ResponseEntity<Entity> getEntity(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
+        Collection<String> itemsToValidate = new ArrayList<>();
+        itemsToValidate.add(entityId);
+        if (attrs.isPresent()) {
+            itemsToValidate.add(attrs.get());
+        }
+        syntaxValidation(itemsToValidate);
+        List<Entity> entities = getEntities(Optional.of(entityId), null, null, null, null, attrs);
+        if (entities.size() > 1 ) {
+            StringBuilder url = new StringBuilder("GET /v2/entities?id=");
+            url.append(entityId);
+            if (attrs.isPresent()) {
+                url.append("&");
+                url.append(attrs);
+            }
+            throw new ConflictingEntitiesException(entityId, url.toString());
+        }
+        return new ResponseEntity<Entity>(entities.get(0), HttpStatus.OK);
+    }
     /*
      * Exception handling
      */
@@ -103,6 +128,14 @@ public class Ngsi2BaseController {
         return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler({ConflictingEntitiesException.class})
+    public ResponseEntity<Object> conflictingEntities(ConflictingEntitiesException exception) {
+        logger.error("ConflictingEntities: {}", exception.getMessage());
+        Error error = new Error(exception.getError());
+        error.setDescription(Optional.of(exception.getDescription()));
+        return new ResponseEntity<Object>(error, HttpStatus.CONFLICT);
+    }
+
     /*
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
@@ -123,7 +156,7 @@ public class Ngsi2BaseController {
         Collection<String> affectedItems = new ArrayList<>();
 
         items.forEach(s -> {
-            if ((s.length() > 256 ) || (!Pattern.matches("\\w_-,", s)) ) {
+            if (( s.length() > 256) || (!p.matcher(s).matches()))  {
                 affectedItems.add(s);
             }
         });
