@@ -81,6 +81,29 @@ public class Utils {
         return EntityBcnWelt;
     }
 
+    static public List<Entity> createListEntitiesConflictingReference() {
+
+        List<Entity> entities = new ArrayList<Entity>();
+
+        Entity entityRoomA = new Entity("Boe-Idearium", "RoomA");
+        entityRoomA.setAttributes("temperature", new Attribute(35.6));
+        entities.add(entityRoomA);
+
+        Entity entityRoomB = new Entity("Boe-Idearium", "RoomB");
+        entityRoomB.setAttributes("temperature", new Attribute(22.5));
+        entities.add(entityRoomB);
+
+        return entities;
+    }
+
+    static public HashMap<String, Attribute> createUpdateAttributesReference() {
+
+        HashMap<String, Attribute> attributes = new HashMap<>();
+        Attribute noiseAttribut = new Attribute(31.5);
+        attributes.put("ambientNoise", noiseAttribut);
+        return attributes;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);

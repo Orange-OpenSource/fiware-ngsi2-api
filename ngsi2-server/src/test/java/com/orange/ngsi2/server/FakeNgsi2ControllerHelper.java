@@ -17,14 +17,13 @@
 
 package com.orange.ngsi2.server;
 
+import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.utility.Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/v2/i")
@@ -37,12 +36,18 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
-        return Utils.createListEntitiesReference();
+        if (id.isPresent() && id.get().equals("Bcn-Welt")) {
+            return Collections.singletonList(Utils.createEntityBcnWelt());
+        }
+        return Utils.createListEntitiesConflictingReference();
     }
 
     @Override
     protected String createEntity(Entity entity){
         return "Bcn-Welt";
     }
+
+    @Override
+    protected void updateEntity(String entityId, HashMap<String, Attribute> attributes){ }
 
 }

@@ -35,11 +35,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.orange.ngsi2.utility.Utils.*;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
@@ -163,17 +163,69 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkGetEntityByEntityIdConflictingEntities() throws Exception {
         mockMvc.perform(
-                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/entities/Boe-Idearium").param("attrs", "temperature").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("409"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Bcn-Welt used in the request. Instead of, you can use GET /v2/entities?id=Bcn-Welt"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use GET /v2/entities?id=Boe-Idearium&attrs=temperature"))
                 .andExpect(status().isConflict());
     }
 
     @Test
+    public void checkGetEntityByEntityIdInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn%Welt").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value("Bcn%Welt"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkGetEntityByEntityIdOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type").value("Room"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("Bcn-Welt"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkUpdateEntityIdNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Entity' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkUpdateEntityIdInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/entities/Bcn%Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value("Bcn%Welt"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkUpdateEntityIdOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     public void checkPattern() {
-        assertTrue(Pattern.matches("\\w*", "bcnwelt"));
-        assertTrue(Pattern.matches("\\w*", "BcnWelt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));
         String p257times = IntStream.range(0, 257)
@@ -183,7 +235,7 @@ public class Ngsi2BaseControllerTest {
         String invalid256times = IntStream.range(0, 256)
                 .mapToObj(x -> "?")
                 .collect(Collectors.joining());
-        assertFalse(Pattern.matches("[a-zA-Z0-9_,-]{256}", invalid256times));
+        assertFalse(Pattern.matches("[a-zA-Z0-9_,-]*", invalid256times));
     }
 
 }

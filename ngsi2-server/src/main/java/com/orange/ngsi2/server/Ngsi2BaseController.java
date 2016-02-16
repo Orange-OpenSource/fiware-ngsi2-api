@@ -21,6 +21,7 @@ import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.IncompatibleParameterException;
 import com.orange.ngsi2.exception.InvalidatedSyntaxException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
+import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.model.Error;
 import org.slf4j.Logger;
@@ -32,7 +33,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -92,13 +92,24 @@ public class Ngsi2BaseController {
             StringBuilder url = new StringBuilder("GET /v2/entities?id=");
             url.append(entityId);
             if (attrs.isPresent()) {
-                url.append("&");
-                url.append(attrs);
+                url.append("&attrs=");
+                url.append(attrs.get());
             }
             throw new ConflictingEntitiesException(entityId, url.toString());
         }
         return new ResponseEntity<Entity>(entities.get(0), HttpStatus.OK);
     }
+
+    @RequestMapping(method = RequestMethod.POST,
+            value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity updateOrAppendEntity(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+        Collection<String> itemsToValidate = new ArrayList<>();
+        itemsToValidate.add(entityId);
+        syntaxValidation(itemsToValidate);
+        updateEntity(entityId, attributes);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     /*
      * Exception handling
      */
@@ -150,6 +161,10 @@ public class Ngsi2BaseController {
 
     protected String createEntity(Entity entity){
         throw new UnsupportedOperationException("Create Entity");
+    }
+
+    protected void updateEntity(String entityId, HashMap<String, Attribute> attributes){
+        throw new UnsupportedOperationException("Update Entity");
     }
 
     private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {
