@@ -20,7 +20,11 @@ package com.orange.ngsi2.utility;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.model.Metadata;
+import org.springframework.http.MediaType;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.mock.http.MockHttpOutputMessage;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -28,7 +32,7 @@ import java.util.*;
 /**
  * Helpers for tests
  */
-public class Util {
+public class Utils {
 
     static public Map<String, String> createListResourcesReference() {
         HashMap<String, String> resources = new HashMap<>();
@@ -67,5 +71,19 @@ public class Util {
         entities.add(entityCar);
 
         return entities;
+    }
+
+    static public Entity createEntityBcnWelt() {
+
+        Entity EntityBcnWelt = new Entity("Bcn-Welt", "Room");
+        EntityBcnWelt.setAttributes("temperature", new Attribute(21.7));
+        EntityBcnWelt.setAttributes("humidity", new Attribute(60));
+        return EntityBcnWelt;
+    }
+
+    static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
+        MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
+        mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
+        return mockHttpOutputMessage.getBodyAsString();
     }
 }

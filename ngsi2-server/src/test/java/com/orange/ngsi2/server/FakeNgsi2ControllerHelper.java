@@ -18,7 +18,7 @@
 package com.orange.ngsi2.server;
 
 import com.orange.ngsi2.model.Entity;
-import com.orange.ngsi2.utility.Util;
+import com.orange.ngsi2.utility.Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,11 +32,17 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected Map<String, String> getResources() throws Exception {
-        return Util.createListResourcesReference();
+        return Utils.createListResourcesReference();
     }
+
     @Override
     protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
-        return Util.createListEntitiesReference();
+        return Utils.createListEntitiesReference();
+    }
+
+    @Override
+    protected String createEntity(Entity entity){
+        return "Bcn-Welt";
     }
 
 }

@@ -17,26 +17,26 @@
 
 package com.orange.ngsi2.server;
 
-import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.context.WebApplicationContext;
-import sun.text.resources.ar.CollationData_ar;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.orange.ngsi2.utility.Utils.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -125,6 +125,25 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value(invalidAttrs))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkCreateEntityNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/entities").content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Create Entity' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkCreateEntityFake() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/entities").content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(header().string("Location","/v2/entities/Bcn-Welt"))
+                .andExpect(status().isCreated());
     }
 
 }
