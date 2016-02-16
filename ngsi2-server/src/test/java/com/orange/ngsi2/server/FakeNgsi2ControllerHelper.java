@@ -54,5 +54,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected void updateExistingAttributes(String entityId, HashMap<String, Attribute> attributes){ }
 
+    @Override
+    protected void replaceAllExistingAttributes(String entityId, HashMap<String, Attribute> attributes){ }
 
 }

@@ -54,51 +54,33 @@ public class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
     final public ResponseEntity<List<Entity>> getListEntities(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
-        Collection<String> itemsToValidate = new ArrayList<>();
+
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
-        if (id.isPresent())
-            itemsToValidate.add(id.get());
-        if (type.isPresent())
-            itemsToValidate.add(type.get());
-        if (attrs.isPresent()) {
-            itemsToValidate.add(attrs.get());
-        }
-        syntaxValidation(itemsToValidate);
+        checkSyntax(id, type, attrs);
+
         return new ResponseEntity<List<Entity>>(getEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/entities", consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity postEntity(@RequestBody Entity entity) {
-        Collection<String> itemsToValidate = new ArrayList<>();
-        if (entity.getId() != null) {
-            itemsToValidate.add(entity.getId());
-        }
-        if (entity.getType() != null ) {
-            itemsToValidate.add(entity.getType());
-        }
-        if (entity.getAttributes() != null) {
-            itemsToValidate.addAll(entity.getAttributes().keySet());
-        }
-        syntaxValidation(itemsToValidate);
+
+        checkSyntax(entity);
         StringBuilder location = new StringBuilder("/v2/entities/");
         location.append(createEntity(entity));
         HttpHeaders headers = new HttpHeaders();
         headers.put("Location", Collections.singletonList(location.toString()));
+
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities/{entityId}"})
     final public ResponseEntity<Entity> getEntity(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
-        Collection<String> itemsToValidate = new ArrayList<>();
-        itemsToValidate.add(entityId);
-        if (attrs.isPresent()) {
-            itemsToValidate.add(attrs.get());
-        }
-        syntaxValidation(itemsToValidate);
-        List<Entity> entities = getEntities(Optional.of(entityId), null, null, null, null, attrs);
+
+        checkSyntax(Optional.of(entityId), Optional.empty(), attrs);
+        List<Entity> entities = getEntities(Optional.of(entityId), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), attrs);
         if (entities.size() > 1 ) {
             StringBuilder url = new StringBuilder("GET /v2/entities?id=");
             url.append(entityId);
@@ -114,21 +96,22 @@ public class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateOrAppendEntity(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
-        Collection<String> itemsToValidate = new ArrayList<>();
-        itemsToValidate.add(entityId);
-        itemsToValidate.addAll(attributes.keySet());
-        syntaxValidation(itemsToValidate);
+        checkSyntax(entityId, attributes);
         updateEntity(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
-        Collection<String> itemsToValidate = new ArrayList<>();
-        itemsToValidate.add(entityId);
-        itemsToValidate.addAll(attributes.keySet());
-        syntaxValidation(itemsToValidate);
+        checkSyntax(entityId, attributes);
         updateExistingAttributes(entityId, attributes);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(method = RequestMethod.PUT, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity replaceExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+        checkSyntax(entityId, attributes);
+        replaceAllExistingAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -193,6 +176,10 @@ public class Ngsi2BaseController {
         throw new UnsupportedOperationException("Update Existing Attributes");
     }
 
+    protected void replaceAllExistingAttributes(String entityId, HashMap<String, Attribute> attributes){
+        throw new UnsupportedOperationException("Replace All Existing Attributes");
+    }
+
     private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {
         Collection<String> affectedItems = new ArrayList<>();
 
@@ -204,5 +191,39 @@ public class Ngsi2BaseController {
         if (!affectedItems.isEmpty()) {
             throw new InvalidatedSyntaxException(affectedItems);
         }
+    }
+
+    private void checkSyntax(Optional<String> id, Optional<String> type, Optional<String> attrs) {
+        Collection<String> itemsToValidate = new ArrayList<>();
+
+        if (id.isPresent())
+            itemsToValidate.add(id.get());
+        if (type.isPresent())
+            itemsToValidate.add(type.get());
+        if (attrs.isPresent()) {
+            itemsToValidate.add(attrs.get());
+        }
+        syntaxValidation(itemsToValidate);
+    }
+
+    private void checkSyntax(Entity entity) {
+        Collection<String> itemsToValidate = new ArrayList<>();
+        if (entity.getId() != null) {
+            itemsToValidate.add(entity.getId());
+        }
+        if (entity.getType() != null ) {
+            itemsToValidate.add(entity.getType());
+        }
+        if (entity.getAttributes() != null) {
+            itemsToValidate.addAll(entity.getAttributes().keySet());
+        }
+        syntaxValidation(itemsToValidate);
+    }
+
+    private void checkSyntax( String entityId, HashMap<String, Attribute> attributes) {
+        Collection<String> itemsToValidate = new ArrayList<>();
+        itemsToValidate.add(entityId);
+        itemsToValidate.addAll(attributes.keySet());
+        syntaxValidation(itemsToValidate);
     }
 }

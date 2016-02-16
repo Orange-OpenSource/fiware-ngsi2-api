@@ -104,6 +104,14 @@ public class Utils {
         return attributes;
     }
 
+    static public HashMap<String, Attribute> createUpdateAttributesWithBadSyntax() {
+
+        HashMap<String, Attribute> attributes = new HashMap<>();
+        Attribute noiseAttribut = new Attribute(31.5);
+        attributes.put("ambient%Noise", noiseAttribut);
+        return attributes;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
