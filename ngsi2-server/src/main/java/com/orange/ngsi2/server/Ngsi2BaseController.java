@@ -71,6 +71,17 @@ public class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.POST, value = "/entities", consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity postEntity(@RequestBody Entity entity) {
+        Collection<String> itemsToValidate = new ArrayList<>();
+        if (entity.getId() != null) {
+            itemsToValidate.add(entity.getId());
+        }
+        if (entity.getType() != null ) {
+            itemsToValidate.add(entity.getType());
+        }
+        if (entity.getAttributes() != null) {
+            itemsToValidate.addAll(entity.getAttributes().keySet());
+        }
+        syntaxValidation(itemsToValidate);
         StringBuilder location = new StringBuilder("/v2/entities/");
         location.append(createEntity(entity));
         HttpHeaders headers = new HttpHeaders();
@@ -105,8 +116,19 @@ public class Ngsi2BaseController {
     final public ResponseEntity updateOrAppendEntity(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
         Collection<String> itemsToValidate = new ArrayList<>();
         itemsToValidate.add(entityId);
+        itemsToValidate.addAll(attributes.keySet());
         syntaxValidation(itemsToValidate);
         updateEntity(entityId, attributes);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity updateExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+        Collection<String> itemsToValidate = new ArrayList<>();
+        itemsToValidate.add(entityId);
+        itemsToValidate.addAll(attributes.keySet());
+        syntaxValidation(itemsToValidate);
+        updateExistingAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -165,6 +187,10 @@ public class Ngsi2BaseController {
 
     protected void updateEntity(String entityId, HashMap<String, Attribute> attributes){
         throw new UnsupportedOperationException("Update Entity");
+    }
+
+    protected void updateExistingAttributes(String entityId, HashMap<String, Attribute> attributes){
+        throw new UnsupportedOperationException("Update Existing Attributes");
     }
 
     private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {

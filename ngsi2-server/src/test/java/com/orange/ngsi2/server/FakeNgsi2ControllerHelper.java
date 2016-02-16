@@ -17,6 +17,7 @@
 
 package com.orange.ngsi2.server;
 
+import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.utility.Utils;
@@ -49,5 +50,9 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected void updateEntity(String entityId, HashMap<String, Attribute> attributes){ }
+
+    @Override
+    protected void updateExistingAttributes(String entityId, HashMap<String, Attribute> attributes){ }
+
 
 }
