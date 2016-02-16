@@ -115,6 +115,14 @@ public class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}"})
+    final public ResponseEntity deleteEntity(@PathVariable String entityId) throws Exception {
+        checkSyntax(entityId, null);
+        removeEntity(entityId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+
     /*
      * Exception handling
      */
@@ -180,6 +188,10 @@ public class Ngsi2BaseController {
         throw new UnsupportedOperationException("Replace All Existing Attributes");
     }
 
+    protected void removeEntity(String entityId){
+        throw new UnsupportedOperationException("Remove Entity");
+    }
+
     private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {
         Collection<String> affectedItems = new ArrayList<>();
 
@@ -223,7 +235,9 @@ public class Ngsi2BaseController {
     private void checkSyntax( String entityId, HashMap<String, Attribute> attributes) {
         Collection<String> itemsToValidate = new ArrayList<>();
         itemsToValidate.add(entityId);
-        itemsToValidate.addAll(attributes.keySet());
+        if (attributes != null) {
+            itemsToValidate.addAll(attributes.keySet());
+        }
         syntaxValidation(itemsToValidate);
     }
 }

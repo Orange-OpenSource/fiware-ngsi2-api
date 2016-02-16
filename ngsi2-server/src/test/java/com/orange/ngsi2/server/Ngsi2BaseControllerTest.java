@@ -290,6 +290,39 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkRemoveEntityNotImplemented() throws Exception {
+        mockMvc.perform(
+                delete("/v2/ni/entities/Bcn-Welt")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Remove Entity' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRemoveEntityInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                delete("/v2/i/entities/Bcn%Welt")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Syntax invalid"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.affectedItems").value("Bcn%Welt"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkRemoveEntityOK() throws Exception {
+        mockMvc.perform(
+                delete("/v2/i/entities/Bcn-Welt")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));
