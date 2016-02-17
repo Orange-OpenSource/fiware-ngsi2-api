@@ -149,17 +149,17 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkGetEntityByEntityIdNotImplemented() throws Exception {
+    public void checkRetrieveEntityNotImplemented() throws Exception {
         mockMvc.perform(
                 get("/v2/ni/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'List Entities' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve Entity' is not implemented"))
                 .andExpect(status().isNotImplemented());
     }
 
     @Test
-    public void checkGetEntityByEntityIdConflictingEntities() throws Exception {
+    public void checkRetrieveEntityConflictingEntities() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities/Boe-Idearium").param("attrs", "temperature").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
@@ -169,7 +169,7 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkGetEntityByEntityIdInvalidSyntax() throws Exception {
+    public void checkRetrieveEntityInvalidSyntax() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities/Bcn%Welt").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
@@ -179,7 +179,7 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkGetEntityByEntityIdOK() throws Exception {
+    public void checkRetrieveEntityOK() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))

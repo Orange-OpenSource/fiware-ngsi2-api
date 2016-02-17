@@ -79,17 +79,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
 
         validateSyntax(Optional.of(entityId), Optional.empty(), attrs);
-        List<Entity> entities = listEntities(Optional.of(entityId), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), attrs);
-        if (entities.size() > 1 ) {
-            StringBuilder url = new StringBuilder("GET /v2/entities?id=");
-            url.append(entityId);
-            if (attrs.isPresent()) {
-                url.append("&attrs=");
-                url.append(attrs.get());
-            }
-            throw new ConflictingEntitiesException(entityId, url.toString());
-        }
-        return new ResponseEntity<Entity>(entities.get(0), HttpStatus.OK);
+        return new ResponseEntity<Entity>(retrieveEntity(entityId, attrs), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST,
@@ -178,15 +168,19 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Create Entity");
     }
 
-    protected void updateOrAppendEntity(String entityId, HashMap<String, Attribute> attributes){
+    protected Entity retrieveEntity(String entityId, Optional<String> attrs) throws ConflictingEntitiesException {
+        throw new UnsupportedOperationException("Retrieve Entity");
+    }
+
+    protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Update Or Append Entity");
     }
 
-    protected void updateExistingEntityAttributes(String entityId, HashMap<String, Attribute> attributes){
+    protected void updateExistingEntityAttributes(String entityId, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Update Existing Entity Attributes");
     }
 
-    protected void replaceAllEntityAttributes(String entityId, HashMap<String, Attribute> attributes){
+    protected void replaceAllEntityAttributes(String entityId, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Replace All Entity Attributes");
     }
 

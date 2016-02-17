@@ -17,6 +17,7 @@
 
 package com.orange.ngsi2.server;
 
+import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
@@ -49,13 +50,21 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected void updateOrAppendEntity(String entityId, HashMap<String, Attribute> attributes){ }
+    protected Entity retrieveEntity(String entityId, Optional<String> attrs) throws ConflictingEntitiesException {
+        if (entityId.equals("Bcn-Welt")) {
+            return Utils.createEntityBcnWelt();
+        }
+        throw new ConflictingEntitiesException("Boe-Idearium", "GET /v2/entities?id=Boe-Idearium&attrs=temperature");
+    }
 
     @Override
-    protected void updateExistingEntityAttributes(String entityId, HashMap<String, Attribute> attributes){ }
+    protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes){ }
 
     @Override
-    protected void replaceAllEntityAttributes(String entityId, HashMap<String, Attribute> attributes){ }
+    protected void updateExistingEntityAttributes(String entityId, Map<String, Attribute> attributes){ }
+
+    @Override
+    protected void replaceAllEntityAttributes(String entityId, Map<String, Attribute> attributes){ }
 
     @Override
     protected void removeEntity(String entityId){ }
