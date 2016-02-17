@@ -32,7 +32,7 @@ import java.util.*;
 public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
-    protected Map<String, String> getResources() throws Exception {
+    protected Map<String, String> listResources() throws Exception {
         return Utils.createListResourcesReference();
     }
 

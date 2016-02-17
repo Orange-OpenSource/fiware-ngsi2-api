@@ -44,14 +44,30 @@ public abstract class Ngsi2BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(Ngsi2BaseController.class);
 
-    private static Pattern fieldPattern = Pattern.compile("[a-zA-Z0-9_,-]*");
+    private static Pattern fieldPattern = Pattern.compile("[a-zA-Z0-9_-]*");
 
+    /**
+     * Endpoint get /v2
+     * @return the list of supported operations under /v2 and http status 200 (ok)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/"})
-    final public ResponseEntity<Map<String,String>> getListResources() throws Exception {
-        return new ResponseEntity<Map<String,String>>(getResources(), HttpStatus.OK);
+    final public ResponseEntity<Map<String,String>> listResourcesEndpoint() throws Exception {
+        return new ResponseEntity<Map<String,String>>(listResources(), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint get /v2/entities
+     * @param id an optional list of entity IDs separated by comma (cannot be used with idPatterns)
+     * @param type an optional list of types of entity separated by comma
+     * @param idPattern a optional pattern of entity IDs (cannot be used with ids)
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param attrs an optional list of attributes separated by comma to return for all entities
+     * @return a list of Entities http status 200 (ok)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
     final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
@@ -63,6 +79,11 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<List<Entity>>(listEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint post /v2/entities
+     * @param entity
+     * @return http status 201 (created) and location header /v2/entities/{entityId}
+     */
     @RequestMapping(method = RequestMethod.POST, value = "/entities", consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity createEntityEndpoint(@RequestBody Entity entity) {
 
@@ -71,6 +92,13 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(locationHeader(entity.getId()), HttpStatus.CREATED);
     }
 
+    /**
+     * Endpoint get /v2/entities/{entityId}
+     * @param entityId the entity ID
+     * @param attrs an optional list of attributes to return for the entity
+     * @return the entity and http status 200 (ok) or 409 (conflict)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities/{entityId}"})
     final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
@@ -79,6 +107,13 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<Entity>(retrieveEntity(entityId, attrs), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint post /v2/entities/{entityId}
+     * @param entityId the entity ID
+     * @param attributes the attributes to update or to append
+     * @return http status 201 (created)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateOrAppendEntityEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
@@ -88,6 +123,13 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint patch /v2/entities/{entityId}
+     * @param entityId the entity ID
+     * @param attributes the attributes to update
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateExistingEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
 
@@ -96,6 +138,13 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint put /v2/entities/{entityId}
+     * @param entityId the entity ID
+     * @param attributes the new set of attributes
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.PUT, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity replaceAllEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
 
@@ -104,6 +153,12 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint delete /v2/entities/{entityId}
+     * @param entityId the entity ID
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
     @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}"})
     final public ResponseEntity removeEntityEndpoint(@PathVariable String entityId) throws Exception {
 
@@ -153,34 +208,81 @@ public abstract class Ngsi2BaseController {
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
 
+    /**
+     * Retrieve a list of Entities which match different criteria
+     * @param ids an optional list of entity IDs (cannot be used with idPatterns)
+     * @param types an optional list of types of entity
+     * @param idPattern a optional pattern of entity IDs (cannot be used with ids)
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param attrs an optional list of attributes to return for all entities
+     * @return a list of Entities
+     * @throws Exception
+     */
     protected List<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
-    protected Map<String,String> getResources() throws Exception {
+    /**
+     * Retrieve the list of supported operations under /v2
+     * @return the list of supported operations under /v2
+     * @throws Exception
+     */
+    protected Map<String,String> listResources() throws Exception {
         throw new UnsupportedOperationException("Retrieve API Resources");
     }
 
+    /**
+     * Create a new entity
+     * @param entity the entity to create
+     */
     protected void createEntity(Entity entity){
         throw new UnsupportedOperationException("Create Entity");
     }
 
+    /**
+     * Retrieve an Entity by the entity ID
+     * @param entityId the entity ID
+     * @param attrs an optional list of attributes to return for the entity
+     * @return the Entity
+     * @throws ConflictingEntitiesException
+     */
     protected Entity retrieveEntity(String entityId, Optional<String> attrs) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Retrieve Entity");
     }
 
+    /**
+     * Update existing or append some attributes to an entity
+     * @param entityId the entity ID
+     * @param attributes the attributes to update or to append
+     */
     protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Update Or Append Entity");
     }
 
+    /**
+     * Update existing attributes to an entity. The entity attributes are updated with the ones in the attributes.
+     * If one or more attributes in the payload doesn't exist in the entity, an error if returned
+     * @param entityId the entity ID
+     * @param attributes the attributes to update
+     */
     protected void updateExistingEntityAttributes(String entityId, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Update Existing Entity Attributes");
     }
 
+    /**
+     * Replace all the existing attributes of an entity with a new set of attributes
+     * @param entityId the entity ID
+     * @param attributes the new set of attributes
+     */
     protected void replaceAllEntityAttributes(String entityId, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Replace All Entity Attributes");
     }
 
+    /**
+     * Delete an entity
+     * @param entityId the entity ID
+     */
     protected void removeEntity(String entityId){
         throw new UnsupportedOperationException("Remove Entity");
     }
