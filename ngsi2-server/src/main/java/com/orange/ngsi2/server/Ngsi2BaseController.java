@@ -65,18 +65,25 @@ public abstract class Ngsi2BaseController {
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
      * @param attrs an optional list of attributes separated by comma to return for all entities
+     * @param options an optional list of options separated by comma. Possible values for option: count,keyValues,values.
+     *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
      * @return a list of Entities http status 200 (ok)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
-    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
+    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs, @RequestParam Optional<String> options) throws Exception {
 
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
         validateSyntax(id, type, attrs);
-        return new ResponseEntity<List<Entity>>(listEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
+        List<Entity> entityList = listEntities(id, type, idPattern, limit, offset, attrs);
+        if (options.isPresent() && (options.get().contains("count"))) {
+            return new ResponseEntity<List<Entity>>(entityList, xTotalCountHeader(entityList.size()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<List<Entity>>(entityList, HttpStatus.OK);
+        }
     }
 
     /**
@@ -357,6 +364,12 @@ public abstract class Ngsi2BaseController {
         location.append(entityId);
         HttpHeaders headers = new HttpHeaders();
         headers.put("Location", Collections.singletonList(location.toString()));
+        return headers;
+    }
+
+    private HttpHeaders xTotalCountHeader(int countNumber) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.put("X-Total-Count", Collections.singletonList(Integer.toString(countNumber)));
         return headers;
     }
 }

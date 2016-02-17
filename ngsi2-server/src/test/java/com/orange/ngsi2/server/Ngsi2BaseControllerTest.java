@@ -130,6 +130,24 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListEntitiesWithCount() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Bcn-Welt").param("options","count").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListEntitiesWithoutCount() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Bcn-Welt").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().doesNotExist("X-Total-Count"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void checkCreateEntityNotImplemented() throws Exception {
         mockMvc.perform(
                 post("/v2/ni/entities").content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)
