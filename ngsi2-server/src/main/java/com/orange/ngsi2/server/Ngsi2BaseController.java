@@ -39,11 +39,11 @@ import java.util.regex.Pattern;
  * Controller for the NGSI v2 requests
  */
 @RequestMapping(value = {"/v2"})
-public class Ngsi2BaseController {
+public abstract class Ngsi2BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(Ngsi2BaseController.class);
 
-    Pattern p = Pattern.compile("[a-zA-Z0-9_,-]*");
+    private static Pattern fieldPattern = Pattern.compile("[a-zA-Z0-9_,-]*");
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/"})
@@ -58,7 +58,7 @@ public class Ngsi2BaseController {
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
-        checkSyntax(id, type, attrs);
+        validateSyntax(id, type, attrs);
 
         return new ResponseEntity<List<Entity>>(getEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
     }
@@ -66,7 +66,7 @@ public class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.POST, value = "/entities", consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity postEntity(@RequestBody Entity entity) {
 
-        checkSyntax(entity);
+        validateSyntax(entity);
         StringBuilder location = new StringBuilder("/v2/entities/");
         location.append(createEntity(entity));
         HttpHeaders headers = new HttpHeaders();
@@ -79,7 +79,7 @@ public class Ngsi2BaseController {
             value = {"/entities/{entityId}"})
     final public ResponseEntity<Entity> getEntity(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
 
-        checkSyntax(Optional.of(entityId), Optional.empty(), attrs);
+        validateSyntax(Optional.of(entityId), Optional.empty(), attrs);
         List<Entity> entities = getEntities(Optional.of(entityId), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), attrs);
         if (entities.size() > 1 ) {
             StringBuilder url = new StringBuilder("GET /v2/entities?id=");
@@ -96,28 +96,28 @@ public class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateOrAppendEntity(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
-        checkSyntax(entityId, attributes);
+        validateSyntax(entityId, attributes);
         updateEntity(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
-        checkSyntax(entityId, attributes);
+        validateSyntax(entityId, attributes);
         updateExistingAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity replaceExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
-        checkSyntax(entityId, attributes);
+        validateSyntax(entityId, attributes);
         replaceAllExistingAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}"})
     final public ResponseEntity deleteEntity(@PathVariable String entityId) throws Exception {
-        checkSyntax(entityId, null);
+        validateSyntax(entityId, null);
         removeEntity(entityId);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -145,10 +145,9 @@ public class Ngsi2BaseController {
 
     @ExceptionHandler({InvalidatedSyntaxException.class})
     public ResponseEntity<Object> invalidSyntax(InvalidatedSyntaxException exception) {
-        logger.error("Invalid syntax: {}", exception.getAffectedItems().toString());
+        logger.error("Invalid syntax: {}", exception.getMessage());
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
-        error.setAffectedItems(Optional.of(exception.getAffectedItems()));
         return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
     }
 
@@ -192,52 +191,40 @@ public class Ngsi2BaseController {
         throw new UnsupportedOperationException("Remove Entity");
     }
 
-    private void syntaxValidation(Collection<String> items) throws InvalidatedSyntaxException {
-        Collection<String> affectedItems = new ArrayList<>();
-
-        items.forEach(s -> {
-            if (( s.length() > 256) || (!p.matcher(s).matches()))  {
-                affectedItems.add(s);
-            }
-        });
-        if (!affectedItems.isEmpty()) {
-            throw new InvalidatedSyntaxException(affectedItems);
+    private void validateSyntax(String field) throws InvalidatedSyntaxException {
+        if (( field.length() > 256) || (!fieldPattern.matcher(field).matches())) {
+            throw new InvalidatedSyntaxException(field);
         }
     }
 
-    private void checkSyntax(Optional<String> id, Optional<String> type, Optional<String> attrs) {
-        Collection<String> itemsToValidate = new ArrayList<>();
+    private void validateSyntax(Optional<String> id, Optional<String> type, Optional<String> attrs) {
 
         if (id.isPresent())
-            itemsToValidate.add(id.get());
+            validateSyntax(id.get());
         if (type.isPresent())
-            itemsToValidate.add(type.get());
+            validateSyntax(type.get());
         if (attrs.isPresent()) {
-            itemsToValidate.add(attrs.get());
+            validateSyntax(attrs.get());
         }
-        syntaxValidation(itemsToValidate);
     }
 
-    private void checkSyntax(Entity entity) {
-        Collection<String> itemsToValidate = new ArrayList<>();
+    private void validateSyntax(Entity entity) {
         if (entity.getId() != null) {
-            itemsToValidate.add(entity.getId());
+            validateSyntax(entity.getId());
         }
         if (entity.getType() != null ) {
-            itemsToValidate.add(entity.getType());
+            validateSyntax(entity.getType());
         }
-        if (entity.getAttributes() != null) {
-            itemsToValidate.addAll(entity.getAttributes().keySet());
+        Map<String, Attribute> attributes = entity.getAttributes();
+        if (attributes != null) {
+            attributes.keySet().forEach(s -> validateSyntax(s));
         }
-        syntaxValidation(itemsToValidate);
     }
 
-    private void checkSyntax( String entityId, HashMap<String, Attribute> attributes) {
-        Collection<String> itemsToValidate = new ArrayList<>();
-        itemsToValidate.add(entityId);
+    private void validateSyntax(String entityId, Map<String, Attribute> attributes) {
+        validateSyntax(entityId);
         if (attributes != null) {
-            itemsToValidate.addAll(attributes.keySet());
+            attributes.keySet().forEach(s -> validateSyntax(s));
         }
-        syntaxValidation(itemsToValidate);
     }
 }
