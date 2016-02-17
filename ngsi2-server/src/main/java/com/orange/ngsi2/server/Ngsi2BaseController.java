@@ -24,6 +24,7 @@ import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.model.Error;
+import com.orange.ngsi2.model.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -58,9 +59,7 @@ public abstract class Ngsi2BaseController {
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
-
         validateSyntax(id, type, attrs);
-
         return new ResponseEntity<List<Entity>>(getEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
     }
 
@@ -72,7 +71,6 @@ public abstract class Ngsi2BaseController {
         location.append(createEntity(entity));
         HttpHeaders headers = new HttpHeaders();
         headers.put("Location", Collections.singletonList(location.toString()));
-
         return new ResponseEntity(headers, HttpStatus.CREATED);
     }
 
@@ -97,6 +95,7 @@ public abstract class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateOrAppendEntity(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+
         validateSyntax(entityId, attributes);
         updateEntity(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -104,6 +103,7 @@ public abstract class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+
         validateSyntax(entityId, attributes);
         updateExistingAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -111,6 +111,7 @@ public abstract class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.PUT, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity replaceExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+
         validateSyntax(entityId, attributes);
         replaceAllExistingAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -118,7 +119,8 @@ public abstract class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}"})
     final public ResponseEntity deleteEntity(@PathVariable String entityId) throws Exception {
-        validateSyntax(entityId, null);
+
+        validateSyntax(entityId);
         removeEntity(entityId);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -222,16 +224,38 @@ public abstract class Ngsi2BaseController {
         if (entity.getType() != null ) {
             validateSyntax(entity.getType());
         }
-        Map<String, Attribute> attributes = entity.getAttributes();
-        if (attributes != null) {
-            attributes.keySet().forEach(s -> validateSyntax(s));
+        if (entity.getAttributes() != null) {
+            validateSyntax(entity.getAttributes());
         }
+    }
+
+    private void validateSyntax(Map<String, Attribute> attributes) {
+        //check attribute name
+        attributes.keySet().forEach(s -> validateSyntax(s));
+        attributes.values().forEach(attribute -> {
+            //check attribute type
+            if (attribute.getType() != null) {
+                validateSyntax(attribute.getType().get());
+            }
+            Map<String, Metadata> metadatas = attribute.getMetadata();
+            if (metadatas != null) {
+                //check metadata name
+                metadatas.keySet().forEach(s -> validateSyntax(s));
+                //check metadata type
+                metadatas.values().forEach(metadata -> {
+                    if (metadata.getType() != null) {
+                        validateSyntax(metadata.getType());
+                    }
+                });
+            }
+
+        });
     }
 
     private void validateSyntax(String entityId, Map<String, Attribute> attributes) {
         validateSyntax(entityId);
         if (attributes != null) {
-            attributes.keySet().forEach(s -> validateSyntax(s));
+            validateSyntax(attributes);
         }
     }
 }

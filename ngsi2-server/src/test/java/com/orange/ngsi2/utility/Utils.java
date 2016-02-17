@@ -100,6 +100,10 @@ public class Utils {
 
         HashMap<String, Attribute> attributes = new HashMap<>();
         Attribute noiseAttribut = new Attribute(31.5);
+        noiseAttribut.setType(Optional.of("float"));
+        Metadata metadata = new Metadata("decibel");
+        metadata.setType("string");
+        noiseAttribut.addMetadata("metric", metadata);
         attributes.put("ambientNoise", noiseAttribut);
         return attributes;
     }
