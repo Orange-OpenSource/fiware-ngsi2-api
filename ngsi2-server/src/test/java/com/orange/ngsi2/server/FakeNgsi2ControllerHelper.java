@@ -45,9 +45,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected String createEntity(Entity entity){
-        return "Bcn-Welt";
-    }
+    protected void createEntity(Entity entity){ }
 
     @Override
     protected Entity retrieveEntity(String entityId, Optional<String> attrs) throws ConflictingEntitiesException {

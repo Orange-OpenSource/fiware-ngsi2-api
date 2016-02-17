@@ -67,11 +67,8 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity createEntityEndpoint(@RequestBody Entity entity) {
 
         validateSyntax(entity);
-        StringBuilder location = new StringBuilder("/v2/entities/");
-        location.append(createEntity(entity));
-        HttpHeaders headers = new HttpHeaders();
-        headers.put("Location", Collections.singletonList(location.toString()));
-        return new ResponseEntity(headers, HttpStatus.CREATED);
+        createEntity(entity);
+        return new ResponseEntity(locationHeader(entity.getId()), HttpStatus.CREATED);
     }
 
     @RequestMapping(method = RequestMethod.GET,
@@ -164,7 +161,7 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Retrieve API Resources");
     }
 
-    protected String createEntity(Entity entity){
+    protected void createEntity(Entity entity){
         throw new UnsupportedOperationException("Create Entity");
     }
 
@@ -251,5 +248,13 @@ public abstract class Ngsi2BaseController {
         if (attributes != null) {
             validateSyntax(attributes);
         }
+    }
+
+    private HttpHeaders locationHeader(String entityId) {
+        StringBuilder location = new StringBuilder("/v2/entities/");
+        location.append(entityId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.put("Location", Collections.singletonList(location.toString()));
+        return headers;
     }
 }
