@@ -58,6 +58,7 @@ public abstract class Ngsi2BaseController {
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
+
         validateSyntax(id, type, attrs);
 
         return new ResponseEntity<List<Entity>>(getEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
@@ -163,7 +164,7 @@ public abstract class Ngsi2BaseController {
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
 
-    protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+    protected List<Entity> getEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -197,14 +198,20 @@ public abstract class Ngsi2BaseController {
         }
     }
 
-    private void validateSyntax(Optional<String> id, Optional<String> type, Optional<String> attrs) {
-
-        if (id.isPresent())
-            validateSyntax(id.get());
-        if (type.isPresent())
-            validateSyntax(type.get());
+    private void validateSyntax(String[] stringTab) throws InvalidatedSyntaxException {
+        for (int i = 0; i < stringTab.length; i++) {
+            validateSyntax(stringTab[i]);
+        }
+    }
+    private void validateSyntax(Optional<String> ids, Optional<String> types, Optional<String> attrs) {
+        if (ids.isPresent()) {
+            validateSyntax(ids.get().split(","));
+        }
+        if (types.isPresent()) {
+            validateSyntax(types.get().split(","));
+        }
         if (attrs.isPresent()) {
-            validateSyntax(attrs.get());
+            validateSyntax(attrs.get().split(","));
         }
     }
 
