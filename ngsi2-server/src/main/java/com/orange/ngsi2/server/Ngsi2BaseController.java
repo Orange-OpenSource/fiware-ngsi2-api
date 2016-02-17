@@ -54,7 +54,7 @@ public abstract class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.GET,
             value = {"/"})
     final public ResponseEntity<Map<String,String>> listResourcesEndpoint() throws Exception {
-        return new ResponseEntity<Map<String,String>>(listResources(), HttpStatus.OK);
+        return new ResponseEntity<>(listResources(), HttpStatus.OK);
     }
 
     /**
@@ -80,9 +80,9 @@ public abstract class Ngsi2BaseController {
         validateSyntax(id, type, attrs);
         List<Entity> entityList = listEntities(id, type, idPattern, limit, offset, attrs);
         if (options.isPresent() && (options.get().contains("count"))) {
-            return new ResponseEntity<List<Entity>>(entityList, xTotalCountHeader(entityList.size()), HttpStatus.OK);
+            return new ResponseEntity<>(entityList, xTotalCountHeader(entityList.size()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<List<Entity>>(entityList, HttpStatus.OK);
+            return new ResponseEntity<>(entityList, HttpStatus.OK);
         }
     }
 
@@ -111,7 +111,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
 
         validateSyntax(Optional.of(entityId), Optional.empty(), attrs);
-        return new ResponseEntity<Entity>(retrieveEntity(entityId, attrs), HttpStatus.OK);
+        return new ResponseEntity<>(retrieveEntity(entityId, attrs), HttpStatus.OK);
     }
 
     /**
@@ -184,7 +184,7 @@ public abstract class Ngsi2BaseController {
         logger.error("Unsupported operation: {}", exception.getMessage());
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<Object>(error, HttpStatus.NOT_IMPLEMENTED);
+        return new ResponseEntity<>(error, HttpStatus.NOT_IMPLEMENTED);
     }
 
     @ExceptionHandler({IncompatibleParameterException.class})
@@ -192,7 +192,7 @@ public abstract class Ngsi2BaseController {
         logger.error("Incompatible parameter: {}", exception.getMessage());
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({InvalidatedSyntaxException.class})
@@ -200,7 +200,7 @@ public abstract class Ngsi2BaseController {
         logger.error("Invalid syntax: {}", exception.getMessage());
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<Object>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({ConflictingEntitiesException.class})
@@ -208,7 +208,7 @@ public abstract class Ngsi2BaseController {
         logger.error("ConflictingEntities: {}", exception.getMessage());
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<Object>(error, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
     }
 
     /*
