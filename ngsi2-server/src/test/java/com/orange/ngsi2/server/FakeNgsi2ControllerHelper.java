@@ -36,7 +36,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected List<Entity> getEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+    protected List<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
         if (id.isPresent() && id.get().equals("Bcn-Welt")) {
             return Collections.singletonList(Utils.createEntityBcnWelt());
         }
@@ -49,13 +49,13 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected void updateEntity(String entityId, HashMap<String, Attribute> attributes){ }
+    protected void updateOrAppendEntity(String entityId, HashMap<String, Attribute> attributes){ }
 
     @Override
-    protected void updateExistingAttributes(String entityId, HashMap<String, Attribute> attributes){ }
+    protected void updateExistingEntityAttributes(String entityId, HashMap<String, Attribute> attributes){ }
 
     @Override
-    protected void replaceAllExistingAttributes(String entityId, HashMap<String, Attribute> attributes){ }
+    protected void replaceAllEntityAttributes(String entityId, HashMap<String, Attribute> attributes){ }
 
     @Override
     protected void removeEntity(String entityId){ }

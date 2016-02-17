@@ -189,18 +189,18 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkUpdateEntityIdNotImplemented() throws Exception {
+    public void checkUpdateOrAppendEntityIdNotImplemented() throws Exception {
         mockMvc.perform(
                 post("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Entity' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Or Append Entity' is not implemented"))
                 .andExpect(status().isNotImplemented());
     }
 
     @Test
-    public void checkUpdateEntityIdInvalidSyntax() throws Exception {
+    public void checkUpdateOrAppendEntityIdInvalidSyntax() throws Exception {
         mockMvc.perform(
                 post("/v2/i/entities/Bcn%Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -211,7 +211,7 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkUpdateEntityIdOK() throws Exception {
+    public void checkUpdateOrAppendEntityIdOK() throws Exception {
         mockMvc.perform(
                 post("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -221,18 +221,18 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkUpdateExistingAttributesNotImplemented() throws Exception {
+    public void checkUpdateExistingEntityAttributesNotImplemented() throws Exception {
         mockMvc.perform(
                 patch("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Existing Attributes' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Existing Entity Attributes' is not implemented"))
                 .andExpect(status().isNotImplemented());
     }
 
     @Test
-    public void checkUpdateExistingAttributesInvalidSyntax() throws Exception {
+    public void checkUpdateExistingEntityAttributesInvalidSyntax() throws Exception {
         mockMvc.perform(
                 patch("/v2/i/entities/Bcn%Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -243,7 +243,7 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkUpdateExistingAttributesOK() throws Exception {
+    public void checkUpdateExistingEntityAttributesOK() throws Exception {
         mockMvc.perform(
                 patch("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -253,18 +253,18 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkReplaceAllExistingAttributesNotImplemented() throws Exception {
+    public void checkReplaceAllEntityAttributesNotImplemented() throws Exception {
         mockMvc.perform(
                 put("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Replace All Existing Attributes' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Replace All Entity Attributes' is not implemented"))
                 .andExpect(status().isNotImplemented());
     }
 
     @Test
-    public void checkReplaceAllExistingAttributesInvalidSyntax() throws Exception {
+    public void checkReplaceAllEntityAttributesInvalidSyntax() throws Exception {
         mockMvc.perform(
                 put("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesWithBadSyntax()))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -275,7 +275,7 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkReplaceAllExistingAttributesOK() throws Exception {
+    public void checkReplaceAllEntityAttributesOK() throws Exception {
         mockMvc.perform(
                 put("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)

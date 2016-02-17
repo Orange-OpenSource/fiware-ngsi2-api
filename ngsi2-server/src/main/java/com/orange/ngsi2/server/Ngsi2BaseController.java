@@ -54,17 +54,17 @@ public abstract class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
-    final public ResponseEntity<List<Entity>> getListEntities(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
+    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs) throws Exception {
 
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
         validateSyntax(id, type, attrs);
-        return new ResponseEntity<List<Entity>>(getEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
+        return new ResponseEntity<List<Entity>>(listEntities(id, type, idPattern, limit, offset, attrs), HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/entities", consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity postEntity(@RequestBody Entity entity) {
+    final public ResponseEntity createEntityEndpoint(@RequestBody Entity entity) {
 
         validateSyntax(entity);
         StringBuilder location = new StringBuilder("/v2/entities/");
@@ -76,10 +76,10 @@ public abstract class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities/{entityId}"})
-    final public ResponseEntity<Entity> getEntity(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
+    final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
 
         validateSyntax(Optional.of(entityId), Optional.empty(), attrs);
-        List<Entity> entities = getEntities(Optional.of(entityId), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), attrs);
+        List<Entity> entities = listEntities(Optional.of(entityId), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), attrs);
         if (entities.size() > 1 ) {
             StringBuilder url = new StringBuilder("GET /v2/entities?id=");
             url.append(entityId);
@@ -94,31 +94,31 @@ public abstract class Ngsi2BaseController {
 
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity updateOrAppendEntity(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+    final public ResponseEntity updateOrAppendEntityEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
 
         validateSyntax(entityId, attributes);
-        updateEntity(entityId, attributes);
+        updateOrAppendEntity(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity updateExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+    final public ResponseEntity updateExistingEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
 
         validateSyntax(entityId, attributes);
-        updateExistingAttributes(entityId, attributes);
+        updateExistingEntityAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity replaceExistingEntityAttributes(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+    final public ResponseEntity replaceAllEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
 
         validateSyntax(entityId, attributes);
-        replaceAllExistingAttributes(entityId, attributes);
+        replaceAllEntityAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}"})
-    final public ResponseEntity deleteEntity(@PathVariable String entityId) throws Exception {
+    final public ResponseEntity removeEntityEndpoint(@PathVariable String entityId) throws Exception {
 
         validateSyntax(entityId);
         removeEntity(entityId);
@@ -166,7 +166,7 @@ public abstract class Ngsi2BaseController {
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
 
-    protected List<Entity> getEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+    protected List<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -178,16 +178,16 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Create Entity");
     }
 
-    protected void updateEntity(String entityId, HashMap<String, Attribute> attributes){
-        throw new UnsupportedOperationException("Update Entity");
+    protected void updateOrAppendEntity(String entityId, HashMap<String, Attribute> attributes){
+        throw new UnsupportedOperationException("Update Or Append Entity");
     }
 
-    protected void updateExistingAttributes(String entityId, HashMap<String, Attribute> attributes){
-        throw new UnsupportedOperationException("Update Existing Attributes");
+    protected void updateExistingEntityAttributes(String entityId, HashMap<String, Attribute> attributes){
+        throw new UnsupportedOperationException("Update Existing Entity Attributes");
     }
 
-    protected void replaceAllExistingAttributes(String entityId, HashMap<String, Attribute> attributes){
-        throw new UnsupportedOperationException("Replace All Existing Attributes");
+    protected void replaceAllEntityAttributes(String entityId, HashMap<String, Attribute> attributes){
+        throw new UnsupportedOperationException("Replace All Entity Attributes");
     }
 
     protected void removeEntity(String entityId){
