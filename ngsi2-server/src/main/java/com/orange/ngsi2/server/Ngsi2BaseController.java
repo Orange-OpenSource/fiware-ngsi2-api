@@ -21,10 +21,8 @@ import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.IncompatibleParameterException;
 import com.orange.ngsi2.exception.InvalidatedSyntaxException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
-import com.orange.ngsi2.model.Attribute;
-import com.orange.ngsi2.model.Entity;
+import com.orange.ngsi2.model.*;
 import com.orange.ngsi2.model.Error;
-import com.orange.ngsi2.model.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -78,9 +76,10 @@ public abstract class Ngsi2BaseController {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
         validateSyntax(id, type, attrs);
-        List<Entity> entityList = listEntities(id, type, idPattern, limit, offset, attrs);
+        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs);
+        List<Entity> entityList = paginatedEntity.getItems();
         if (options.isPresent() && (options.get().contains("count"))) {
-            return new ResponseEntity<>(entityList, xTotalCountHeader(entityList.size()), HttpStatus.OK);
+            return new ResponseEntity<>(entityList , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(entityList, HttpStatus.OK);
         }
@@ -174,7 +173,6 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
-
     /*
      * Exception handling
      */
@@ -223,10 +221,10 @@ public abstract class Ngsi2BaseController {
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
      * @param attrs an optional list of attributes to return for all entities
-     * @return a list of Entities
+     * @return a paginated of list of Entities
      * @throws Exception
      */
-    protected List<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+    protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -294,6 +292,10 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Remove Entity");
     }
 
+    /*
+     * Private Methods 
+     */
+
     private void validateSyntax(String field) throws InvalidatedSyntaxException {
         if (( field.length() > 256) || (!fieldPattern.matcher(field).matches())) {
             throw new InvalidatedSyntaxException(field);
@@ -305,6 +307,7 @@ public abstract class Ngsi2BaseController {
             validateSyntax(stringTab[i]);
         }
     }
+
     private void validateSyntax(Optional<String> ids, Optional<String> types, Optional<String> attrs) {
         if (ids.isPresent()) {
             validateSyntax(ids.get().split(","));

@@ -21,6 +21,7 @@ import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
+import com.orange.ngsi2.model.Paginated;
 import com.orange.ngsi2.utility.Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,11 +38,12 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected List<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+    protected Paginated<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+        Paginated<Entity> paginatedEntity;
         if (id.isPresent() && id.get().equals("Bcn-Welt")) {
-            return Collections.singletonList(Utils.createEntityBcnWelt());
+            return new Paginated<>(Collections.singletonList(Utils.createEntityBcnWelt()),1, 1, 1);
         }
-        return Utils.createListEntitiesConflictingReference();
+        return new Paginated<>(Utils.createListEntitiesConflictingReference(), 2, 2, 2);
     }
 
     @Override
