@@ -5,11 +5,13 @@
     <parent>
         <artifactId>ngsi2-api</artifactId>
         <groupId>com.orange.fiware</groupId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>dev</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ngsi2-client</artifactId>
+    <version>${ngsi-api.version}</version>
+    <name>${project.artifactId}</name>
 
     <dependencies>
         <dependency>
