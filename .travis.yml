@@ -3,12 +3,21 @@ language: java
 jdk:
 - oraclejdk8
 script: mvn test jacoco:report coveralls:report -q
+before_deploy:
+  - curl -O -L https://gist.github.com/marcc-orange/b0dd1078a829d069109f/raw/33ee871e563c407613521fa0f17535ac26007328/BA2F4249.asc.enc
+  - openssl aes-256-cbc -k "$KEY_PASSWORD" -in BA2F4249.asc.enc -out BA2F4249.asc -d
+  - gpg --import BA2F4249.asc
 deploy:
   - provider: script
     script: mvn deploy -q -settings=settings.xml -DskipTests=true
     skip_cleanup: true
     on:
-        branch: master
+      branch: master
+  - provider: script
+    script: mvn deploy -q -settings=settings.xml -DskipTests=true -Prelease -Dngsi-api.version=$TRAVIS_TAG
+    skip_cleanup: false
+    on:
+      tags: true
 notifications:
     webhooks: http://lametric-dev.kermit.orange-labs.fr/travis
 cache:
