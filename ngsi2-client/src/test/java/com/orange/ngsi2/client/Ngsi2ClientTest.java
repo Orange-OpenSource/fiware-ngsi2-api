@@ -159,14 +159,16 @@ public class Ngsi2ClientTest {
         String georel = "GEOREL";
         String geometry = "GEOMETRY";
         String coords = "COORDS";
+        Collection<String> orderBy = Arrays.asList("temp", "!humidity");
 
         mockServer.expect(requestTo(baseURL + "/v2/entities?id=room1,house1&idPattern=room.*&" +
                 "type=Room,House&attrs=temp,pressure,humidity&query=temp%253E10&georel=GEOREL&geometry=GEOMETRY&coords=COORDS&" +
+                "orderBy=temp,!humidity&" +
                 "offset=2&limit=10"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
 
-        ngsiClient.getEntities(ids, idPattern, types, params, query, georel, geometry, coords, 2, 10, false).get();
+        ngsiClient.getEntities(ids, idPattern, types, params, query, georel, geometry, coords, orderBy, 2, 10, false).get();
     }
 
     @Test

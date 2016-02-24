@@ -111,7 +111,7 @@ public class Ngsi2Client {
             Collection<String> types, Collection<String> attrs,
             int offset, int limit, boolean count) {
 
-        return getEntities(ids, idPattern, types, attrs, null, null, null, null, offset, limit, count);
+        return getEntities(ids, idPattern, types, attrs, null, null, null, null, null, offset, limit, count);
     }
 
     /**
@@ -124,6 +124,7 @@ public class Ngsi2Client {
      * @param georel an optional Geo query
      * @param geometry an optional geometry
      * @param coords an optional coordinate
+     * @param orderBy an option list of attributes to difine the order of entities
      * @param offset an optional offset (0 for none)
      * @param limit an optional limit (0 for none)
      * @param count true to return the total number of matching entities
@@ -132,6 +133,7 @@ public class Ngsi2Client {
     public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
             Collection<String> types, Collection<String> attrs,
             String query, String georel, String geometry, String coords,
+            Collection<String> orderBy,
             int offset, int limit, boolean count) {
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
@@ -144,6 +146,7 @@ public class Ngsi2Client {
         addParam(builder, "georel", georel);
         addParam(builder, "geometry", geometry);
         addParam(builder, "coords", coords);
+        addParam(builder, "orderBy", orderBy);
         addPaginationParams(builder, offset, limit);
         if (count) {
             addParam(builder, "options", "count");
