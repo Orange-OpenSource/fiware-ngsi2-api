@@ -44,6 +44,14 @@ public class EntityType {
         this.attrs = attrs;
     }
 
+    @JsonIgnore
+    public void setAttrs(String key, AttributeType attributeType) {
+        if (attrs == null) {
+            attrs = new HashMap<String, AttributeType>();
+        }
+        attrs.put(key, attributeType);
+    }
+
     public int getCount() {
         return count;
     }

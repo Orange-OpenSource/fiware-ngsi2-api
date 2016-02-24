@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
+import static org.hamcrest.Matchers.hasSize;
 
 /**
  * Tests for the NGSI v2 base controller.
@@ -332,6 +333,36 @@ public class Ngsi2BaseControllerTest {
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(""))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void checkRetrieveEntityTypeNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/types/Room").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve Entity Type' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRetrieveEntityTypeInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/types/Room%").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Room% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkRetrieveEntityTypeOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/types/Room").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.attrs[*]", hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.count").value(7))
+                .andExpect(status().isOk());
     }
 
     @Test

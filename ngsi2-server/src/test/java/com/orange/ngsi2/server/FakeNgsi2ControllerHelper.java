@@ -21,6 +21,7 @@ import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
+import com.orange.ngsi2.model.EntityType;
 import com.orange.ngsi2.model.Paginated;
 import com.orange.ngsi2.utility.Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -69,4 +70,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected void removeEntity(String entityId){ }
 
+    @Override
+    protected EntityType retrieveEntityType(String entityType) {
+        return Utils.createEntityTypeRoom();
+    }
 }

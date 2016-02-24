@@ -173,6 +173,20 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint get /v2/types/{entityType}
+     * @param entityType the type of entity
+     * @return the entity type json object and http status 200 (ok)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/types/{entityType}"})
+    final public ResponseEntity<EntityType> retrieveEntityTypeEndpoint(@PathVariable String entityType) throws Exception {
+
+        validateSyntax(entityType);
+        return new ResponseEntity<>(retrieveEntityType(entityType), HttpStatus.OK);
+    }
+
     /*
      * Exception handling
      */
@@ -290,6 +304,16 @@ public abstract class Ngsi2BaseController {
      */
     protected void removeEntity(String entityId){
         throw new UnsupportedOperationException("Remove Entity");
+    }
+
+    /**
+     * Retrieve an Entity Type by the type with the union set of attribute name and attribute type and with the count
+     * of entities belonging to that type
+     * @param entityType the type of entity
+     * @return the EntityType
+     */
+    protected EntityType retrieveEntityType(String entityType) {
+        throw new UnsupportedOperationException("Retrieve Entity Type");
     }
 
     /*

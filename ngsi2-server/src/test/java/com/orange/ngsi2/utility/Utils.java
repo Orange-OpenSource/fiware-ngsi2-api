@@ -17,9 +17,7 @@
 
 package com.orange.ngsi2.utility;
 
-import com.orange.ngsi2.model.Attribute;
-import com.orange.ngsi2.model.Entity;
-import com.orange.ngsi2.model.Metadata;
+import com.orange.ngsi2.model.*;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.mock.http.MockHttpOutputMessage;
@@ -114,6 +112,16 @@ public class Utils {
         Attribute noiseAttribut = new Attribute(31.5);
         attributes.put("ambient%Noise", noiseAttribut);
         return attributes;
+    }
+
+    static public EntityType createEntityTypeRoom() {
+
+        EntityType entityTypeRoom = new EntityType();
+        entityTypeRoom.setAttrs("temperature", new AttributeType("urn:phenomenum:temperature"));
+        entityTypeRoom.setAttrs("humidity", new AttributeType("percentage"));
+        entityTypeRoom.setAttrs("pressure", new AttributeType("null"));
+        entityTypeRoom.setCount(7);
+        return entityTypeRoom;
     }
 
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
