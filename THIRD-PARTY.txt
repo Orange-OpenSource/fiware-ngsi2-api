@@ -33,3 +33,7 @@ License: MIT License
 Spring spring-framework
 Site: http://projects.spring.io/spring-framework/
 License: Apache License 2.0
+
+Hamcrest
+Site: http://hamcrest.org
+License: BSD 3-clause "New" or "Revised" License
