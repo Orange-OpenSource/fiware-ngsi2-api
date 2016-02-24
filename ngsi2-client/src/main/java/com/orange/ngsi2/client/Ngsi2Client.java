@@ -99,7 +99,7 @@ public class Ngsi2Client {
     /**
      * Retrieve a list of Entities (simplified)
      * @param ids an optional list of entity IDs (cannot be used with idPatterns)
-     * @param idPatterns a optional list of patterns of entity IDs (cannot be used with ids)
+     * @param idPattern an optional pattern of entity IDs (cannot be used with ids)
      * @param types an optional list of types of entity
      * @param attrs an optional list of attributes to return for all entities
      * @param offset an optional offset (0 for none)
@@ -107,17 +107,17 @@ public class Ngsi2Client {
      * @param count true to return the total number of matching entities
      * @return a pagined list of Entities
      */
-    public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, Collection<String> idPatterns,
+    public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
             Collection<String> types, Collection<String> attrs,
             int offset, int limit, boolean count) {
 
-        return getEntities(ids, idPatterns, types, attrs, null, null, null, null, offset, limit, count);
+        return getEntities(ids, idPattern, types, attrs, null, null, null, null, offset, limit, count);
     }
 
     /**
      * Retrieve a list of Entities
      * @param ids an optional list of entity IDs (cannot be used with idPatterns)
-     * @param idPatterns a optional list of patterns of entity IDs (cannot be used with ids)
+     * @param idPattern an optional pattern of entity IDs (cannot be used with ids)
      * @param types an optional list of types of entity
      * @param attrs an optional list of attributes to return for all entities
      * @param query an optional Simple Query Language query
@@ -129,7 +129,7 @@ public class Ngsi2Client {
      * @param count true to return the total number of matching entities
      * @return a pagined list of Entities
      */
-    public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, Collection<String> idPatterns,
+    public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
             Collection<String> types, Collection<String> attrs,
             String query, String georel, String geometry, String coords,
             int offset, int limit, boolean count) {
@@ -137,7 +137,7 @@ public class Ngsi2Client {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(entitiesPath);
         addParam(builder, "id", ids);
-        addParam(builder, "idPattern", idPatterns);
+        addParam(builder, "idPattern", idPattern);
         addParam(builder, "type", types);
         addParam(builder, "attrs", attrs);
         addParam(builder, "query", query);

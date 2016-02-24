@@ -152,7 +152,7 @@ public class Ngsi2ClientTest {
     public void testGetEntities_AllParams() throws Exception {
 
         Collection<String> ids = Arrays.asList("room1", "house1");
-        Collection<String> idPatterns = Arrays.asList("room.*", "house.*");
+        String idPattern = "room.*";
         Collection<String> types = Arrays.asList("Room", "House");
         Collection<String> params = Arrays.asList("temp", "pressure", "humidity");
         String query = "temp>10";
@@ -160,13 +160,13 @@ public class Ngsi2ClientTest {
         String geometry = "GEOMETRY";
         String coords = "COORDS";
 
-        mockServer.expect(requestTo(baseURL + "/v2/entities?id=room1,house1&idPattern=room.*,house.*&" +
+        mockServer.expect(requestTo(baseURL + "/v2/entities?id=room1,house1&idPattern=room.*&" +
                 "type=Room,House&attrs=temp,pressure,humidity&query=temp%253E10&georel=GEOREL&geometry=GEOMETRY&coords=COORDS&" +
                 "offset=2&limit=10"))
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
 
-        ngsiClient.getEntities(ids, idPatterns, types, params, query, georel, geometry, coords, 2, 10, false).get();
+        ngsiClient.getEntities(ids, idPattern, types, params, query, georel, geometry, coords, 2, 10, false).get();
     }
 
     @Test
