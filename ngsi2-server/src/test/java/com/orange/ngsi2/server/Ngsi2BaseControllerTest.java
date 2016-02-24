@@ -381,7 +381,7 @@ public class Ngsi2BaseControllerTest {
                 get("/v2/i/entities/Boe-Idearium/attrs/temperature").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("409"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use GET /v2/entities/Boe-Idearium/attrs/temperature"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use GET /v2/entities/Boe-Idearium/attrs/temperature?type="))
                 .andExpect(status().isConflict());
     }
 
@@ -403,6 +403,50 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.value").value(21.7))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    public void checkUpdateAttributeByEntityIdNotImplemented() throws Exception {
+        mockMvc.perform(
+                put("/v2/ni/entities/Bcn-Welt/attrs/temperature").content(json(jsonV2Converter, createUpdateTemperatureAttributeReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Attribute by Entity ID' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkUpdateAttributeByEntityIdInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                put("/v2/i/entities/Bcn-Welt/attrs/temperature").content(json(jsonV2Converter, createUpdateTemperatureAttributeReferenceWithBadSyntax()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. unit%Code has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkUpdateAttributeByEntityIdConflictingEntities() throws Exception {
+        mockMvc.perform(
+                put("/v2/i/entities/Boe-Idearium/attrs/temperature").content(json(jsonV2Converter, createUpdateTemperatureAttributeReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("409"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use PUT /v2/entities/Boe-Idearium/attrs/temperature?type="))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void checkUpdateAttributeByEntityIdOK() throws Exception {
+        mockMvc.perform(
+                put("/v2/i/entities/Bcn-Welt/attrs/temperature").content(json(jsonV2Converter, createUpdateTemperatureAttributeReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(""))
+                .andExpect(status().isNoContent());
+    }
+
 
     @Test
     public void checkPattern() {

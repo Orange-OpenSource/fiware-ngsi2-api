@@ -191,6 +191,7 @@ public abstract class Ngsi2BaseController {
      * Endpoint get /v2/entities/{entityId}/attrs/{attrName}
      * @param entityId the entity ID
      * @param attrName the attribute name
+     * @param type an optional type of entity
      * @return the attribute and http status 200 (ok) or 409 (conflict)
      * @throws Exception
      */
@@ -200,6 +201,24 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
         return new ResponseEntity<>(retrieveAttributeByEntityId(entityId, attrName, type), HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint put /v2/entities/{entityId}/attrs/{attrName}
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type of entity
+     * @return the attribute and http status 200 (ok) or 409 (conflict)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.PUT,
+            value = {"/entities/{entityId}/attrs/{attrName}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity updateAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody Attribute attribute) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(attribute);
+        updateAttributeByEntityId(entityId, attrName, type, attribute);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     /*
@@ -343,6 +362,18 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Retrieve Attribute by Entity ID");
     }
 
+    /**
+     * Update an Attribute by the entity ID
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     * @param attribute the new attributes data
+     * @throws ConflictingEntitiesException
+     */
+    protected void updateAttributeByEntityId(String entityId, String attrName, Optional<String> type, Attribute attribute) throws ConflictingEntitiesException {
+        throw new UnsupportedOperationException("Update Attribute by Entity ID");
+    }
+
     /*
      * Private Methods 
      */
@@ -383,27 +414,28 @@ public abstract class Ngsi2BaseController {
         }
     }
 
+    private void validateSyntax(Attribute attribute) {
+        //check attribute type
+        if (attribute.getType() != null) {
+            validateSyntax(attribute.getType().get());
+        }
+        Map<String, Metadata> metadatas = attribute.getMetadata();
+        if (metadatas != null) {
+            //check metadata name
+            metadatas.keySet().forEach(this::validateSyntax);
+            //check metadata type
+            metadatas.values().forEach(metadata -> {
+                if (metadata.getType() != null) {
+                    validateSyntax(metadata.getType());
+                }
+            });
+        }
+    }
+
     private void validateSyntax(Map<String, Attribute> attributes) {
         //check attribute name
-        attributes.keySet().forEach(s -> validateSyntax(s));
-        attributes.values().forEach(attribute -> {
-            //check attribute type
-            if (attribute.getType() != null) {
-                validateSyntax(attribute.getType().get());
-            }
-            Map<String, Metadata> metadatas = attribute.getMetadata();
-            if (metadatas != null) {
-                //check metadata name
-                metadatas.keySet().forEach(s -> validateSyntax(s));
-                //check metadata type
-                metadatas.values().forEach(metadata -> {
-                    if (metadata.getType() != null) {
-                        validateSyntax(metadata.getType());
-                    }
-                });
-            }
-
-        });
+        attributes.keySet().forEach(this::validateSyntax);
+        attributes.values().forEach(this::validateSyntax);
     }
 
     private void validateSyntax(String entityId, Map<String, Attribute> attributes) {

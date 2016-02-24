@@ -80,6 +80,13 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
         if (entityId.equals("Bcn-Welt")) {
             return Utils.createTemperatureEntityBcnWelt();
         }
-        throw new ConflictingEntitiesException("Boe-Idearium", "GET /v2/entities/Boe-Idearium/attrs/temperature");
+        throw new ConflictingEntitiesException("Boe-Idearium", "GET /v2/entities/Boe-Idearium/attrs/temperature?type=");
+    }
+
+    @Override
+    protected void updateAttributeByEntityId(String entityId, String attrName, Optional<String> type, Attribute attribute) throws ConflictingEntitiesException {
+        if (!entityId.equals("Bcn-Welt")) {
+            throw new ConflictingEntitiesException("Boe-Idearium", "PUT /v2/entities/Boe-Idearium/attrs/temperature?type=");
+        }
     }
 }

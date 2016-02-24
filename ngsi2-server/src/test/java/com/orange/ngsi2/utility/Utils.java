@@ -129,6 +129,22 @@ public class Utils {
         return new Attribute(21.7);
     }
 
+    static public Attribute createUpdateTemperatureAttributeReference() {
+
+        Attribute temperatureAttribute = new Attribute(25);
+        Metadata metadata = new Metadata("CEL");
+        temperatureAttribute.addMetadata("unitCode", metadata);
+        return temperatureAttribute;
+    }
+
+    static public Attribute createUpdateTemperatureAttributeReferenceWithBadSyntax() {
+
+        Attribute temperatureAttribute = new Attribute(25);
+        Metadata metadata = new Metadata("CEL");
+        temperatureAttribute.addMetadata("unit%Code", metadata);
+        return temperatureAttribute;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
