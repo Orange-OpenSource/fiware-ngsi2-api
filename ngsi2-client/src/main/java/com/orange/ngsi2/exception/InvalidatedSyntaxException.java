@@ -17,12 +17,18 @@
 
 package com.orange.ngsi2.exception;
 
+import com.orange.ngsi2.model.Error;
+
 /**
  * 400 Invalid syntax
  */
 public class InvalidatedSyntaxException extends Ngsi2Exception {
 
     private final static String message = "The incoming request is invalid in this context. %s has a bad syntax.";
+
+    public InvalidatedSyntaxException(Error error) {
+        super(error);
+    }
 
     public InvalidatedSyntaxException(String field) {
         super("400", String.format(message, field), null);

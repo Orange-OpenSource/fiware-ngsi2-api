@@ -17,6 +17,8 @@
 
 package com.orange.ngsi2.exception;
 
+import com.orange.ngsi2.model.Error;
+
 import java.util.Collection;
 
 /**
@@ -26,6 +28,10 @@ import java.util.Collection;
 public class ConflictingEntitiesException extends Ngsi2Exception {
 
     private final static String message = "Too many results. There are several results that match with the %s used in the request. Instead of, you can use %s";
+
+    public ConflictingEntitiesException(Error error) {
+        super(error);
+    }
 
     public ConflictingEntitiesException(String entityId, String url) {
         super("409", String.format(message, entityId, url), null);

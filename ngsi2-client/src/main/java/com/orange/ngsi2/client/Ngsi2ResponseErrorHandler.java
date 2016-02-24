@@ -29,7 +29,7 @@ class Ngsi2ResponseErrorHandler implements ResponseErrorHandler {
     public void handleError(ClientHttpResponse response) throws IOException {
         Ngsi2Exception ex;
         try {
-            ex =  new Ngsi2Exception(objectMapper.readValue(response.getBody(), Error.class));
+            ex = Ngsi2Exception.fromError(response.getStatusCode().value(), objectMapper.readValue(response.getBody(), Error.class));
         } catch (Exception e) {
             ex = new Ngsi2Exception(response.getStatusCode().toString(), response.getStatusText(), null);
         }
