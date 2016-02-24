@@ -89,4 +89,11 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
             throw new ConflictingEntitiesException("Boe-Idearium", "PUT /v2/entities/Boe-Idearium/attrs/temperature?type=");
         }
     }
+
+    @Override
+    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
+        if (!entityId.equals("Bcn-Welt")) {
+            throw new ConflictingEntitiesException("Boe-Idearium", "DELETE /v2/entities/Boe-Idearium/attrs/temperature?type=");
+        }
+    }
 }

@@ -221,6 +221,20 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint delete /v2/entities/{entityId}/attrs/{attrName}
+     * @param entityId the entity ID
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}/attrs/{attrName}"})
+    final public ResponseEntity removeAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        removeAttributeByEntityId(entityId, attrName, type);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     /*
      * Exception handling
      */
@@ -372,6 +386,16 @@ public abstract class Ngsi2BaseController {
      */
     protected void updateAttributeByEntityId(String entityId, String attrName, Optional<String> type, Attribute attribute) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Update Attribute by Entity ID");
+    }
+
+    /**
+     * Delete an attribute
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     */
+    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type){
+        throw new UnsupportedOperationException("Remove Attribute");
     }
 
     /*
