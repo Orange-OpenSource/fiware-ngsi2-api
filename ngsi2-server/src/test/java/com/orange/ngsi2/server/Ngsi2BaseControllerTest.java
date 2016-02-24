@@ -366,6 +366,45 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkRetrieveAttributeByEntityIdNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/entities/Bcn-Welt/attrs/temperature").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve Attribute by Entity ID' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRetrieveAttributeByEntityIdConflictingEntities() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Boe-Idearium/attrs/temperature").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("409"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use GET /v2/entities/Boe-Idearium/attrs/temperature"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    public void checkRetrieveAttributeByEntityIdInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/temperature%").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkRetrieveAttributeByEntityIdOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/temperature").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.value").value(21.7))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));

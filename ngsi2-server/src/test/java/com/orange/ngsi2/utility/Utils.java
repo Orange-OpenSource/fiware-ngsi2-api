@@ -124,6 +124,11 @@ public class Utils {
         return entityTypeRoom;
     }
 
+    static public Attribute createTemperatureEntityBcnWelt() {
+
+        return new Attribute(21.7);
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);

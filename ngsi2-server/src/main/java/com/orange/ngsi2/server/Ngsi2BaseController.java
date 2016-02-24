@@ -187,6 +187,21 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(retrieveEntityType(entityType), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint get /v2/entities/{entityId}/attrs/{attrName}
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @return the attribute and http status 200 (ok) or 409 (conflict)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/entities/{entityId}/attrs/{attrName}"})
+    final public ResponseEntity<Attribute> retrieveAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        return new ResponseEntity<>(retrieveAttributeByEntityId(entityId, attrName, type), HttpStatus.OK);
+    }
+
     /*
      * Exception handling
      */
@@ -314,6 +329,18 @@ public abstract class Ngsi2BaseController {
      */
     protected EntityType retrieveEntityType(String entityType) {
         throw new UnsupportedOperationException("Retrieve Entity Type");
+    }
+
+    /**
+     * Retrieve an Attribute by the entity ID
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     * @return the Attribute
+     * @throws ConflictingEntitiesException
+     */
+    protected Attribute retrieveAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
+        throw new UnsupportedOperationException("Retrieve Attribute by Entity ID");
     }
 
     /*
