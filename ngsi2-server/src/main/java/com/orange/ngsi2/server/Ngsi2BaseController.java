@@ -17,14 +17,14 @@
 
 package com.orange.ngsi2.server;
 
-import com.orange.ngsi2.exception.ConflictingEntitiesException;
-import com.orange.ngsi2.exception.IncompatibleParameterException;
-import com.orange.ngsi2.exception.InvalidatedSyntaxException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.orange.ngsi2.exception.*;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.*;
 import com.orange.ngsi2.model.Error;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -43,6 +43,9 @@ public abstract class Ngsi2BaseController {
     private static Logger logger = LoggerFactory.getLogger(Ngsi2BaseController.class);
 
     private static Pattern fieldPattern = Pattern.compile("[a-zA-Z0-9_-]*");
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     /**
      * Endpoint get /v2
@@ -235,6 +238,46 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint get /v2/entities/{entityId}/attrs/{attrName}/value
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type of entity
+     * @return the value and http status 200 (ok) or 409 (conflict)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/entities/{entityId}/attrs/{attrName}/value"}, produces = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity<Object> retrieveAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        Object value = retrieveAttributeValue(entityId, attrName, type);
+        if ((value == null) || (value instanceof String) || (value instanceof Number) || (value instanceof Boolean)) {
+            throw new NotAcceptableException();
+        }
+        return new ResponseEntity<Object>(value, HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint get /v2/entities/{entityId}/attrs/{attrName}/value
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type of entity
+     * @return the value and http status 200 (ok) or 409 (conflict)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/entities/{entityId}/attrs/{attrName}/value"}, produces = MediaType.TEXT_PLAIN_VALUE)
+    final public ResponseEntity<String> retrieveTextPlainAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        Object value = retrieveAttributeValue(entityId, attrName, type);
+        if ((value == null) || (value instanceof String) || (value instanceof Number) || (value instanceof Boolean)) {
+            return new ResponseEntity<String>(valueToString(value), HttpStatus.OK);
+        }
+        return new ResponseEntity<String>(objectMapper.writeValueAsString(value), HttpStatus.OK);
+    }
+
     /*
      * Exception handling
      */
@@ -269,6 +312,22 @@ public abstract class Ngsi2BaseController {
         Error error = new Error(exception.getError());
         error.setDescription(Optional.of(exception.getDescription()));
         return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler({NotAcceptableException.class})
+    public ResponseEntity<Object> notAcceptable(NotAcceptableException exception) {
+        logger.error("Not Acceptable: {}", exception.getMessage());
+        Error error = new Error(exception.getError());
+        error.setDescription(Optional.of(exception.getDescription()));
+        return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
+    }
+
+    @ExceptionHandler({InternalErrorException.class})
+    public ResponseEntity<Object> internalError(InternalErrorException exception) {
+        logger.error("Internal Error: {}", exception.getMessage());
+        Error error = new Error(exception.getError());
+        error.setDescription(Optional.of(exception.getDescription()));
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /*
@@ -394,8 +453,12 @@ public abstract class Ngsi2BaseController {
      * @param attrName the attribute name
      * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
      */
-    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type){
+    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type) {
         throw new UnsupportedOperationException("Remove Attribute");
+    }
+
+    protected Object retrieveAttributeValue(String entityId, String attrName, Optional<String> type) {
+        throw new UnsupportedOperationException("Retrieve Attribute Value");
     }
 
     /*
@@ -482,4 +545,20 @@ public abstract class Ngsi2BaseController {
         headers.put("X-Total-Count", Collections.singletonList(Integer.toString(countNumber)));
         return headers;
     }
+
+    private String valueToString(Object value) {
+        if (value == null) {
+            return "null";
+        }
+        else if (value instanceof String) {
+            return (String)value;
+        } else if (value instanceof Boolean) {
+            return ((Boolean)value).toString();
+        } else if (value instanceof Number) {
+            return String.valueOf((Number)value);
+        } else {
+            throw new InternalErrorException("valueToString: unknown type");
+        }
+    }
+
 }

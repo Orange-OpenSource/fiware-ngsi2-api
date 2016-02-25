@@ -145,6 +145,51 @@ public class Utils {
         return temperatureAttribute;
     }
 
+    static public Object createValueReference() {
+        class ValueReference {
+            String address = "Ronda de la Comunicacions";
+            int zipCode = 28050;
+            String city = "Madrid";
+            String country = "Spain";
+
+            public ValueReference() {
+            }
+
+            public String getAddress() {
+                return address;
+            }
+
+            public void setAddress(String address) {
+                this.address = address;
+            }
+
+            public int getZipCode() {
+                return zipCode;
+            }
+
+            public void setZipCode(int zipCode) {
+                this.zipCode = zipCode;
+            }
+
+            public String getCity() {
+                return city;
+            }
+
+            public void setCity(String city) {
+                this.city = city;
+            }
+
+            public String getCountry() {
+                return country;
+            }
+
+            public void setCountry(String country) {
+                this.country = country;
+            }
+        }
+        return new ValueReference();
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);

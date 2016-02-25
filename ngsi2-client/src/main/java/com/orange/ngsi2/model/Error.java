@@ -48,4 +48,9 @@ public class Error {
     public void setAffectedItems(Optional<Collection<String>> affectedItems) {
         this.affectedItems = affectedItems;
     }
+
+    @Override
+    public String toString() {
+        return String.format("error: %s | description: %s | affectedItems: %s", error, description, affectedItems);
+    }
 }

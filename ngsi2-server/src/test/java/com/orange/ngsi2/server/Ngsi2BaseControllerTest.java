@@ -486,6 +486,62 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    public void checkRetrieveAttributeValueNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/entities/Bcn-Welt/attrs/temperature/value").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve Attribute Value' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    /*@Test
+    public void checkRetrieveTextPlainAttributeValueNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/entities/Bcn-Welt/attrs/temperature/value").contentType(MediaType.TEXT_PLAIN)
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(MockMvcResultMatchers.jsonPath("$").value("501"))
+                .andExpect(status().isNotImplemented());
+    }*/
+
+    @Test
+    public void checkRetrieveAttributeValueInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn%Welt/attrs/temperature/value").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn%Welt has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkRetrieveAttributeValueNotAcceptable() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/temperature/value").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("406"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Not Acceptable: Accepted MIME types: text/plain."))
+                .andExpect(status().isNotAcceptable());
+    }
+
+    @Test
+    public void checkRetrieveAttributeValueOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/pressure/value").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.city").value("Madrid"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkTextPlainRetrieveAttributeValueOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/temperature/value")
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("25.0"))
+                .andExpect(status().isOk());
+    }
 
     @Test
     public void checkPattern() {

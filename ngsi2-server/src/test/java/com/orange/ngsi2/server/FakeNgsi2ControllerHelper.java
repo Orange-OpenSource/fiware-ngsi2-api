@@ -96,4 +96,12 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
             throw new ConflictingEntitiesException("Boe-Idearium", "DELETE /v2/entities/Boe-Idearium/attrs/temperature?type=");
         }
     }
+
+    @Override
+    protected Object retrieveAttributeValue(String entityId, String attrName, Optional<String> type) {
+        if (attrName.equals("temperature")) {
+            return new Float(25.0);
+        }
+        return Utils.createValueReference();
+    }
 }
