@@ -496,14 +496,14 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(status().isNotImplemented());
     }
 
-    /*@Test
+    @Test
     public void checkRetrieveTextPlainAttributeValueNotImplemented() throws Exception {
         mockMvc.perform(
                 get("/v2/ni/entities/Bcn-Welt/attrs/temperature/value").contentType(MediaType.TEXT_PLAIN)
                         .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
-                .andExpect(MockMvcResultMatchers.jsonPath("$").value("501"))
+                .andExpect(content().string("error: 501 | description: this operation 'Retrieve Attribute Value' is not implemented | affectedItems: []"))
                 .andExpect(status().isNotImplemented());
-    }*/
+    }
 
     @Test
     public void checkRetrieveAttributeValueInvalidSyntax() throws Exception {

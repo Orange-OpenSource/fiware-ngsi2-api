@@ -3,6 +3,7 @@ package com.orange.ngsi2.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 /**
@@ -23,6 +24,12 @@ public class Error {
 
     public Error(String error) {
         this.error = error;
+    }
+
+    public Error(String error, Optional<String> description, Optional<Collection<String>> affectedItems) {
+        this.error = error;
+        this.description = description;
+        this.affectedItems = affectedItems;
     }
 
     public String getError() {
@@ -51,6 +58,6 @@ public class Error {
 
     @Override
     public String toString() {
-        return String.format("error: %s | description: %s | affectedItems: %s", error, description, affectedItems);
+        return String.format("error: %s | description: %s | affectedItems: %s", error, description.orElse(""), affectedItems.orElse(Collections.emptyList()));
     }
 }

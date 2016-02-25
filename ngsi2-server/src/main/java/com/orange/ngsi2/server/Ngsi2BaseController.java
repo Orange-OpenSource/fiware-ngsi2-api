@@ -17,6 +17,8 @@
 
 package com.orange.ngsi2.server;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.ngsi2.exception.*;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
@@ -29,8 +31,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -255,7 +260,7 @@ public abstract class Ngsi2BaseController {
         if ((value == null) || (value instanceof String) || (value instanceof Number) || (value instanceof Boolean)) {
             throw new NotAcceptableException();
         }
-        return new ResponseEntity<Object>(value, HttpStatus.OK);
+        return new ResponseEntity<>(value, HttpStatus.OK);
     }
 
     /**
@@ -268,14 +273,11 @@ public abstract class Ngsi2BaseController {
      */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities/{entityId}/attrs/{attrName}/value"}, produces = MediaType.TEXT_PLAIN_VALUE)
-    final public ResponseEntity<String> retrieveTextPlainAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
+    final public ResponseEntity<String> retrievePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
         validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
         Object value = retrieveAttributeValue(entityId, attrName, type);
-        if ((value == null) || (value instanceof String) || (value instanceof Number) || (value instanceof Boolean)) {
-            return new ResponseEntity<String>(valueToString(value), HttpStatus.OK);
-        }
-        return new ResponseEntity<String>(objectMapper.writeValueAsString(value), HttpStatus.OK);
+        return new ResponseEntity<>(valueToString(value), HttpStatus.OK);
     }
 
     /*
@@ -283,51 +285,63 @@ public abstract class Ngsi2BaseController {
      */
 
     @ExceptionHandler({UnsupportedOperationException.class})
-    public ResponseEntity<Object> unsupportedOperation(UnsupportedOperationException exception) {
+    public ResponseEntity<Object> unsupportedOperation(UnsupportedOperationException exception, HttpServletRequest request) {
         logger.error("Unsupported operation: {}", exception.getMessage());
-        Error error = new Error(exception.getError());
-        error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<>(error, HttpStatus.NOT_IMPLEMENTED);
+        HttpStatus httpStatus = HttpStatus.NOT_IMPLEMENTED;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
     @ExceptionHandler({IncompatibleParameterException.class})
-    public ResponseEntity<Object> incompatibleParameter(IncompatibleParameterException exception) {
+    public ResponseEntity<Object> incompatibleParameter(IncompatibleParameterException exception, HttpServletRequest request) {
         logger.error("Incompatible parameter: {}", exception.getMessage());
-        Error error = new Error(exception.getError());
-        error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
     @ExceptionHandler({InvalidatedSyntaxException.class})
-    public ResponseEntity<Object> invalidSyntax(InvalidatedSyntaxException exception) {
+    public ResponseEntity<Object> invalidSyntax(InvalidatedSyntaxException exception, HttpServletRequest request) {
         logger.error("Invalid syntax: {}", exception.getMessage());
-        Error error = new Error(exception.getError());
-        error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
     @ExceptionHandler({ConflictingEntitiesException.class})
-    public ResponseEntity<Object> conflictingEntities(ConflictingEntitiesException exception) {
+    public ResponseEntity<Object> conflictingEntities(ConflictingEntitiesException exception, HttpServletRequest request) {
         logger.error("ConflictingEntities: {}", exception.getMessage());
-        Error error = new Error(exception.getError());
-        error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+        HttpStatus httpStatus = HttpStatus.CONFLICT;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
     @ExceptionHandler({NotAcceptableException.class})
-    public ResponseEntity<Object> notAcceptable(NotAcceptableException exception) {
+    public ResponseEntity<Object> notAcceptable(NotAcceptableException exception, HttpServletRequest request) {
         logger.error("Not Acceptable: {}", exception.getMessage());
-        Error error = new Error(exception.getError());
-        error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
+        HttpStatus httpStatus = HttpStatus.NOT_ACCEPTABLE;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
     @ExceptionHandler({InternalErrorException.class})
-    public ResponseEntity<Object> internalError(InternalErrorException exception) {
+    public ResponseEntity<Object> internalError(InternalErrorException exception, HttpServletRequest request) {
         logger.error("Internal Error: {}", exception.getMessage());
-        Error error = new Error(exception.getError());
-        error.setDescription(Optional.of(exception.getDescription()));
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
     /*
@@ -546,18 +560,17 @@ public abstract class Ngsi2BaseController {
         return headers;
     }
 
-    private String valueToString(Object value) {
+    private String valueToString(Object value) throws JsonProcessingException {
         if (value == null) {
             return "null";
-        }
-        else if (value instanceof String) {
+        } else if (value instanceof String) {
             return (String)value;
         } else if (value instanceof Boolean) {
             return ((Boolean)value).toString();
         } else if (value instanceof Number) {
             return String.valueOf((Number)value);
         } else {
-            throw new InternalErrorException("valueToString: unknown type");
+            return objectMapper.writeValueAsString(value);
         }
     }
 

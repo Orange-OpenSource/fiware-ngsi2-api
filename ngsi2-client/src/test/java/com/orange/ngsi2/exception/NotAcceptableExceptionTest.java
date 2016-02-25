@@ -12,6 +12,6 @@ public class NotAcceptableExceptionTest {
     @Test
     public void checkProperties() {
         NotAcceptableException exception = new NotAcceptableException();
-        assertEquals("error: 406 | description: Not Acceptable: Accepted MIME types: text/plain. | affectedItems: null", exception.getMessage());
+        assertEquals("error: 406 | description: Not Acceptable: Accepted MIME types: text/plain. | affectedItems: []", exception.getMessage());
     }
 }

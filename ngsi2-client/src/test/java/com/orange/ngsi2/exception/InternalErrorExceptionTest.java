@@ -29,6 +29,6 @@ public class InternalErrorExceptionTest {
     @Test
     public void checkProperties() {
         InternalErrorException exception = new InternalErrorException("valueToString: unknown type");
-        assertEquals("error: 500 | description: Internal Error: valueToString: unknown type. | affectedItems: null", exception.getMessage());
+        assertEquals("error: 500 | description: Internal Error: valueToString: unknown type. | affectedItems: []", exception.getMessage());
     }
 }

@@ -25,6 +25,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Optional;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -55,5 +56,13 @@ public class ErrorTest {
         assertTrue(json.contains("error"));
         assertTrue(json.contains("description"));
         assertTrue(json.contains("affectedItems"));
+    }
+
+    @Test
+    public void checkToString() {
+        Error parseError = new Error("400", Optional.of("The incoming JSON payload cannot be parsed"), Optional.empty());
+        assertEquals("error: 400 | description: The incoming JSON payload cannot be parsed | affectedItems: []", parseError.toString());
+        parseError.setAffectedItems(Optional.of(Collections.singleton("entities")));
+        assertEquals("error: 400 | description: The incoming JSON payload cannot be parsed | affectedItems: [entities]", parseError.toString());
     }
 }

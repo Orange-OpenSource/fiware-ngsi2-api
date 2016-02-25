@@ -80,7 +80,7 @@ public class Ngsi2ClientTest {
     @Test
     public void testGetV2_ClientError() throws Exception {
         thrown.expect(Ngsi2Exception.class);
-        thrown.expectMessage("error: 400 | description: Bad Request | affectedItems: null");
+        thrown.expectMessage("error: 400 | description: Bad Request | affectedItems: []");
 
         mockServer.expect(requestTo(baseURL + "/v2"))
                 .andExpect(method(HttpMethod.GET))

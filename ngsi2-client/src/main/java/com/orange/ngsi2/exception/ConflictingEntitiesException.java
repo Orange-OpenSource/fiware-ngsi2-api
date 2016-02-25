@@ -20,6 +20,7 @@ package com.orange.ngsi2.exception;
 import com.orange.ngsi2.model.Error;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * 409 TooManyResults

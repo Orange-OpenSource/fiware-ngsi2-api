@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -13,11 +14,7 @@ import java.util.concurrent.ExecutionException;
  */
 public class Ngsi2Exception extends RuntimeException {
 
-    private String error;
-
-    private String description;
-
-    private Collection<String> affectedItems;
+    private Error error = new Error();
 
     /**
      * Return specialized exception based on the HTTP status code and error
@@ -38,21 +35,24 @@ public class Ngsi2Exception extends RuntimeException {
     }
 
     public Ngsi2Exception(String error, String description, Collection<String> affectedItems) {
-        super(String.format("error: %s | description: %s | affectedItems: %s", error, description, affectedItems));
-        this.error = error;
-        this.description = description;
-        this.affectedItems = affectedItems;
+        this.error.setError(error);
+        if (description != null) {
+            this.error.setDescription(Optional.of(description));
+        } else {
+            this.error.setDescription(Optional.empty());
+        }
+        if (affectedItems != null) {
+            this.error.setAffectedItems(Optional.of(affectedItems));
+        } else {
+            this.error.setAffectedItems(Optional.empty());
+        }
     }
 
-    public String getError() {
+    public Error getError() {
         return error;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public Collection<String> getAffectedItems() {
-        return affectedItems;
+    public String getMessage() {
+        return error.toString();
     }
 }

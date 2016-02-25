@@ -12,6 +12,6 @@ public class ConflictingEntitiesExceptionTest {
     @Test
     public void checkProperties() {
         ConflictingEntitiesException exception = new ConflictingEntitiesException("Boe-Idearium","GET /v2/entities?id=Boe-Idearium&attrs=temperature");
-        assertEquals("error: 409 | description: Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use GET /v2/entities?id=Boe-Idearium&attrs=temperature | affectedItems: null", exception.getMessage());
+        assertEquals("error: 409 | description: Too many results. There are several results that match with the Boe-Idearium used in the request. Instead of, you can use GET /v2/entities?id=Boe-Idearium&attrs=temperature | affectedItems: []", exception.getMessage());
     }
 }
