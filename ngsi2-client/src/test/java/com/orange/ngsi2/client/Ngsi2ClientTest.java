@@ -190,31 +190,31 @@ public class Ngsi2ClientTest {
     @Test
     public void testUpdateEntity_OK() throws Exception {
 
-        mockServer.expect(requestTo(baseURL + "/v2/entities/room1"))
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1?type=Room"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.temperature.value").value(35.6))
                 .andRespond(withNoContent());
 
-        ngsiClient.updateEntity("room1", Collections.singletonMap("temperature", new Attribute(35.6)), false).get();
+        ngsiClient.updateEntity("room1", "Room", Collections.singletonMap("temperature", new Attribute(35.6)), false).get();
     }
 
     @Test
     public void testUpdateEntity_Append() throws Exception {
 
-        mockServer.expect(requestTo(baseURL + "/v2/entities/room1?options=append"))
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1?type=Room&options=append"))
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.temperature.value").value(35.6))
                 .andRespond(withNoContent());
 
-        ngsiClient.updateEntity("room1", Collections.singletonMap("temperature", new Attribute(35.6)), true).get();
+        ngsiClient.updateEntity("room1", "Room", Collections.singletonMap("temperature", new Attribute(35.6)), true).get();
     }
 
     @Test
     public void testReplaceEntity_OK() throws Exception {
 
-        mockServer.expect(requestTo(baseURL + "/v2/entities/room1"))
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1?type=Room"))
                 .andExpect(method(HttpMethod.PUT))
                 .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(jsonPath("$.temperature.value").value(35.6))
@@ -222,17 +222,17 @@ public class Ngsi2ClientTest {
 
         Entity e = new Entity("DC_S1-D41", "Room", Collections.singletonMap("temperature", new Attribute(35.6)));
 
-        ngsiClient.replaceEntity("room1", Collections.singletonMap("temperature", new Attribute(35.6))).get();
+        ngsiClient.replaceEntity("room1", "Room", Collections.singletonMap("temperature", new Attribute(35.6))).get();
     }
 
     @Test
     public void testDeleteEntity_OK() throws Exception {
 
-        mockServer.expect(requestTo(baseURL + "/v2/entities/room1"))
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1?type=Room"))
                 .andExpect(method(HttpMethod.DELETE))
                 .andRespond(withNoContent());
 
-        ngsiClient.deleteEntity("room1").get();
+        ngsiClient.deleteEntity("room1", "Room").get();
     }
 
 }

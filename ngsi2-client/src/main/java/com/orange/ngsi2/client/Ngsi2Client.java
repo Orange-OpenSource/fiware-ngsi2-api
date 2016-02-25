@@ -173,12 +173,14 @@ public class Ngsi2Client {
     /**
      * Get an entity
      * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
      * @param attrs the list of attributes to retreive for this entity, null or empty means all attributes
      * @return the entity
      */
-    public ListenableFuture<Entity> getEntity(String entityId, Collection<String> attrs) {
+    public ListenableFuture<Entity> getEntity(String entityId, String type, Collection<String> attrs) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(entityPath);
+        addParam(builder, "type", type);
         addParam(builder, "attrs", attrs);
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId).toUriString(), null, Entity.class));
     }
@@ -186,13 +188,15 @@ public class Ngsi2Client {
     /**
      * Update existing or append some attributes to an entity
      * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
      * @param attributes the attributes to update or to append
      * @param append if true, will only allow to append new attributes
      * @return the listener to notify of completion
      */
-    public ListenableFuture<Void> updateEntity(String entityId, Map<String, Attribute> attributes, boolean append) {
+    public ListenableFuture<Void> updateEntity(String entityId, String type, Map<String, Attribute> attributes, boolean append) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(entityPath);
+        addParam(builder, "type", type);
         if (append) {
             addParam(builder, "options", "append");
         }
@@ -202,22 +206,28 @@ public class Ngsi2Client {
     /**
      * Replace all the existing attributes of an entity with a new set of attributes
      * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
      * @param attributes the new set of attributes
      * @return the listener to notify of completion
      */
-    public ListenableFuture<Void> replaceEntity(String entityId, Map<String, Attribute> attributes) {
-        String uri = UriComponentsBuilder.fromHttpUrl(baseURL).path(entityPath).buildAndExpand(entityId).toUriString();
-        return adapt(request(HttpMethod.PUT, uri, attributes, Void.class));
+    public ListenableFuture<Void> replaceEntity(String entityId, String type, Map<String, Attribute> attributes) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(entityPath);
+        addParam(builder, "type", type);
+        return adapt(request(HttpMethod.PUT, builder.buildAndExpand(entityId).toUriString(), attributes, Void.class));
     }
 
     /**
      * Delete an entity
      * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
      * @return the listener to notify of completion
      */
-    public ListenableFuture<Void> deleteEntity(String entityId) {
-        String uri = UriComponentsBuilder.fromHttpUrl(baseURL).path(entityPath).buildAndExpand(entityId).toUriString();
-        return adapt(request(HttpMethod.DELETE, uri, null, Void.class));
+    public ListenableFuture<Void> deleteEntity(String entityId, String type) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(entityPath);
+        addParam(builder, "type", type);
+        return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(entityId).toUriString(), null, Void.class));
     }
 
     /**
