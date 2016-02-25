@@ -21,6 +21,7 @@ import com.orange.ngsi2.Utils;
 import com.orange.ngsi2.exception.Ngsi2Exception;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
+import com.orange.ngsi2.model.Metadata;
 import com.orange.ngsi2.model.Paginated;
 import org.junit.*;
 
@@ -254,4 +255,51 @@ public class Ngsi2ClientTest {
         ngsiClient.deleteEntity("room1", "Room").get();
     }
 
+    /*
+     * Attributes requests
+     */
+
+    @Test
+    public void testGetAttribute_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/DC_S1-D41/attrs/temperature?type=Room"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getAttributeResponse.json"), MediaType.APPLICATION_JSON));
+
+        Attribute attribute = ngsiClient.getAttribute("DC_S1-D41", "Room", "temperature").get();
+
+        assertNotNull(attribute);
+        assertEquals(35.6, attribute.getValue());
+        assertEquals("urn:phenomenum:temperature", attribute.getType().get());
+        assertNotNull(attribute.getMetadata());
+        assertEquals("2015-06-04T07:20:27.378Z", attribute.getMetadata().get("timestamp").getValue());
+        assertEquals("date", attribute.getMetadata().get("timestamp").getType());
+    }
+
+    @Test
+    public void testUpdateAttribute_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1/attrs/temperature?type=Room"))
+                .andExpect(method(HttpMethod.PUT))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.value").value(35.6))
+                .andExpect(jsonPath("$.metadata.timestamp.type").value("date"))
+                .andExpect(jsonPath("$.metadata.timestamp.value").value("2015-06-04T07:20:27.378Z"))
+                .andRespond(withNoContent());
+
+        Attribute attribute = new Attribute(35.6);
+        attribute.addMetadata("timestamp", new Metadata("date", "2015-06-04T07:20:27.378Z"));
+        ngsiClient.updateAttribute("room1", "Room", "temperature", attribute).get();
+    }
+
+    @Test
+    public void testDeleteAttibute_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1/attrs/temperature?type=Room"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andRespond(withNoContent());
+
+        ngsiClient.deleteAttribute("room1", "Room", "temperature").get();
+    }
 }

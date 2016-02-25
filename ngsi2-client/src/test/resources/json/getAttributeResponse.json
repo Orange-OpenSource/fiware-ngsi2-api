@@ -1,0 +1,10 @@
+{
+  "value": 35.6,
+  "type": "urn:phenomenum:temperature",
+  "metadata": {
+    "timestamp": {
+      "value": "2015-06-04T07:20:27.378Z",
+      "type": "date"
+    }
+  }
+}

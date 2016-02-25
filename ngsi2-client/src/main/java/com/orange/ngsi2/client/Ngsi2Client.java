@@ -47,7 +47,7 @@ public class Ngsi2Client {
     private static final String typesPath = basePath + "/types";
     private static final String registrationsPath = basePath + "/subscriptions";
     private static final String baseSubscriptions = basePath + "/subscriptions";
-    private static final String attributesPath = "/attrs/";
+    private static final String attributePath = entityPath + "/attrs/{attributeName}";
     private static final String valuePath = "/value";
     private static final String pathSep = "/";
 
@@ -232,6 +232,52 @@ public class Ngsi2Client {
         builder.path(entityPath);
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(entityId).toUriString(), null, Void.class));
+    }
+
+    /*
+     * Attributes requests
+     */
+
+    /**
+     * Retrieve the attribute of an entity
+     * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
+     * @param attributeName the attribute name
+     * @return
+     */
+    public ListenableFuture<Attribute> getAttribute(String entityId, String type, String attributeName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(attributePath);
+        addParam(builder, "type", type);
+        return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Attribute.class));
+    }
+
+    /**
+     * Update the attribute of an entity
+     * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
+     * @param attributeName the attribute name
+     * @return
+     */
+    public ListenableFuture<Void> updateAttribute(String entityId, String type, String attributeName, Attribute attribute) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(attributePath);
+        addParam(builder, "type", type);
+        return adapt(request(HttpMethod.PUT, builder.buildAndExpand(entityId, attributeName).toUriString(), attribute, Void.class));
+    }
+
+    /**
+     * Delete the attribute of an entity
+     * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
+     * @param attributeName the attribute name
+     * @return
+     */
+    public ListenableFuture<Attribute> deleteAttribute(String entityId, String type, String attributeName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(attributePath);
+        addParam(builder, "type", type);
+        return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Attribute.class));
     }
 
     /**
