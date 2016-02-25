@@ -334,16 +334,6 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
-    @ExceptionHandler({InternalErrorException.class})
-    public ResponseEntity<Object> internalError(InternalErrorException exception, HttpServletRequest request) {
-        logger.error("Internal Error: {}", exception.getMessage());
-        HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
-        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
-            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
-        }
-        return new ResponseEntity<>(exception.getError(), httpStatus);
-    }
-
     /*
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
@@ -466,11 +456,18 @@ public abstract class Ngsi2BaseController {
      * @param entityId the entity ID
      * @param attrName the attribute name
      * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     * @throws ConflictingEntitiesException
      */
-    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type) {
+    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Remove Attribute");
     }
 
+    /**
+     * Delete an attribute
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     */
     protected Object retrieveAttributeValue(String entityId, String attrName, Optional<String> type) {
         throw new UnsupportedOperationException("Retrieve Attribute Value");
     }
