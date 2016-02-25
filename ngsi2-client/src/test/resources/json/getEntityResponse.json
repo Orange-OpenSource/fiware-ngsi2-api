@@ -1,0 +1,14 @@
+{
+  "type": "Room",
+  "id": "DC_S1-D41",
+  "temperature": {
+    "value": 35.6,
+    "type": "urn:phenomenum:temperature",
+    "metadata": {}
+  },
+  "humidity": {
+    "value": 83.1,
+    "type": "urn:phenomenum:humidity",
+    "metadata": {}
+  }
+}

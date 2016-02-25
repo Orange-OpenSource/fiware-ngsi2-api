@@ -104,6 +104,7 @@ public class Ngsi2ClientTest {
 
         mockServer.expect(requestTo(baseURL + "/v2"))
                 .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess(Utils.loadResource("json/getV2Response.json"), MediaType.APPLICATION_JSON));
 
         Map<String, String> endpoints = ngsiClient.getV2().get();
@@ -111,11 +112,16 @@ public class Ngsi2ClientTest {
         assertNotNull("/v2/entities", endpoints.get("entities_url"));
     }
 
+    /*
+     * Entities requests
+     */
+
     @Test
     public void testGetEntities_Defaults() throws Exception {
 
         mockServer.expect(requestTo(baseURL + "/v2/entities"))
                 .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
 
         Paginated<Entity> entities = ngsiClient.getEntities(null, null, null, null, 0, 0, false).get();
@@ -139,6 +145,7 @@ public class Ngsi2ClientTest {
 
         mockServer.expect(requestTo(baseURL + "/v2/entities?offset=2&limit=10&options=count"))
                 .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON)
                         .headers(responseHeader));
 
@@ -166,6 +173,7 @@ public class Ngsi2ClientTest {
                 "orderBy=temp,!humidity&" +
                 "offset=2&limit=10"))
                 .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
 
         ngsiClient.getEntities(ids, idPattern, types, params, query, georel, geometry, coords, orderBy, 2, 10, false).get();
@@ -185,6 +193,17 @@ public class Ngsi2ClientTest {
         Entity e = new Entity("DC_S1-D41", "Room", Collections.singletonMap("temperature", new Attribute(35.6)));
 
         ngsiClient.addEntity(e).get();
+    }
+
+    @Test
+    public void testGetEntity_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/DC_S1-D41?type=Room&attrs=temperature,humidity"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getEntityResponse.json"), MediaType.APPLICATION_JSON));
+
+        ngsiClient.getEntity("DC_S1-D41", "Room", Arrays.asList("temperature", "humidity")).get();
     }
 
     @Test

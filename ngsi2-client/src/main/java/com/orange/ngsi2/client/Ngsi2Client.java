@@ -96,6 +96,10 @@ public class Ngsi2Client {
         };
     }
 
+    /*
+     * Entities requests
+     */
+
     /**
      * Retrieve a list of Entities (simplified)
      * @param ids an optional list of entity IDs (cannot be used with idPatterns)
