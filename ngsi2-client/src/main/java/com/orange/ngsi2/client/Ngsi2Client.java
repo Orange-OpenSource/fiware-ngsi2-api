@@ -25,14 +25,11 @@ import com.orange.ngsi2.model.Paginated;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureAdapter;
 import org.springframework.web.client.AsyncRestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 
@@ -48,8 +45,7 @@ public class Ngsi2Client {
     private static final String registrationsPath = basePath + "/subscriptions";
     private static final String baseSubscriptions = basePath + "/subscriptions";
     private static final String attributePath = entityPath + "/attrs/{attributeName}";
-    private static final String valuePath = "/value";
-    private static final String pathSep = "/";
+    private static final String valuePath = attributePath + "/value";
 
     private final static Map<String, ?> noParams = Collections.emptyMap();
 
@@ -280,6 +276,38 @@ public class Ngsi2Client {
         return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Attribute.class));
     }
 
+    /*
+     * Attribute values requests
+     */
+
+    /**
+     * Retrieve the attribute of an entity
+     * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
+     * @param attributeName the attribute name
+     * @return
+     */
+    public ListenableFuture<Object> getAttributeValue(String entityId, String type, String attributeName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL).path(valuePath);
+        addParam(builder, "type", type);
+        return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Object.class));
+    }
+
+    /**
+     * Retrieve the attribute of an entity
+     * @param entityId the entity ID
+     * @param type optional entity type to avoid ambiguity when multiple entities have the same ID, null or zero-length for empty
+     * @param attributeName the attribute name
+     * @return
+     */
+    public ListenableFuture<String> getAttributeValueAsString(String entityId, String type, String attributeName) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL).path(valuePath);
+        addParam(builder, "type", type);
+        HttpHeaders httpHeaders = cloneHttpHeaders();
+        httpHeaders.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
+        return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), httpHeaders, null, String.class));
+    }
+
     /**
      * Default headers
      * @return the default headers
@@ -289,10 +317,17 @@ public class Ngsi2Client {
     }
 
     /**
-     * Make an HTTP request
+     * Make an HTTP request with default headers
      */
     protected <T,U> ListenableFuture<ResponseEntity<T>> request(HttpMethod method, String uri, U body, Class<T> responseType) {
-        HttpEntity<U> requestEntity = new HttpEntity<>(body, getHttpHeaders());
+        return request(method, uri, getHttpHeaders(), body, responseType);
+    }
+
+    /**
+     * Make an HTTP request with custom headers
+     */
+    protected <T,U> ListenableFuture<ResponseEntity<T>> request(HttpMethod method, String uri, HttpHeaders httpHeaders, U body, Class<T> responseType) {
+        HttpEntity<U> requestEntity = new HttpEntity<>(body, httpHeaders);
         return asyncRestTemplate.exchange(uri, method, requestEntity, responseType);
     }
 
@@ -341,6 +376,18 @@ public class Ngsi2Client {
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    /**
+     * @return return a clone HttpHeader from default HttpHeader
+     */
+    private HttpHeaders cloneHttpHeaders() {
+        HttpHeaders httpHeaders = getHttpHeaders();
+        HttpHeaders clone = new HttpHeaders();
+        for (String entry : httpHeaders.keySet()) {
+            clone.put(entry, httpHeaders.get(entry));
+        }
+        return clone;
     }
 
     /**

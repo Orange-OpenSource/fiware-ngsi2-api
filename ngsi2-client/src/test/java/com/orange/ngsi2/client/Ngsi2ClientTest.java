@@ -32,8 +32,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.AsyncRestTemplate;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -240,8 +238,6 @@ public class Ngsi2ClientTest {
                 .andExpect(jsonPath("$.temperature.value").value(35.6))
                 .andRespond(withNoContent());
 
-        Entity e = new Entity("DC_S1-D41", "Room", Collections.singletonMap("temperature", new Attribute(35.6)));
-
         ngsiClient.replaceEntity("room1", "Room", Collections.singletonMap("temperature", new Attribute(35.6))).get();
     }
 
@@ -301,5 +297,47 @@ public class Ngsi2ClientTest {
                 .andRespond(withNoContent());
 
         ngsiClient.deleteAttribute("room1", "Room", "temperature").get();
+    }
+
+    @Test
+    public void testGetAttributeValue_Object() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1/attrs/object/value?type=Room"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(Utils.loadResource("json/getAttributeValueObjectResponse.json"), MediaType.APPLICATION_JSON));
+
+        Map<String, Object> e = (Map<String, Object>) ngsiClient.getAttributeValue("room1", "Room", "object").get();
+
+        assertEquals(42, e.get("int"));
+        assertEquals(3.1415, e.get("float"));
+        assertEquals("hello world !", e.get("string"));
+        assertEquals(null, e.get("null"));
+        assertEquals(Arrays.asList(0, 1,2,3,4,5,6), e.get("array"));
+        assertEquals(Collections.singletonMap("hello", "world"), e.get("object"));
+    }
+
+    @Test
+    public void testGetAttributeValue_Array() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1/attrs/array/value?type=Room"))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(Utils.loadResource("json/getAttributeValueArrayResponse.json"), MediaType.APPLICATION_JSON));
+
+        Object e = ngsiClient.getAttributeValue("room1", "Room", "array").get();
+
+        assertEquals(Arrays.asList(0, 1,2,3,4,5,6), e);
+    }
+
+    @Test
+    public void testGetAttributeValueAsString_Number() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/entities/room1/attrs/text/value?type=Room"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.TEXT_PLAIN_VALUE))
+                .andRespond(withSuccess("some random text", MediaType.TEXT_PLAIN));
+
+        String result = ngsiClient.getAttributeValueAsString("room1", "Room", "text").get();
+
+        assertEquals("some random text", result);
     }
 }
