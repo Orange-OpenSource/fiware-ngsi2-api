@@ -216,7 +216,7 @@ public abstract class Ngsi2BaseController {
      * @param entityId the entity ID
      * @param attrName the attribute name
      * @param type an optional type of entity
-     * @return the attribute and http status 200 (ok) or 409 (conflict)
+     * @return http status 204 (no content) or 409 (conflict)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.PUT,
@@ -278,6 +278,40 @@ public abstract class Ngsi2BaseController {
         validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
         Object value = retrieveAttributeValue(entityId, attrName, type);
         return new ResponseEntity<>(valueToString(value), HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint put /v2/entities/{entityId}/attrs/{attrName}/value
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type of entity
+     * @return http status 204 (No Content) or 409 (conflict)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.PUT,
+            value = {"/entities/{entityId}/attrs/{attrName}/value"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity updateAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody Object value) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        updateAttributeValue(entityId, attrName, type, value);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
+    /**
+     * Endpoint put /v2/entities/{entityId}/attrs/{attrName}/value
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type of entity
+     * @return http status 204 (No Content) or 409 (conflict)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.PUT,
+            value = {"/entities/{entityId}/attrs/{attrName}/value"}, consumes = MediaType.TEXT_PLAIN_VALUE)
+    final public ResponseEntity updatePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody String value) throws Exception {
+
+        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        updateAttributeValue(entityId, attrName, type, stringToValue(value));
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     /*
@@ -472,6 +506,18 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Retrieve Attribute Value");
     }
 
+    /**
+     * Update an Attribute Value
+     * @param entityId the entity ID
+     * @param attrName the attribute name
+     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     * @param value the new value
+     * @throws ConflictingEntitiesException
+     */
+    protected void updateAttributeValue(String entityId, String attrName, Optional<String> type, Object value) throws ConflictingEntitiesException {
+        throw new UnsupportedOperationException("Update Attribute Value");
+    }
+
     /*
      * Private Methods 
      */
@@ -568,6 +614,32 @@ public abstract class Ngsi2BaseController {
             return String.valueOf((Number)value);
         } else {
             return objectMapper.writeValueAsString(value);
+        }
+    }
+
+    private Object stringToValue(String value) {
+        if  (value.equalsIgnoreCase("true")) {
+            return new Boolean(true);
+        } else if (value.equalsIgnoreCase("false")) {
+            return new Boolean(false);
+        } else if (value.equalsIgnoreCase("null")) {
+            return null;
+        } else if ((value.startsWith("\"")) && (value.endsWith("\""))) {
+            return value;
+        } else {
+            try {
+                return Long.parseLong(value);
+            } catch (NumberFormatException e1) {
+                try {
+                    return Float.parseFloat(value);
+                } catch (NumberFormatException e2) {
+                    try {
+                        return Double.parseDouble(value);
+                    } catch (NumberFormatException e3) {
+                        throw new NotAcceptableException();
+                    }
+                }
+            }
         }
     }
 

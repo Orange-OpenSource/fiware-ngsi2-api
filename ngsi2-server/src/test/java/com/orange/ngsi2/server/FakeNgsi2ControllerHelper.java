@@ -104,4 +104,11 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
         }
         return Utils.createValueReference();
     }
+
+    @Override
+    protected void updateAttributeValue(String entityId, String attrName, Optional<String> type, Object value) throws ConflictingEntitiesException {
+        if (!entityId.equals("Bcn-Welt")) {
+            throw new ConflictingEntitiesException("Boe-Idearium", "PUT /v2/entities/Boe-Idearium/attrs/temperature/value?type=");
+        }
+    }
 }
