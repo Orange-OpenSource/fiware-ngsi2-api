@@ -101,8 +101,13 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     protected Object retrieveAttributeValue(String entityId, String attrName, Optional<String> type) {
         if (attrName.equals("temperature")) {
             return new Float(25.0);
+        } else if (attrName.equals("on")) {
+            return true;
+        } else if (attrName.equals("color")) {
+            return null;
+        } else {
+            return Utils.createValueReference();
         }
-        return Utils.createValueReference();
     }
 
     @Override

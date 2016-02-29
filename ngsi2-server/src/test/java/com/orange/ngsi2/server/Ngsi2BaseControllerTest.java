@@ -516,6 +516,15 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkRetrieveTextPlainAttributeValueInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/entities/Bcn%Welt/attrs/temperature/value").contentType(MediaType.TEXT_PLAIN)
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("error: 400 | description: The incoming request is invalid in this context. Bcn%Welt has a bad syntax. | affectedItems: []"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void checkRetrieveAttributeValueNotAcceptable() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities/Bcn-Welt/attrs/temperature/value").contentType(MediaType.APPLICATION_JSON)
@@ -528,7 +537,7 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveAttributeValueOK() throws Exception {
         mockMvc.perform(
-                get("/v2/i/entities/Bcn-Welt/attrs/pressure/value").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/entities/Bcn-Welt/attrs/pressure/value")
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.city").value("Madrid"))
                 .andExpect(status().isOk());
@@ -540,6 +549,33 @@ public class Ngsi2BaseControllerTest {
                 get("/v2/i/entities/Bcn-Welt/attrs/temperature/value")
                         .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
                 .andExpect(content().string("25.0"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkTextPlainRetrieveAttributeValueJsonObjectOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/pressure/value")
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("{\"address\":\"Ronda de la Comunicacions\",\"zipCode\":28050,\"city\":\"Madrid\",\"country\":\"Spain\"}"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkTextPlainRetrieveAttributeValueBooleanOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/on/value")
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("true"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkTextPlainRetrieveAttributeValueNullOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/color/value")
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("null"))
                 .andExpect(status().isOk());
     }
 
@@ -607,9 +643,27 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
-    public void checkTextPlainUpdateAttributeValueBooleanOK() throws Exception {
+    public void checkTextPlainUpdateAttributeValueBooleanFalseOK() throws Exception {
         mockMvc.perform(
                 put("/v2/i/entities/Bcn-Welt/attrs/temperature/value").content("False")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string(""));
+    }
+
+    @Test
+    public void checkTextPlainUpdateAttributeValueBooleanTrueOK() throws Exception {
+        mockMvc.perform(
+                put("/v2/i/entities/Bcn-Welt/attrs/temperature/value").content("True")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string(""));
+    }
+
+    @Test
+    public void checkTextPlainUpdateAttributeValueNullOK() throws Exception {
+        mockMvc.perform(
+                put("/v2/i/entities/Bcn-Welt/attrs/temperature/value").content("null")
                         .contentType(MediaType.TEXT_PLAIN)
                         .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
                 .andExpect(content().string(""));
