@@ -326,6 +326,19 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(listRegistrations(), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint post /v2/registrations
+     * @param registration
+     * @return http status 201 (created)
+     */
+    @RequestMapping(method = RequestMethod.POST, value = "/registrations", consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity createRegistrationEndpoint(@RequestBody Registration registration) {
+
+        validateSyntax(registration);
+        createRegistration(registration);
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+
     /*
      * Exception handling
      */
@@ -538,6 +551,14 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Retrieve Registrations");
     }
 
+    /**
+     * Create a new registration
+     * @param registration the registration to create
+     */
+    protected void createRegistration(Registration registration){
+        throw new UnsupportedOperationException("Create Registration");
+    }
+
     /*
      * Private Methods 
      */
@@ -606,6 +627,29 @@ public abstract class Ngsi2BaseController {
         validateSyntax(entityId);
         if (attributes != null) {
             validateSyntax(attributes);
+        }
+    }
+
+    private void validateSyntax(Registration registration) {
+        registration.getSubject().getEntities().forEach(subjectEntity -> {
+            if (subjectEntity.getId() != null) {
+                validateSyntax(subjectEntity.getId().get());
+            }
+            if (subjectEntity.getType() != null) {
+                validateSyntax(subjectEntity.getType().get());
+            }
+        });
+        registration.getSubject().getAttributes().forEach(this::validateSyntax);
+        Map<String, Metadata> metadatas = registration.getMetadata();
+        if (metadatas != null) {
+            //check metadata name
+            metadatas.keySet().forEach(this::validateSyntax);
+            //check metadata type
+            metadatas.values().forEach(metadata -> {
+                if (metadata.getType() != null) {
+                    validateSyntax(metadata.getType());
+                }
+            });
         }
     }
 

@@ -698,6 +698,35 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkCreateRegistrationNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/registrations").content(json(jsonV2Converter, createRegistrationReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Create Registration' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkCreateRegistrationOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/registrations").content(json(jsonV2Converter, createRegistrationReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void checkCreateRegistrationWithBasSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/registrations").content(json(jsonV2Converter, createRegistrationReferenceWithBadSyntax())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. example% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));

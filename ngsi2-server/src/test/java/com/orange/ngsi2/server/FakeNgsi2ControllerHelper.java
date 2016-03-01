@@ -123,4 +123,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
             return Collections.emptyList();
         }
     }
+
+    @Override
+    protected void createRegistration(Registration registration){ }
 }

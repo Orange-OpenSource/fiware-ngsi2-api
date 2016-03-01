@@ -207,6 +207,34 @@ public class Utils {
         return Collections.singletonList(registration);
     }
 
+    static public Registration createRegistrationReference() throws MalformedURLException {
+
+        Registration registration = new Registration();
+        registration.setCallback(new URL("http://localhost:1234"));
+        registration.setDuration("PT1M");
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        Subject subject = new Subject( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
+        registration.setSubject(subject);
+        Metadata metadataProvider = new Metadata("example", null);
+        registration.addMetadata("provider", metadataProvider);
+        return registration;
+    }
+
+    static public Registration createRegistrationReferenceWithBadSyntax() throws MalformedURLException {
+
+        Registration registration = new Registration();
+        registration.setCallback(new URL("http://localhost:1234"));
+        registration.setDuration("PT1M");
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        Subject subject = new Subject( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
+        registration.setSubject(subject);
+        Metadata metadataProvider = new Metadata("example%", null);
+        registration.addMetadata("provider", metadataProvider);
+        return registration;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
