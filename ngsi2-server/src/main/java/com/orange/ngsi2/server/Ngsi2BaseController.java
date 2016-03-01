@@ -36,6 +36,7 @@ import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -314,6 +315,17 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint get /v2/registrations
+     * @return a list of Registrations http status 200 (ok)
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/registrations"})
+    final public ResponseEntity<List<Registration>> listRegistrationsEndpoint() {
+
+        return new ResponseEntity<>(listRegistrations(), HttpStatus.OK);
+    }
+
     /*
      * Exception handling
      */
@@ -516,6 +528,14 @@ public abstract class Ngsi2BaseController {
      */
     protected void updateAttributeValue(String entityId, String attrName, Optional<String> type, Object value) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Update Attribute Value");
+    }
+
+    /**
+     * Retrieve the list of all Registrations presents in the system
+     * @return list of Registrations
+     */
+    protected List<Registration> listRegistrations() {
+        throw new UnsupportedOperationException("Retrieve Registrations");
     }
 
     /*

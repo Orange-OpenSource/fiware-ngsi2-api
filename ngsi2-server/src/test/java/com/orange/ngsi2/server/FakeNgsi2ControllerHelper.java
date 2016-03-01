@@ -19,14 +19,12 @@ package com.orange.ngsi2.server;
 
 import com.orange.ngsi2.exception.ConflictingEntitiesException;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
-import com.orange.ngsi2.model.Attribute;
-import com.orange.ngsi2.model.Entity;
-import com.orange.ngsi2.model.EntityType;
-import com.orange.ngsi2.model.Paginated;
+import com.orange.ngsi2.model.*;
 import com.orange.ngsi2.utility.Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.MalformedURLException;
 import java.util.*;
 
 @RestController
@@ -114,6 +112,15 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     protected void updateAttributeValue(String entityId, String attrName, Optional<String> type, Object value) throws ConflictingEntitiesException {
         if (!entityId.equals("Bcn-Welt")) {
             throw new ConflictingEntitiesException("Boe-Idearium", "PUT /v2/entities/Boe-Idearium/attrs/temperature/value?type=");
+        }
+    }
+
+    @Override
+    protected List<Registration> listRegistrations() {
+        try {
+            return Utils.createListRegistrationsReference();
+        } catch (MalformedURLException e) {
+            return Collections.emptyList();
         }
     }
 }

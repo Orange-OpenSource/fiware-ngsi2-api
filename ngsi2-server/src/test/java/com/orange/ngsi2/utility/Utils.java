@@ -23,8 +23,10 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.mock.http.MockHttpOutputMessage;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -188,6 +190,21 @@ public class Utils {
             }
         }
         return new ValueReference();
+    }
+
+    static public List<Registration> createListRegistrationsReference() throws MalformedURLException {
+
+        Registration registration = new Registration("abcdefg", new URL("http://weather.example.com/ngsi"));
+        registration.setDuration("PT1M");
+        SubjectEntity subjectEntity = new SubjectEntity(Optional.of("Bcn_Welt"));
+        subjectEntity.setType(Optional.of("Room"));
+        Subject subject = new Subject( Collections.singletonList(subjectEntity), Collections.singletonList("temperature"));
+        registration.setSubject(subject);
+        Metadata metadataService = new Metadata("weather.example.com", "none");
+        registration.addMetadata("providingService", metadataService);
+        Metadata metadataAuthority = new Metadata("AEMET - Spain", "none");
+        registration.addMetadata("providingAuthority", metadataAuthority);
+        return Collections.singletonList(registration);
     }
 
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
