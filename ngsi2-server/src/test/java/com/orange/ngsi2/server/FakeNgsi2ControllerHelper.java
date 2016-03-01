@@ -126,4 +126,13 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected void createRegistration(Registration registration){ }
+
+    @Override
+    protected Registration retrieveRegistration(String registrationId) {
+        try {
+            return Utils.retrieveRegistrationReference();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 }

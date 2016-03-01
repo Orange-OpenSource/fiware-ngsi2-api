@@ -221,6 +221,13 @@ public class Utils {
         return registration;
     }
 
+    static public Registration retrieveRegistrationReference() throws MalformedURLException {
+
+        Registration registration = createRegistrationReference();
+        registration.setId("abcde");
+        return registration;
+    }
+
     static public Registration createRegistrationReferenceWithBadSyntax() throws MalformedURLException {
 
         Registration registration = new Registration();

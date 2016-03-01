@@ -725,6 +725,35 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void checkRetrieveRegistrationNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/registrations/abcde").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve Registration' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRetrieveRegistrationInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/registrations/abcde%").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkRetrieveRegistrationOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/registrations/abcde").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.callback").value("http://localhost:1234"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("abcde"))
+                .andExpect(status().isOk());
+    }
 
     @Test
     public void checkPattern() {

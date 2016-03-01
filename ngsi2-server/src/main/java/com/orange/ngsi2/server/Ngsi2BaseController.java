@@ -339,6 +339,19 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.CREATED);
     }
 
+    /**
+     * Endpoint get /v2/registrations/{registrationId}
+     * @param registrationId the registration ID
+     * @return the entity and http status 200 (ok)
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/registrations/{registrationId}"})
+    final public ResponseEntity<Registration> retrieveRegistrationEndpoint(@PathVariable String registrationId) throws Exception {
+
+        validateSyntax(registrationId);
+        return new ResponseEntity<>(retrieveRegistration(registrationId), HttpStatus.OK);
+    }
+
     /*
      * Exception handling
      */
@@ -557,6 +570,15 @@ public abstract class Ngsi2BaseController {
      */
     protected void createRegistration(Registration registration){
         throw new UnsupportedOperationException("Create Registration");
+    }
+
+    /**
+     * Retrieve a Registration by the registration ID
+     * @param registrationId the registration ID
+     * @return the registration
+     */
+    protected Registration retrieveRegistration(String registrationId) {
+        throw new UnsupportedOperationException("Retrieve Registration");
     }
 
     /*
