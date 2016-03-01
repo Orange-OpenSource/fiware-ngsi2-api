@@ -242,6 +242,13 @@ public class Utils {
         return registration;
     }
 
+    static public Registration updateRegistrationReference() {
+
+        Registration registration = new Registration();
+        registration.setDuration("PT1M");
+        return registration;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);

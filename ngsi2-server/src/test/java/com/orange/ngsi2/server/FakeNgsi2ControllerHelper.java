@@ -135,4 +135,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
             return null;
         }
     }
+
+    @Override
+    protected void updateRegistration(String registrationId, Registration registration){
+    }
 }

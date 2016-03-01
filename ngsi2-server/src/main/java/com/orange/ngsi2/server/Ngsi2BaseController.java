@@ -352,6 +352,21 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(retrieveRegistration(registrationId), HttpStatus.OK);
     }
 
+    /**
+     * Endpoint patch /v2/registrations/{registrationId}
+     * @param registrationId the registration ID
+     * @return the entity and http status 204 (No Content)
+     */
+    @RequestMapping(method = RequestMethod.PATCH,
+            value = {"/registrations/{registrationId}"})
+    final public ResponseEntity updateRegistrationEndpoint(@PathVariable String registrationId, @RequestBody Registration registration) throws Exception {
+
+        validateSyntax(registrationId);
+        validateSyntax(registration);
+        updateRegistration(registrationId, registration);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     /*
      * Exception handling
      */
@@ -581,6 +596,15 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Retrieve Registration");
     }
 
+    /**
+     * Update some fields to a registration
+     * @param registrationId the entity ID
+     * @param registration the some fields of the registration to update
+     */
+    protected void updateRegistration(String registrationId, Registration registration){
+        throw new UnsupportedOperationException("Update Registration");
+    }
+
     /*
      * Private Methods 
      */
@@ -653,15 +677,21 @@ public abstract class Ngsi2BaseController {
     }
 
     private void validateSyntax(Registration registration) {
-        registration.getSubject().getEntities().forEach(subjectEntity -> {
-            if (subjectEntity.getId() != null) {
-                validateSyntax(subjectEntity.getId().get());
+        if (registration.getSubject() != null) {
+            if (registration.getSubject().getEntities() != null) {
+                registration.getSubject().getEntities().forEach(subjectEntity -> {
+                    if (subjectEntity.getId() != null) {
+                        validateSyntax(subjectEntity.getId().get());
+                    }
+                    if (subjectEntity.getType() != null) {
+                        validateSyntax(subjectEntity.getType().get());
+                    }
+                });
             }
-            if (subjectEntity.getType() != null) {
-                validateSyntax(subjectEntity.getType().get());
+            if (registration.getSubject().getAttributes() != null) {
+                registration.getSubject().getAttributes().forEach(this::validateSyntax);
             }
-        });
-        registration.getSubject().getAttributes().forEach(this::validateSyntax);
+        }
         Map<String, Metadata> metadatas = registration.getMetadata();
         if (metadatas != null) {
             //check metadata name
