@@ -788,6 +788,38 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkRemoveRegistrationNotImplemented() throws Exception {
+        mockMvc.perform(
+                delete("/v2/ni/registrations/abcde")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Remove Registration' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRemoveRegistrationInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                delete("/v2/i/registrations/abcde%")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkRemoveRegistrationOK() throws Exception {
+        mockMvc.perform(
+                delete("/v2/i/registrations/abcde")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));

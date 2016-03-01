@@ -367,6 +367,20 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint delete /v2/registrations/{registrationId}
+     * @param registrationId the registration ID
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.DELETE, value = {"/registrations/{registrationId}"})
+    final public ResponseEntity removeRegistrationEndpoint(@PathVariable String registrationId) throws Exception {
+
+        validateSyntax(registrationId);
+        removeRegistration(registrationId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     /*
      * Exception handling
      */
@@ -603,6 +617,14 @@ public abstract class Ngsi2BaseController {
      */
     protected void updateRegistration(String registrationId, Registration registration){
         throw new UnsupportedOperationException("Update Registration");
+    }
+
+    /**
+     * Delete a registration
+     * @param registrationId the registration ID
+     */
+    protected void removeRegistration(String registrationId){
+        throw new UnsupportedOperationException("Remove Registration");
     }
 
     /*
