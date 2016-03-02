@@ -20,20 +20,20 @@ package com.orange.ngsi2.model;
 import java.util.List;
 
 /**
- * Subject model
+ * SubjectSubscription model
  */
-public class Subject {
+public class SubjectSubscription {
 
     List<SubjectEntity> entities;
 
-    List<String> attributes;
+    Condition condition;
 
-    public Subject() {
+    public SubjectSubscription() {
     }
 
-    public Subject(List<SubjectEntity> entities, List<String> attributes) {
+    public SubjectSubscription(List<SubjectEntity> entities, Condition condition) {
         this.entities = entities;
-        this.attributes = attributes;
+        this.condition = condition;
     }
 
     public List<SubjectEntity> getEntities() {
@@ -44,11 +44,11 @@ public class Subject {
         this.entities = entities;
     }
 
-    public List<String> getAttributes() {
-        return attributes;
+    public Condition getCondition() {
+        return condition;
     }
 
-    public void setAttributes(List<String> attributes) {
-        this.attributes = attributes;
+    public void setCondition(Condition condition) {
+        this.condition = condition;
     }
 }

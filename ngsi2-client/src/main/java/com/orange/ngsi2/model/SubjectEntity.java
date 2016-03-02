@@ -22,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.Optional;
 
 /**
- * Subject Entity model
+ * SubjectRegistration Entity model
  */
 public class SubjectEntity {
 

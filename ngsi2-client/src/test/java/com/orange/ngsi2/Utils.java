@@ -19,7 +19,9 @@ package com.orange.ngsi2;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.net.URI;
 import java.net.URL;
@@ -34,7 +36,10 @@ public class Utils {
     /**
      * Common object mapper used for most tests with Java 8 support for Optional
      */
-    public final static ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module());
+    public final static ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module())
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
 
     /**
      * Load a resource as an UTF-8 string

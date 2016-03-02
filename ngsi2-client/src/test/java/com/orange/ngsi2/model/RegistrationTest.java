@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -75,8 +74,8 @@ public class RegistrationTest {
         registration.setDuration("PT1M");
         SubjectEntity subjectEntity = new SubjectEntity();
         subjectEntity.setType(Optional.of("Room"));
-        Subject subject = new Subject(Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
-        registration.setSubject(subject);
+        SubjectRegistration subjectRegistration = new SubjectRegistration(Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
+        registration.setSubject(subjectRegistration);
         String json = writer.writeValueAsString(registration);
         String jsonString ="{\n" +
                 "  \"id\" : \"abcde\",\n" +

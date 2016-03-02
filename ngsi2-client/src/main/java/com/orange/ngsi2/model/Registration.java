@@ -21,7 +21,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class Registration {
 
     String id;
 
-    Subject subject;
+    SubjectRegistration subject;
 
     URL callback;
 
@@ -57,11 +56,11 @@ public class Registration {
         this.id = id;
     }
 
-    public Subject getSubject() {
+    public SubjectRegistration getSubject() {
         return subject;
     }
 
-    public void setSubject(Subject subject) {
+    public void setSubject(SubjectRegistration subject) {
         this.subject = subject;
     }
 

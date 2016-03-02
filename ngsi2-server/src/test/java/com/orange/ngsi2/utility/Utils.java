@@ -24,8 +24,6 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.*;
 
@@ -198,8 +196,8 @@ public class Utils {
         registration.setDuration("PT1M");
         SubjectEntity subjectEntity = new SubjectEntity(Optional.of("Bcn_Welt"));
         subjectEntity.setType(Optional.of("Room"));
-        Subject subject = new Subject( Collections.singletonList(subjectEntity), Collections.singletonList("temperature"));
-        registration.setSubject(subject);
+        SubjectRegistration subjectRegistration = new SubjectRegistration( Collections.singletonList(subjectEntity), Collections.singletonList("temperature"));
+        registration.setSubject(subjectRegistration);
         Metadata metadataService = new Metadata("weather.example.com", "none");
         registration.addMetadata("providingService", metadataService);
         Metadata metadataAuthority = new Metadata("AEMET - Spain", "none");
@@ -214,8 +212,8 @@ public class Utils {
         registration.setDuration("PT1M");
         SubjectEntity subjectEntity = new SubjectEntity();
         subjectEntity.setType(Optional.of("Room"));
-        Subject subject = new Subject( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
-        registration.setSubject(subject);
+        SubjectRegistration subjectRegistration = new SubjectRegistration( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
+        registration.setSubject(subjectRegistration);
         Metadata metadataProvider = new Metadata("example", null);
         registration.addMetadata("provider", metadataProvider);
         return registration;
@@ -235,8 +233,8 @@ public class Utils {
         registration.setDuration("PT1M");
         SubjectEntity subjectEntity = new SubjectEntity();
         subjectEntity.setType(Optional.of("Room"));
-        Subject subject = new Subject( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
-        registration.setSubject(subject);
+        SubjectRegistration subjectRegistration = new SubjectRegistration( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
+        registration.setSubject(subjectRegistration);
         Metadata metadataProvider = new Metadata("example%", null);
         registration.addMetadata("provider", metadataProvider);
         return registration;
