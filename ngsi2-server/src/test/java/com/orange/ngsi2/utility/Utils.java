@@ -25,6 +25,7 @@ import org.springframework.mock.http.MockHttpOutputMessage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -245,6 +246,26 @@ public class Utils {
         Registration registration = new Registration();
         registration.setDuration("PT1M");
         return registration;
+    }
+
+    static public List<Subscription> createListSubscriptionsReference() throws MalformedURLException {
+
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setId(Optional.of("Bcn_Welt"));
+        subjectEntity.setType(Optional.of("Room"));
+        Condition condition = new Condition();
+        condition.setAttributes(Collections.singletonList("temperature"));
+        condition.setExpression("q", "temperature>40");
+        SubjectSubscription subjectSubscription = new SubjectSubscription(Collections.singletonList(subjectEntity), condition);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity");
+        Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
+        notification.setThrottling(Optional.of(new Long(5)));
+        notification.setTimesSent(12);
+        notification.setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
+        Subscription subscription = new Subscription("abcdefg", subjectSubscription, notification, Instant.parse("2016-04-05T14:00:00.20Z"), StatusEnum.active);
+        return Collections.singletonList(subscription);
     }
 
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {

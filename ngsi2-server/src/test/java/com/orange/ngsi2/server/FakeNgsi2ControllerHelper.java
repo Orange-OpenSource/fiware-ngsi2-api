@@ -143,4 +143,13 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected void removeRegistration(String registrationId){
     }
+
+    @Override
+    protected Paginated<Subscription> listSubscriptions( Optional<Integer> limit, Optional<Integer> offset) {
+        try {
+            return new Paginated<>(Utils.createListSubscriptionsReference(), 2, 2, 1);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 }

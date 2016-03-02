@@ -820,6 +820,34 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListSubscriptionsNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/subscriptions").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'List Subscriptions' is not implemented"))
+                .andExpect(status().isNotImplemented());
+
+    }
+
+    @Test
+    public void checkListSubscriptionsWithCount() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/subscriptions").param("options","count").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("abcdefg"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListSubscriptionsWithoutCount() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/subscriptions").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("abcdefg"))
+                .andExpect(header().doesNotExist("X-Total-Count"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));

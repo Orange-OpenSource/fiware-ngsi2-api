@@ -376,6 +376,28 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint get /v2/subscriptions
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param options an optional list of options separated by comma. Possible values for option: count.
+     *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
+     * @return a list of Entities http status 200 (ok)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/subscriptions"})
+    final public ResponseEntity<List<Subscription>> listSubscriptionsEndpoint(@RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> options) throws Exception {
+
+        Paginated<Subscription> paginatedSubscription = listSubscriptions( limit, offset);
+        List<Subscription> subscriptionList = paginatedSubscription.getItems();
+        if (options.isPresent() && (options.get().contains("count"))) {
+            return new ResponseEntity<>(subscriptionList , xTotalCountHeader(paginatedSubscription.getTotal()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(subscriptionList, HttpStatus.OK);
+        }
+    }
+
     /*
      * Exception handling
      */
@@ -620,6 +642,17 @@ public abstract class Ngsi2BaseController {
      */
     protected void removeRegistration(String registrationId){
         throw new UnsupportedOperationException("Remove Registration");
+    }
+
+    /**
+     * Retrieve the list of all Subscriptions present in the system
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @return a paginated of list of Subscriptions
+     * @throws Exception
+     */
+    protected Paginated<Subscription> listSubscriptions( Optional<Integer> limit, Optional<Integer> offset) throws Exception {
+        throw new UnsupportedOperationException("List Subscriptions");
     }
 
     /*
