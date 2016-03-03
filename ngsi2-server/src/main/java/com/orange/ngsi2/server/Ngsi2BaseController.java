@@ -350,7 +350,7 @@ public abstract class Ngsi2BaseController {
     /**
      * Endpoint patch /v2/registrations/{registrationId}
      * @param registrationId the registration ID
-     * @return the entity and http status 204 (No Content)
+     * @return the registration and http status 204 (No Content)
      */
     @RequestMapping(method = RequestMethod.PATCH,
             value = {"/registrations/{registrationId}"})
@@ -409,6 +409,19 @@ public abstract class Ngsi2BaseController {
         validateSyntax(subscription);
         createSubscription(subscription);
         return new ResponseEntity(HttpStatus.CREATED);
+    }
+
+    /**
+     * Endpoint get /v2/subscriptions/{subscriptionId}
+     * @param subscriptionId the subscription ID
+     * @return the subscription and http status 200 (ok)
+     */
+    @RequestMapping(method = RequestMethod.GET,
+            value = {"/subscriptions/{subscriptionId}"})
+    final public ResponseEntity<Subscription> retrieveSubscriptionEndpoint(@PathVariable String subscriptionId) throws Exception {
+
+        validateSyntax(subscriptionId);
+        return new ResponseEntity<>(retrieveSubscription(subscriptionId), HttpStatus.OK);
     }
 
     /*
@@ -658,14 +671,6 @@ public abstract class Ngsi2BaseController {
     }
 
     /**
-     * Create a new subscription
-     * @param subscription the subscription to create
-     */
-    protected void createSubscription(Subscription subscription){
-        throw new UnsupportedOperationException("Create Subscription");
-    }
-
-    /**
      * Retrieve the list of all Subscriptions present in the system
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
@@ -674,6 +679,23 @@ public abstract class Ngsi2BaseController {
      */
     protected Paginated<Subscription> listSubscriptions( Optional<Integer> limit, Optional<Integer> offset) throws Exception {
         throw new UnsupportedOperationException("List Subscriptions");
+    }
+
+    /**
+     * Create a new subscription
+     * @param subscription the subscription to create
+     */
+    protected void createSubscription(Subscription subscription){
+        throw new UnsupportedOperationException("Create Subscription");
+    }
+
+    /**
+     * Retrieve a subscription by the subscription ID
+     * @param subscriptionId the registration ID
+     * @return the registration
+     */
+    protected Subscription retrieveSubscription(String subscriptionId) {
+        throw new UnsupportedOperationException("Retrieve Subscription");
     }
 
     /*

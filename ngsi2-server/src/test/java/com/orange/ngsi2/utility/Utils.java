@@ -306,6 +306,16 @@ public class Utils {
         return subscription;
     }
 
+    static public Subscription retrieveSubscriptionReference() throws MalformedURLException {
+
+        Subscription subscription = createSubscriptionReference();
+        subscription.setId("abcdef");
+        subscription.getNotification().setTimesSent(12);
+        subscription.getNotification().setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
+        subscription.setStatus(StatusEnum.active);
+        return subscription;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);

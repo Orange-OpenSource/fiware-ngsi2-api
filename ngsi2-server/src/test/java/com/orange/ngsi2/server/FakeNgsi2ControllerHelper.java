@@ -156,4 +156,14 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected void createSubscription(Subscription subscription){ }
 
+    @Override
+    protected Subscription retrieveSubscription(String subscriptionId) {
+        try {
+            return Utils.retrieveSubscriptionReference();
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+
 }
