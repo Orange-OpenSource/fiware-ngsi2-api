@@ -350,7 +350,7 @@ public abstract class Ngsi2BaseController {
     /**
      * Endpoint patch /v2/registrations/{registrationId}
      * @param registrationId the registration ID
-     * @return the registration and http status 204 (No Content)
+     * @return http status 204 (No Content)
      */
     @RequestMapping(method = RequestMethod.PATCH,
             value = {"/registrations/{registrationId}"})
@@ -422,6 +422,21 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(subscriptionId);
         return new ResponseEntity<>(retrieveSubscription(subscriptionId), HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint patch /v2/subscriptions/{subscriptionId}
+     * @param subscriptionId the subscription ID
+     * @return http status 204 (No Content)
+     */
+    @RequestMapping(method = RequestMethod.PATCH,
+            value = {"/subscriptions/{subscriptionId}"})
+    final public ResponseEntity updateSubscriptionEndpoint(@PathVariable String subscriptionId, @RequestBody Subscription subscription) throws Exception {
+
+        validateSyntax(subscriptionId);
+        validateSyntax(subscription);
+        updateSubscription(subscriptionId, subscription);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
     /*
@@ -655,7 +670,7 @@ public abstract class Ngsi2BaseController {
 
     /**
      * Update some fields to a registration
-     * @param registrationId the entity ID
+     * @param registrationId the registration ID
      * @param registration the some fields of the registration to update
      */
     protected void updateRegistration(String registrationId, Registration registration){
@@ -696,6 +711,15 @@ public abstract class Ngsi2BaseController {
      */
     protected Subscription retrieveSubscription(String subscriptionId) {
         throw new UnsupportedOperationException("Retrieve Subscription");
+    }
+
+    /**
+     * Update some fields to a subscription
+     * @param subscriptionId the subscription ID
+     * @param subscription the some fields of the subscription to update
+     */
+    protected void updateSubscription(String subscriptionId, Subscription subscription){
+        throw new UnsupportedOperationException("Update Subscription");
     }
 
     /*

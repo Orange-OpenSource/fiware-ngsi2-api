@@ -906,6 +906,38 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkUpdateSubscriptionNotImplemented() throws Exception {
+        mockMvc.perform(
+                patch("/v2/ni/subscriptions/abcdef").content(json(jsonV2Converter, updateSubscriptionReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update Subscription' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkUpdateSubscriptionInvalidSyntax() throws Exception {
+        mockMvc.perform(
+                patch("/v2/i/subscriptions/abcdef%").content(json(jsonV2Converter, updateSubscriptionReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcdef% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkUpdateSubscriptionOK() throws Exception {
+        mockMvc.perform(
+                patch("/v2/i/subscriptions/abcdef").content(json(jsonV2Converter, updateSubscriptionReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));

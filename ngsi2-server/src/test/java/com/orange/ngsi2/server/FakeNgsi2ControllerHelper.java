@@ -165,5 +165,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
         }
     }
 
+    @Override
+    protected void updateSubscription(String subscriptionId, Subscription subscription){
+    }
 
 }

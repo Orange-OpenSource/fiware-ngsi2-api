@@ -316,6 +316,13 @@ public class Utils {
         return subscription;
     }
 
+    static public Subscription updateSubscriptionReference() {
+
+        Subscription subscription = new Subscription();
+        subscription.setExpires(Instant.parse("2016-04-05T14:00:00.20Z"));
+        return subscription;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
