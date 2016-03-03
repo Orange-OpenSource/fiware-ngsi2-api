@@ -439,6 +439,20 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Endpoint delete /v2/subscriptions/{subscriptionId}
+     * @param subscriptionId the subscription ID
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.DELETE, value = {"/subscriptions/{subscriptionId}"})
+    final public ResponseEntity removeSubscriptionEndpoint(@PathVariable String subscriptionId) throws Exception {
+
+        validateSyntax(subscriptionId);
+        removeSubscription(subscriptionId);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+
     /*
      * Exception handling
      */
@@ -720,6 +734,14 @@ public abstract class Ngsi2BaseController {
      */
     protected void updateSubscription(String subscriptionId, Subscription subscription){
         throw new UnsupportedOperationException("Update Subscription");
+    }
+
+    /**
+     * Delete a subscription
+     * @param subscriptionId the subscription ID
+     */
+    protected void removeSubscription(String subscriptionId){
+        throw new UnsupportedOperationException("Remove Subscription");
     }
 
     /*

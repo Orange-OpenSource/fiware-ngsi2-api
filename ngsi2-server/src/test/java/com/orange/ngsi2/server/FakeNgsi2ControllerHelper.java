@@ -18,14 +18,17 @@
 package com.orange.ngsi2.server;
 
 import com.orange.ngsi2.exception.ConflictingEntitiesException;
-import com.orange.ngsi2.exception.UnsupportedOperationException;
 import com.orange.ngsi2.model.*;
-import com.orange.ngsi2.utility.Utils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.MalformedURLException;
 import java.util.*;
+
+import static com.orange.ngsi2.utility.Utils.*;
+import static com.orange.ngsi2.utility.Utils.createListSubscriptionsReference;
+import static com.orange.ngsi2.utility.Utils.retrieveRegistrationReference;
+import static com.orange.ngsi2.utility.Utils.retrieveSubscriptionReference;
 
 @RestController
 @RequestMapping("/v2/i")
@@ -33,16 +36,16 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected Map<String, String> listResources() throws Exception {
-        return Utils.createListResourcesReference();
+        return createListResourcesReference();
     }
 
     @Override
     protected Paginated<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
         Paginated<Entity> paginatedEntity;
         if (id.isPresent() && id.get().equals("Bcn-Welt")) {
-            return new Paginated<>(Collections.singletonList(Utils.createEntityBcnWelt()),1, 1, 1);
+            return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
         }
-        return new Paginated<>(Utils.createListEntitiesConflictingReference(), 2, 2, 2);
+        return new Paginated<>(createListEntitiesConflictingReference(), 2, 2, 2);
     }
 
     @Override
@@ -51,7 +54,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected Entity retrieveEntity(String entityId, Optional<String> attrs) throws ConflictingEntitiesException {
         if (entityId.equals("Bcn-Welt")) {
-            return Utils.createEntityBcnWelt();
+            return createEntityBcnWelt();
         }
         throw new ConflictingEntitiesException("Boe-Idearium", "GET /v2/entities?id=Boe-Idearium&attrs=temperature");
     }
@@ -70,13 +73,13 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected EntityType retrieveEntityType(String entityType) {
-        return Utils.createEntityTypeRoom();
+        return createEntityTypeRoom();
     }
 
     @Override
     protected Attribute retrieveAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
         if (entityId.equals("Bcn-Welt")) {
-            return Utils.createTemperatureEntityBcnWelt();
+            return createTemperatureEntityBcnWelt();
         }
         throw new ConflictingEntitiesException("Boe-Idearium", "GET /v2/entities/Boe-Idearium/attrs/temperature?type=");
     }
@@ -104,7 +107,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
         } else if (attrName.equals("color")) {
             return null;
         } else {
-            return Utils.createValueReference();
+            return createValueReference();
         }
     }
 
@@ -118,7 +121,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected List<Registration> listRegistrations() {
         try {
-            return Utils.createListRegistrationsReference();
+            return createListRegistrationsReference();
         } catch (MalformedURLException e) {
             return Collections.emptyList();
         }
@@ -130,7 +133,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected Registration retrieveRegistration(String registrationId) {
         try {
-            return Utils.retrieveRegistrationReference();
+            return retrieveRegistrationReference();
         } catch (MalformedURLException e) {
             return null;
         }
@@ -147,7 +150,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected Paginated<Subscription> listSubscriptions( Optional<Integer> limit, Optional<Integer> offset) {
         try {
-            return new Paginated<>(Utils.createListSubscriptionsReference(), 2, 2, 1);
+            return new Paginated<>(createListSubscriptionsReference(), 2, 2, 1);
         } catch (MalformedURLException e) {
             return null;
         }
@@ -159,7 +162,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected Subscription retrieveSubscription(String subscriptionId) {
         try {
-            return Utils.retrieveSubscriptionReference();
+            return retrieveSubscriptionReference();
         } catch (MalformedURLException e) {
             return null;
         }
@@ -169,4 +172,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     protected void updateSubscription(String subscriptionId, Subscription subscription){
     }
 
+    @Override
+    protected void removeSubscription(String subscriptionId){
+    }
 }
