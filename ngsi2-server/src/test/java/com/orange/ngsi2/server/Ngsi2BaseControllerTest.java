@@ -848,6 +848,34 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkCreateSubscriptionNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/subscriptions").content(json(jsonV2Converter, createSubscriptionReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Create Subscription' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkCreateSubscriptionOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/subscriptions").content(json(jsonV2Converter, createSubscriptionReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    public void checkCreateSubscriptionWithBasSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/subscriptions").content(json(jsonV2Converter, createSubscriptionReferenceWithBadSyntax())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. humidity% has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));

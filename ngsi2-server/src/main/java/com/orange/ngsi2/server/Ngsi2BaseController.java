@@ -398,6 +398,19 @@ public abstract class Ngsi2BaseController {
         }
     }
 
+    /**
+     * Endpoint post /v2/subscriptions
+     * @param subscription
+     * @return http status 201 (created)
+     */
+    @RequestMapping(method = RequestMethod.POST, value = "/subscriptions", consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity createSubscriptionEndpoint(@RequestBody Subscription subscription) {
+
+        validateSyntax(subscription);
+        createSubscription(subscription);
+        return new ResponseEntity(HttpStatus.CREATED);
+    }
+
     /*
      * Exception handling
      */
@@ -645,6 +658,14 @@ public abstract class Ngsi2BaseController {
     }
 
     /**
+     * Create a new subscription
+     * @param subscription the subscription to create
+     */
+    protected void createSubscription(Subscription subscription){
+        throw new UnsupportedOperationException("Create Subscription");
+    }
+
+    /**
      * Retrieve the list of all Subscriptions present in the system
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
@@ -726,17 +747,21 @@ public abstract class Ngsi2BaseController {
         }
     }
 
+    private void validateSyntax(List<SubjectEntity> subjectEntities) {
+        subjectEntities.forEach(subjectEntity -> {
+            if (subjectEntity.getId() != null) {
+                validateSyntax(subjectEntity.getId().get());
+            }
+            if (subjectEntity.getType() != null) {
+                validateSyntax(subjectEntity.getType().get());
+            }
+        });
+    }
+
     private void validateSyntax(Registration registration) {
         if (registration.getSubject() != null) {
             if (registration.getSubject().getEntities() != null) {
-                registration.getSubject().getEntities().forEach(subjectEntity -> {
-                    if (subjectEntity.getId() != null) {
-                        validateSyntax(subjectEntity.getId().get());
-                    }
-                    if (subjectEntity.getType() != null) {
-                        validateSyntax(subjectEntity.getType().get());
-                    }
-                });
+                validateSyntax(registration.getSubject().getEntities());
             }
             if (registration.getSubject().getAttributes() != null) {
                 registration.getSubject().getAttributes().forEach(this::validateSyntax);
@@ -752,6 +777,20 @@ public abstract class Ngsi2BaseController {
                     validateSyntax(metadata.getType());
                 }
             });
+        }
+    }
+
+    private void validateSyntax(Subscription subscription) {
+        if (subscription.getSubject() != null) {
+            if (subscription.getSubject().getEntities() != null) {
+                validateSyntax(subscription.getSubject().getEntities());
+            }
+            if ((subscription.getSubject().getCondition() != null) && (subscription.getSubject().getCondition().getAttrs() != null)) {
+                subscription.getSubject().getCondition().getAttrs().forEach(this::validateSyntax);
+            }
+        }
+        if ((subscription.getNotification() != null) && (subscription.getNotification().getAttributes() != null)) {
+            subscription.getNotification().getAttributes().forEach(this::validateSyntax);
         }
     }
 

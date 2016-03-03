@@ -268,6 +268,44 @@ public class Utils {
         return Collections.singletonList(subscription);
     }
 
+    static public Subscription createSubscriptionReference() throws MalformedURLException {
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        Condition condition = new Condition();
+        condition.setAttributes(Collections.singletonList("temperature"));
+        condition.setExpression("q", "temperature>40");
+        SubjectSubscription subjectSubscription = new SubjectSubscription(Collections.singletonList(subjectEntity), condition);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity");
+        Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
+        notification.setThrottling(Optional.of(new Long(5)));
+        Subscription subscription = new Subscription();
+        subscription.setSubject(subjectSubscription);
+        subscription.setNotification(notification);
+        subscription.setExpires(Instant.parse("2016-04-05T14:00:00.20Z"));
+        return subscription;
+    }
+
+    static public Subscription createSubscriptionReferenceWithBadSyntax() throws MalformedURLException {
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        Condition condition = new Condition();
+        condition.setAttributes(Collections.singletonList("temperature"));
+        condition.setExpression("q", "temperature>40");
+        SubjectSubscription subjectSubscription = new SubjectSubscription(Collections.singletonList(subjectEntity), condition);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity%");
+        Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
+        notification.setThrottling(Optional.of(new Long(5)));
+        Subscription subscription = new Subscription();
+        subscription.setSubject(subjectSubscription);
+        subscription.setNotification(notification);
+        subscription.setExpires(Instant.parse("2016-04-05T14:00:00.20Z"));
+        return subscription;
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
