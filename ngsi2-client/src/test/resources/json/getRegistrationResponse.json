@@ -1,0 +1,15 @@
+{
+  "id": "abcdef",
+  "subject": {
+    "entities": [
+      {
+        "type": "Room"
+      }
+    ],
+    "attributes": [
+      "humidity"
+    ]
+  },
+  "callback": "http://localhost:1234",
+  "duration": "PT1M"
+}

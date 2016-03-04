@@ -30,6 +30,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureAdapter;
 import org.springframework.web.client.AsyncRestTemplate;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
@@ -339,6 +340,17 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> addRegistration(Registration registration) {
         return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(registrationsPath).toUriString(), registration, Void.class));
+    }
+
+    /**
+     * Retrieve the registration by registration ID
+     * @param registrationId the registration ID
+     * @return registration
+     */
+    public ListenableFuture<Registration> getRegistration(String registrationId) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(registrationsPath + "/" + registrationId);
+        return adapt(request(HttpMethod.GET, builder.toUriString(), null, Registration.class));
     }
 
     /**

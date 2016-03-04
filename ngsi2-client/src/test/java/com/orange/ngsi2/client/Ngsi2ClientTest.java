@@ -383,4 +383,24 @@ public class Ngsi2ClientTest {
         ngsiClient.addRegistration(registration);
     }
 
+    @Test
+    public void testGetRegistration_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/registrations/abcdef"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getRegistrationResponse.json"), MediaType.APPLICATION_JSON));
+
+        Registration registration = ngsiClient.getRegistration("abcdef").get();
+
+        assertNotNull(registration);
+        assertEquals("abcdef", registration.getId());
+        assertEquals("http://localhost:1234", registration.getCallback().toString());
+        assertEquals("PT1M", registration.getDuration());
+        assertNotNull(registration.getSubject().getEntities());
+        assertEquals(1,registration.getSubject().getEntities().size());
+        assertEquals("Room",registration.getSubject().getEntities().get(0).getType().get());
+        assertEquals(1,registration.getSubject().getAttributes().size());
+        assertEquals("humidity",registration.getSubject().getAttributes().get(0));
+    }
 }
