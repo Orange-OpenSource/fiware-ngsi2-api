@@ -354,6 +354,17 @@ public class Ngsi2Client {
     }
 
     /**
+     * Update the registration by registration ID
+     * @param registrationId the registration ID
+     * @return
+     */
+    public ListenableFuture<Void> updateRegistration(String registrationId, Registration registration) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(registrationsPath + "/" + registrationId);
+        return adapt(request(HttpMethod.PATCH, builder.toUriString(), registration, Void.class));
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */

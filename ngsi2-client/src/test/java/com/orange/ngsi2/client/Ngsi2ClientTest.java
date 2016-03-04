@@ -403,4 +403,18 @@ public class Ngsi2ClientTest {
         assertEquals(1,registration.getSubject().getAttributes().size());
         assertEquals("humidity",registration.getSubject().getAttributes().get(0));
     }
+
+    @Test
+    public void testUpdateRegistration_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/registrations/abcdef"))
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.duration").value("PT1M"))
+                .andRespond(withNoContent());
+
+        Registration registration = new Registration();
+        registration.setDuration("PT1M");
+        ngsiClient.updateRegistration("abcdef", registration);
+    }
 }
