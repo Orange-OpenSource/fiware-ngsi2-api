@@ -1,0 +1,28 @@
+[
+  {
+    "id": "abcdefg",
+    "subject": {
+      "entities": [
+        {
+          "id": "Bcn_Welt",
+          "type": "Room"
+        }
+      ],
+      "attributes": [
+        "temperature"
+      ]
+    },
+    "callback": "http://weather.example.com/ngsi",
+    "metadata": {
+      "providingService": {
+        "value": "weather.example.com",
+        "type": "none"
+      },
+      "providingAuthority": {
+        "value": "AEMET - Spain",
+        "type": "none"
+      }
+    },
+    "duration": "PT1M"
+  }
+]

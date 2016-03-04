@@ -19,10 +19,7 @@ package com.orange.ngsi2.client;
 
 import com.orange.ngsi2.Utils;
 import com.orange.ngsi2.exception.Ngsi2Exception;
-import com.orange.ngsi2.model.Attribute;
-import com.orange.ngsi2.model.Entity;
-import com.orange.ngsi2.model.Metadata;
-import com.orange.ngsi2.model.Paginated;
+import com.orange.ngsi2.model.*;
 import org.junit.*;
 
 import org.junit.rules.ExpectedException;
@@ -33,10 +30,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.AsyncRestTemplate;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
@@ -340,4 +334,31 @@ public class Ngsi2ClientTest {
 
         assertEquals("some random text", result);
     }
+
+    /*
+     * Registrations requests
+     */
+
+    @Test
+    public void testGetRegistrations_Defaults() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/registrations"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getRegistrationsResponse.json"), MediaType.APPLICATION_JSON));
+
+        List<Registration> registrations = ngsiClient.getRegistrations().get();
+        assertEquals(1, registrations.size());
+        assertEquals("abcdefg", registrations.get(0).getId());
+        assertEquals("http://weather.example.com/ngsi", registrations.get(0).getCallback().toString());
+        assertEquals("PT1M", registrations.get(0).getDuration());
+        assertEquals(1, registrations.get(0).getSubject().getEntities().size());
+        assertEquals("Bcn_Welt", registrations.get(0).getSubject().getEntities().get(0).getId().get());
+        assertEquals(1, registrations.get(0).getSubject().getAttributes().size());
+        assertEquals("temperature", registrations.get(0).getSubject().getAttributes().get(0));
+        assertEquals(2, registrations.get(0).getMetadata().size());
+        assertTrue(registrations.get(0).getMetadata().containsKey("providingService"));
+        assertTrue(registrations.get(0).getMetadata().containsKey("providingAuthority"));
+    }
+
 }

@@ -22,6 +22,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.orange.ngsi2.model.Attribute;
 import com.orange.ngsi2.model.Entity;
 import com.orange.ngsi2.model.Paginated;
+import com.orange.ngsi2.model.Registration;
+import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -42,8 +44,8 @@ public class Ngsi2Client {
     private static final String entitiesPath = basePath + "/entities";
     private static final String entityPath = entitiesPath + "/{entity}";
     private static final String typesPath = basePath + "/types";
-    private static final String registrationsPath = basePath + "/subscriptions";
-    private static final String baseSubscriptions = basePath + "/subscriptions";
+    private static final String registrationsPath = basePath + "/registrations";
+    private static final String SubscriptionsPath = basePath + "/subscriptions";
     private static final String attributePath = entityPath + "/attrs/{attributeName}";
     private static final String valuePath = attributePath + "/value";
 
@@ -306,6 +308,28 @@ public class Ngsi2Client {
         HttpHeaders httpHeaders = cloneHttpHeaders();
         httpHeaders.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), httpHeaders, null, String.class));
+    }
+
+    /*
+     * Registrations requests
+     */
+
+    /**
+     * Retrieve the list of all Registrations
+     * @return a list of registrations
+     */
+    public ListenableFuture<List<Registration>> getRegistrations() {
+
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(registrationsPath);
+
+        ListenableFuture<ResponseEntity<Registration[]>> e = request(HttpMethod.GET, builder.toUriString(), null, Registration[].class);
+        return new ListenableFutureAdapter<List<Registration>, ResponseEntity<Registration[]>>(e) {
+            @Override
+            protected List<Registration> adapt(ResponseEntity<Registration[]> result) throws ExecutionException {
+                return new ArrayList<>(Arrays.asList(result.getBody()));
+            }
+        };
     }
 
     /**
