@@ -365,6 +365,17 @@ public class Ngsi2Client {
     }
 
     /**
+     * Delete the registration by registration ID
+     * @param registrationId the registration ID
+     * @return
+     */
+    public ListenableFuture<Void> deleteRegistration(String registrationId) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(registrationsPath + "/" + registrationId);
+        return adapt(request(HttpMethod.DELETE, builder.toUriString(), null, Void.class));
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */

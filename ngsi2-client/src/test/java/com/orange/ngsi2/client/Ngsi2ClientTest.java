@@ -380,7 +380,7 @@ public class Ngsi2ClientTest {
         subjectEntity.setType(Optional.of("Room"));
         SubjectRegistration subjectRegistration = new SubjectRegistration(Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
         registration.setSubject(subjectRegistration);
-        ngsiClient.addRegistration(registration);
+        ngsiClient.addRegistration(registration).get();
     }
 
     @Test
@@ -415,6 +415,17 @@ public class Ngsi2ClientTest {
 
         Registration registration = new Registration();
         registration.setDuration("PT1M");
-        ngsiClient.updateRegistration("abcdef", registration);
+        ngsiClient.updateRegistration("abcdef", registration).get();
+    }
+
+    @Test
+    public void testDeleteRegistration_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/registrations/abcdef"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withNoContent());
+
+        ngsiClient.deleteRegistration("abcdef").get();
     }
 }
