@@ -333,6 +333,15 @@ public class Ngsi2Client {
     }
 
     /**
+     * Create a new registration
+     * @param registration the Registration to add
+     * @return the listener to notify of completion
+     */
+    public ListenableFuture<Void> addRegistration(Registration registration) {
+        return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(registrationsPath).toUriString(), registration, Void.class));
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */

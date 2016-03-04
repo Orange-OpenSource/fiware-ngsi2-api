@@ -30,6 +30,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.AsyncRestTemplate;
 
+import java.net.URL;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -359,6 +360,27 @@ public class Ngsi2ClientTest {
         assertEquals(2, registrations.get(0).getMetadata().size());
         assertTrue(registrations.get(0).getMetadata().containsKey("providingService"));
         assertTrue(registrations.get(0).getMetadata().containsKey("providingAuthority"));
+    }
+
+    @Test
+    public void testAddRegistration_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/registrations"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.duration").value("PT1M"))
+                .andRespond(withNoContent());
+
+        Registration registration = new Registration();
+        registration.setDuration("PT1M");
+        registration.setCallback(new URL("http://localhost:1234"));
+        Metadata metadata = new Metadata("example");
+        registration.addMetadata("provider", metadata);
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        SubjectRegistration subjectRegistration = new SubjectRegistration(Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
+        registration.setSubject(subjectRegistration);
+        ngsiClient.addRegistration(registration);
     }
 
 }
