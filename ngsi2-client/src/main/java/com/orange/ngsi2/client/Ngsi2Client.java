@@ -38,17 +38,6 @@ import java.util.concurrent.ExecutionException;
  */
 public class Ngsi2Client {
 
-    private static final String basePath = "v2";
-    private static final String entitiesPath = basePath + "/entities";
-    private static final String entityPath = entitiesPath + "/{entity}";
-    private static final String typesPath = basePath + "/types";
-    private static final String typePath = basePath + "/types/{entityType}";
-    private static final String registrationsPath = basePath + "/registrations";
-    private static final String subscriptionsPath = basePath + "/subscriptions";
-    private static final String subscriptionPath = subscriptionsPath + "/{subscription}";
-    private static final String attributePath = entityPath + "/attrs/{attributeName}";
-    private static final String valuePath = attributePath + "/value";
-
     private final static Map<String, ?> noParams = Collections.emptyMap();
 
     private AsyncRestTemplate asyncRestTemplate;
@@ -83,7 +72,7 @@ public class Ngsi2Client {
      * @return the list of supported operations under /v2
      */
     public ListenableFuture<Map<String, String>> getV2() {
-        ListenableFuture<ResponseEntity<JsonNode>> responseFuture = request(HttpMethod.GET, baseURL + basePath, null, JsonNode.class);
+        ListenableFuture<ResponseEntity<JsonNode>> responseFuture = request(HttpMethod.GET, baseURL + "v2", null, JsonNode.class);
         return new ListenableFutureAdapter<Map<String, String>, ResponseEntity<JsonNode>>(responseFuture) {
             @Override
             protected Map<String, String> adapt(ResponseEntity<JsonNode> result) throws ExecutionException {
@@ -139,7 +128,7 @@ public class Ngsi2Client {
                                                            int offset, int limit, boolean count) {
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(entitiesPath);
+        builder.path("v2/entities");
         addParam(builder, "id", ids);
         addParam(builder, "idPattern", idPattern);
         addParam(builder, "type", types);
@@ -169,7 +158,7 @@ public class Ngsi2Client {
      * @return the listener to notify of completion
      */
     public ListenableFuture<Void> addEntity(Entity entity) {
-        return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(entitiesPath).toUriString(), entity, Void.class));
+        return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path("v2/entities").toUriString(), entity, Void.class));
     }
 
     /**
@@ -181,7 +170,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Entity> getEntity(String entityId, String type, Collection<String> attrs) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(entityPath);
+        builder.path("v2/entities/{entityId}");
         addParam(builder, "type", type);
         addParam(builder, "attrs", attrs);
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId).toUriString(), null, Entity.class));
@@ -197,7 +186,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> updateEntity(String entityId, String type, Map<String, Attribute> attributes, boolean append) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(entityPath);
+        builder.path("v2/entities/{entityId}");
         addParam(builder, "type", type);
         if (append) {
             addParam(builder, "options", "append");
@@ -214,7 +203,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> replaceEntity(String entityId, String type, Map<String, Attribute> attributes) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(entityPath);
+        builder.path("v2/entities/{entityId}");
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.PUT, builder.buildAndExpand(entityId).toUriString(), attributes, Void.class));
     }
@@ -227,7 +216,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> deleteEntity(String entityId, String type) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(entityPath);
+        builder.path("v2/entities/{entityId}");
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(entityId).toUriString(), null, Void.class));
     }
@@ -245,7 +234,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Attribute> getAttribute(String entityId, String type, String attributeName) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(attributePath);
+        builder.path("v2/entities/{entityId}/attrs/{attributeName}");
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Attribute.class));
     }
@@ -259,7 +248,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> updateAttribute(String entityId, String type, String attributeName, Attribute attribute) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(attributePath);
+        builder.path("v2/entities/{entityId}/attrs/{attributeName}");
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.PUT, builder.buildAndExpand(entityId, attributeName).toUriString(), attribute, Void.class));
     }
@@ -273,7 +262,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Attribute> deleteAttribute(String entityId, String type, String attributeName) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(attributePath);
+        builder.path("v2/entities/{entityId}/attrs/{attributeName}");
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Attribute.class));
     }
@@ -290,7 +279,8 @@ public class Ngsi2Client {
      * @return
      */
     public ListenableFuture<Object> getAttributeValue(String entityId, String type, String attributeName) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL).path(valuePath);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path("v2/entities/{entityId}/attrs/{attributeName}/value");
         addParam(builder, "type", type);
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), null, Object.class));
     }
@@ -303,7 +293,8 @@ public class Ngsi2Client {
      * @return
      */
     public ListenableFuture<String> getAttributeValueAsString(String entityId, String type, String attributeName) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL).path(valuePath);
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path("v2/entities/{entityId}/attrs/{attributeName}/value");
         addParam(builder, "type", type);
         HttpHeaders httpHeaders = cloneHttpHeaders();
         httpHeaders.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
@@ -323,7 +314,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Paginated<EntityType>> getEntityTypes(int offset, int limit, boolean count) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(typesPath);
+        builder.path("v2/types");
         addPaginationParams(builder, offset, limit);
         if (count) {
             addParam(builder, "options", "count");
@@ -345,7 +336,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<EntityType> getEntityType(String entityType) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(typePath);
+        builder.path("v2/types/{entityType}");
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityType).toUriString(), null, EntityType.class));
     }
 
@@ -360,7 +351,7 @@ public class Ngsi2Client {
     public ListenableFuture<List<Registration>> getRegistrations() {
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(registrationsPath);
+        builder.path("v2/registrations");
 
         ListenableFuture<ResponseEntity<Registration[]>> e = request(HttpMethod.GET, builder.toUriString(), null, Registration[].class);
         return new ListenableFutureAdapter<List<Registration>, ResponseEntity<Registration[]>>(e) {
@@ -377,7 +368,7 @@ public class Ngsi2Client {
      * @return the listener to notify of completion
      */
     public ListenableFuture<Void> addRegistration(Registration registration) {
-        return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(registrationsPath).toUriString(), registration, Void.class));
+        return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path("v2/registrations").toUriString(), registration, Void.class));
     }
 
     /**
@@ -387,8 +378,8 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Registration> getRegistration(String registrationId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(registrationsPath + "/" + registrationId);
-        return adapt(request(HttpMethod.GET, builder.toUriString(), null, Registration.class));
+        builder.path("v2/registrations/{registrationId}");
+        return adapt(request(HttpMethod.GET, builder.buildAndExpand(registrationId).toUriString(), null, Registration.class));
     }
 
     /**
@@ -398,8 +389,8 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> updateRegistration(String registrationId, Registration registration) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(registrationsPath + "/" + registrationId);
-        return adapt(request(HttpMethod.PATCH, builder.toUriString(), registration, Void.class));
+        builder.path("v2/registrations/{registrationId}");
+        return adapt(request(HttpMethod.PATCH, builder.buildAndExpand(registrationId).toUriString(), registration, Void.class));
     }
 
     /**
@@ -409,8 +400,8 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> deleteRegistration(String registrationId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(registrationsPath + "/" + registrationId);
-        return adapt(request(HttpMethod.DELETE, builder.toUriString(), null, Void.class));
+        builder.path("v2/registrations/{registrationId}");
+        return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(registrationId).toUriString(), null, Void.class));
     }
 
     /*
@@ -426,7 +417,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Paginated<Subscription>> getSubscriptions(int offset, int limit, boolean count) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(subscriptionsPath);
+        builder.path("v2/subscriptions");
         addPaginationParams(builder, offset, limit);
         if (count) {
             addParam(builder, "options", "count");
@@ -447,7 +438,7 @@ public class Ngsi2Client {
      * @return subscription Id
      */
     public ListenableFuture<String> addSubscription(Subscription subscription) {
-        ListenableFuture<ResponseEntity<Void>> s = request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(subscriptionsPath).toUriString(), subscription, Void.class);
+        ListenableFuture<ResponseEntity<Void>> s = request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path("v2/subscriptions").toUriString(), subscription, Void.class);
         return new ListenableFutureAdapter<String, ResponseEntity<Void>>(s) {
             @Override
             protected String adapt(ResponseEntity<Void> result) throws ExecutionException {
@@ -463,7 +454,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Subscription> getSubscription(String subscriptionId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(subscriptionPath);
+        builder.path("v2/subscriptions/{subscriptionId}");
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(subscriptionId).toUriString(), null, Subscription.class));
     }
 
@@ -474,7 +465,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> updateSubscription(String subscriptionId, Subscription subscription) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(subscriptionPath);
+        builder.path("v2/subscriptions/{subscriptionId}");
         return adapt(request(HttpMethod.PATCH, builder.buildAndExpand(subscriptionId).toUriString(), subscription, Void.class));
     }
 
@@ -485,7 +476,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Void> deleteSubscription(String subscriptionId) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(subscriptionPath);
+        builder.path("v2/subscriptions/{subscriptionId}");
         return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(subscriptionId).toUriString(), null, Void.class));
     }
 
