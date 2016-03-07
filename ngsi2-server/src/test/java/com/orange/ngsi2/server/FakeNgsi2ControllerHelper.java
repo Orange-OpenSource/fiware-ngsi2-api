@@ -72,6 +72,11 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     protected void removeEntity(String entityId){ }
 
     @Override
+    protected Paginated<EntityType> retrieveEntityTypes(Optional<Integer> offset, Optional<Integer> limit, boolean count) {
+        return createEntityTypesRoom();
+    }
+
+    @Override
     protected EntityType retrieveEntityType(String entityType) {
         return createEntityTypeRoom();
     }

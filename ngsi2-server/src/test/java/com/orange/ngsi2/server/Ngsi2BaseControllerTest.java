@@ -336,6 +336,27 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkRetrieveEntityTypesNotImplemented() throws Exception {
+        mockMvc.perform(
+                get("/v2/ni/types").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Retrieve Entity Types' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRetrieveEntityTypesOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/types").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].type").value("Room"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrs[*]", hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(7))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void checkRetrieveEntityTypeNotImplemented() throws Exception {
         mockMvc.perform(
                 get("/v2/ni/types/Room").contentType(MediaType.APPLICATION_JSON)

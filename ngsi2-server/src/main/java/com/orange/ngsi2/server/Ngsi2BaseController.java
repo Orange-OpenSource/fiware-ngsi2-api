@@ -178,20 +178,6 @@ public abstract class Ngsi2BaseController {
     }
 
     /**
-     * Endpoint get /v2/types/{entityType}
-     * @param entityType the type of entity
-     * @return the entity type json object and http status 200 (ok)
-     * @throws Exception
-     */
-    @RequestMapping(method = RequestMethod.GET,
-            value = {"/types/{entityType}"})
-    final public ResponseEntity<EntityType> retrieveEntityTypeEndpoint(@PathVariable String entityType) throws Exception {
-
-        validateSyntax(entityType);
-        return new ResponseEntity<>(retrieveEntityType(entityType), HttpStatus.OK);
-    }
-
-    /**
      * Endpoint get /v2/entities/{entityId}/attrs/{attrName}
      * @param entityId the entity ID
      * @param attrName the attribute name
@@ -311,6 +297,37 @@ public abstract class Ngsi2BaseController {
     }
 
     /**
+     * Endpoint get /v2/types
+     * @return the entity type json object and http status 200 (ok)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET, value = {"/types"})
+    final public ResponseEntity<List<EntityType>> retrieveEntityTypesEndpoint(@RequestParam Optional<Integer> limit,
+            @RequestParam Optional<Integer> offset,
+            @RequestParam Optional<String> options) throws Exception {
+
+        boolean count = options.orElse("").contains("count");
+        Paginated<EntityType> entityTypes = retrieveEntityTypes(limit, offset, count);
+        if (count) {
+            return new ResponseEntity<>(entityTypes.getItems() , xTotalCountHeader(entityTypes.getTotal()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(entityTypes.getItems(), HttpStatus.OK);
+    }
+
+    /**
+     * Endpoint get /v2/types/{entityType}
+     * @param entityType the type of entity
+     * @return the entity type json object and http status 200 (ok)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.GET, value = {"/types/{entityType}"})
+    final public ResponseEntity<EntityType> retrieveEntityTypeEndpoint(@PathVariable String entityType) throws Exception {
+
+        validateSyntax(entityType);
+        return new ResponseEntity<>(retrieveEntityType(entityType), HttpStatus.OK);
+    }
+
+    /**
      * Endpoint get /v2/registrations
      * @return a list of Registrations http status 200 (ok)
      */
@@ -326,7 +343,8 @@ public abstract class Ngsi2BaseController {
      * @param registration
      * @return http status 201 (created)
      */
-    @RequestMapping(method = RequestMethod.POST, value = "/registrations", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST,
+            value = "/registrations", consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity createRegistrationEndpoint(@RequestBody Registration registration) {
 
         validateSyntax(registration);
@@ -588,6 +606,17 @@ public abstract class Ngsi2BaseController {
      */
     protected void removeEntity(String entityId){
         throw new UnsupportedOperationException("Remove Entity");
+    }
+
+    /**
+     * Retrieve a list of entity types
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param count whether or not to count the total number of entity types
+     * @return the list of entity types
+     */
+    protected Paginated<EntityType> retrieveEntityTypes(Optional<Integer> offset, Optional<Integer> limit, boolean count) {
+        throw new UnsupportedOperationException("Retrieve Entity Types");
     }
 
     /**

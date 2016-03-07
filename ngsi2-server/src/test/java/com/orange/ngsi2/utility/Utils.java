@@ -115,6 +115,17 @@ public class Utils {
         return attributes;
     }
 
+    static public Paginated<EntityType> createEntityTypesRoom() {
+        EntityType entityTypeRoom = new EntityType();
+        entityTypeRoom.setType("Room");
+        entityTypeRoom.setAttrs("temperature", new AttributeType("urn:phenomenum:temperature"));
+        entityTypeRoom.setAttrs("humidity", new AttributeType("percentage"));
+        entityTypeRoom.setAttrs("pressure", new AttributeType("null"));
+        entityTypeRoom.setCount(7);
+
+        return new Paginated<>(Collections.singletonList(entityTypeRoom), 0, 1, 100);
+    }
+
     static public EntityType createEntityTypeRoom() {
 
         EntityType entityTypeRoom = new EntityType();
