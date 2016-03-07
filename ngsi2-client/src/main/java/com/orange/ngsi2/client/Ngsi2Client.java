@@ -413,13 +413,7 @@ public class Ngsi2Client {
         return new ListenableFutureAdapter<String, ResponseEntity<Void>>(s) {
             @Override
             protected String adapt(ResponseEntity<Void> result) throws ExecutionException {
-                String location = result.getHeaders().getFirst("Location");
-                String paths[] = location.split("/");
-                if (paths.length >= 1) {
-                    return paths[paths.length - 1];
-                } else {
-                    return "";
-                }
+                return extractId(result);
             }
         };
     }
@@ -444,6 +438,17 @@ public class Ngsi2Client {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(subscriptionPath);
         return adapt(request(HttpMethod.PATCH, builder.buildAndExpand(subscriptionId).toUriString(), subscription, Void.class));
+    }
+
+    /**
+     * Delete the subscription by subscription ID
+     * @param subscriptionId the subscription ID
+     * @return
+     */
+    public ListenableFuture<Void> deleteSubscription(String subscriptionId) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(subscriptionPath);
+        return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(subscriptionId).toUriString(), null, Void.class));
     }
 
     /**
@@ -513,6 +518,16 @@ public class Ngsi2Client {
             return Integer.parseInt(total);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    private String extractId(ResponseEntity responseEntity) {
+        String location = responseEntity.getHeaders().getFirst("Location");
+        String paths[] = location.split("/");
+        if (paths.length >= 1) {
+            return paths[paths.length - 1];
+        } else {
+            return "";
         }
     }
 

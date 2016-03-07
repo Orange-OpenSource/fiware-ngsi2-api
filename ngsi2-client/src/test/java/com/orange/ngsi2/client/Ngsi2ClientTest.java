@@ -574,4 +574,15 @@ public class Ngsi2ClientTest {
         ngsiClient.updateSubscription("abcdef", subscription);
     }
 
+    @Test
+    public void testDeleteSubscription_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions/abcdef"))
+                .andExpect(method(HttpMethod.DELETE))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withNoContent());
+
+        ngsiClient.deleteSubscription("abcdef");
+    }
+
 }
