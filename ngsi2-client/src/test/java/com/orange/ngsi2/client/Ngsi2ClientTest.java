@@ -31,6 +31,7 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.AsyncRestTemplate;
 
 import java.net.URL;
+import java.time.Instant;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -447,7 +448,7 @@ public class Ngsi2ClientTest {
         assertEquals("abcdefg", subscriptions.getItems().get(0).getId());
         assertEquals("active", subscriptions.getItems().get(0).getStatus().toString());
         assertEquals("Bcn_Welt", subscriptions.getItems().get(0).getSubject().getEntities().get(0).getId().get());
-        assertEquals("temperature", subscriptions.getItems().get(0).getSubject().getCondition().getAttrs().get(0));
+        assertTrue(subscriptions.getItems().get(0).getSubject().getCondition().getAttributes().contains("temperature"));
         assertEquals("temperature>40", subscriptions.getItems().get(0).getSubject().getCondition().getExpression().get("q"));
         assertEquals("http://localhost:1234", subscriptions.getItems().get(0).getNotification().getCallback().toString());
         assertEquals(2, subscriptions.getItems().get(0).getNotification().getAttributes().size());
@@ -478,5 +479,71 @@ public class Ngsi2ClientTest {
         assertEquals(2, subscriptions.getOffset());
         assertEquals(10, subscriptions.getLimit());
         assertEquals(1, subscriptions.getTotal());
+    }
+
+    @Test
+    public void testAddSubscription_OK() throws Exception {
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("Location", "/v2/subscriptions/abcde98765");
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.subject.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.subject.condition.attributes[0]").value("temperature"))
+                .andExpect(jsonPath("$.subject.condition.expression.q").value("temperature>40"))
+                .andRespond(withNoContent().headers(responseHeader));
+
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        Condition condition = new Condition();
+        condition.setAttributes(Collections.singletonList("temperature"));
+        condition.setExpression("q", "temperature>40");
+        SubjectSubscription subjectSubscription = new SubjectSubscription(Collections.singletonList(subjectEntity), condition);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity");
+        Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
+        notification.setThrottling(Optional.of(new Long(5)));
+        Subscription subscription = new Subscription();
+        subscription.setSubject(subjectSubscription);
+        subscription.setNotification(notification);
+        subscription.setExpires(Instant.parse("2016-04-05T14:00:00.20Z"));
+
+        assertEquals("abcde98765", ngsiClient.addSubscription(subscription).get());
+    }
+
+    @Test
+    public void testAddSubscription_returnEmpty() throws Exception {
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("Location", "");
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.subject.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.subject.condition.attributes[0]").value("temperature"))
+                .andExpect(jsonPath("$.subject.condition.expression.q").value("temperature>40"))
+                .andRespond(withNoContent().headers(responseHeader));
+
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setType(Optional.of("Room"));
+        Condition condition = new Condition();
+        condition.setAttributes(Collections.singletonList("temperature"));
+        condition.setExpression("q", "temperature>40");
+        SubjectSubscription subjectSubscription = new SubjectSubscription(Collections.singletonList(subjectEntity), condition);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity");
+        Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
+        notification.setThrottling(Optional.of(new Long(5)));
+        Subscription subscription = new Subscription();
+        subscription.setSubject(subjectSubscription);
+        subscription.setNotification(notification);
+        subscription.setExpires(Instant.parse("2016-04-05T14:00:00.20Z"));
+
+        assertEquals("", ngsiClient.addSubscription(subscription).get());
     }
 }

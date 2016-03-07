@@ -30,7 +30,7 @@ import java.util.Map;
 public class Condition {
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    List<String> attrs;
+    List<String> attributes;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     Map<String, String> expression;
@@ -38,12 +38,12 @@ public class Condition {
     public Condition() {
     }
 
-    public List<String> getAttrs() {
-        return attrs;
+    public List<String> getAttributes() {
+        return attributes;
     }
 
-    public void setAttributes(List<String> attrs) {
-        this.attrs = attrs;
+    public void setAttributes(List<String> attributes) {
+        this.attributes = attributes;
     }
 
     public Map<String, String> getExpression() {

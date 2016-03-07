@@ -401,6 +401,27 @@ public class Ngsi2Client {
     }
 
     /**
+     * Create a new subscription
+     * @param subscription the Subscription to add
+     * @return subscription Id
+     */
+    public ListenableFuture<String> addSubscription(Subscription subscription) {
+        ListenableFuture<ResponseEntity<Void>> s = request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(SubscriptionsPath).toUriString(), subscription, Void.class);
+        return new ListenableFutureAdapter<String, ResponseEntity<Void>>(s) {
+            @Override
+            protected String adapt(ResponseEntity<Void> result) throws ExecutionException {
+                String location = result.getHeaders().getFirst("Location");
+                String paths[] = location.split("/");
+                if (paths.length >= 1) {
+                    return paths[paths.length - 1];
+                } else {
+                    return "";
+                }
+            }
+        };
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */

@@ -853,8 +853,8 @@ public abstract class Ngsi2BaseController {
             if (subscription.getSubject().getEntities() != null) {
                 validateSyntax(subscription.getSubject().getEntities());
             }
-            if ((subscription.getSubject().getCondition() != null) && (subscription.getSubject().getCondition().getAttrs() != null)) {
-                subscription.getSubject().getCondition().getAttrs().forEach(this::validateSyntax);
+            if ((subscription.getSubject().getCondition() != null) && (subscription.getSubject().getCondition().getAttributes() != null)) {
+                subscription.getSubject().getCondition().getAttributes().forEach(this::validateSyntax);
             }
         }
         if ((subscription.getNotification() != null) && (subscription.getNotification().getAttributes() != null)) {

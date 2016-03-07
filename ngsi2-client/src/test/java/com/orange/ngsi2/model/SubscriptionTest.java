@@ -19,10 +19,7 @@ package com.orange.ngsi2.model;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.orange.ngsi2.Utils;
 import org.junit.Test;
 
@@ -48,7 +45,7 @@ public class SubscriptionTest {
             "      \"type\" : \"Room\"\n" +
             "    } ],\n" +
             "    \"condition\" : {\n" +
-            "      \"attrs\" : [ \"temperature\" ],\n" +
+            "      \"attributes\" : [ \"temperature\" ],\n" +
             "      \"expression\" : {\n" +
             "        \"q\" : \"temperature>40\"\n" +
             "      }\n" +
@@ -96,8 +93,8 @@ public class SubscriptionTest {
         assertEquals("2016-04-05T14:00:00.200Z", subscription.getExpires().toString());
         assertEquals(StatusEnum.active, subscription.getStatus());
         assertEquals(1, subscription.getSubject().getEntities().size());
-        assertEquals(1, subscription.getSubject().getCondition().getAttrs().size());
-        assertTrue(subscription.getSubject().getCondition().getAttrs().contains("temperature"));
+        assertEquals(1, subscription.getSubject().getCondition().getAttributes().size());
+        assertTrue(subscription.getSubject().getCondition().getAttributes().contains("temperature"));
         assertEquals(1, subscription.getSubject().getCondition().getExpression().size());
         assertTrue(subscription.getSubject().getCondition().getExpression().containsKey("q"));
         assertEquals("temperature>40", subscription.getSubject().getCondition().getExpression().get("q"));

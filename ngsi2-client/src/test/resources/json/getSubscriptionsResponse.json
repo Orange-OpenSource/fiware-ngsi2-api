@@ -9,7 +9,7 @@
         }
       ],
       "condition": {
-        "attrs": [
+        "attributes": [
           "temperature"
         ],
         "expression": {
