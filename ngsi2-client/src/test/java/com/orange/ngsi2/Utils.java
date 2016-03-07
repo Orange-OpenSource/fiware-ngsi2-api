@@ -38,8 +38,7 @@ public class Utils {
      */
     public final static ObjectMapper objectMapper = new ObjectMapper().registerModule(new Jdk8Module())
             .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-            .enable(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS);
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
     /**
      * Load a resource as an UTF-8 string

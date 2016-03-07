@@ -559,4 +559,19 @@ public class Ngsi2ClientTest {
         assertEquals("abcdef", subscription.getId());
         assertEquals("active", subscription.getStatus().toString());
     }
+
+    @Test
+    public void testUpdateSubscription_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions/abcdef"))
+                .andExpect(method(HttpMethod.PATCH))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.expires").value("2017-04-05T14:00:00.200Z"))
+                .andRespond(withNoContent());
+
+        Subscription subscription = new Subscription();
+        subscription.setExpires(Instant.parse("2017-04-05T14:00:00.200Z"));
+        ngsiClient.updateSubscription("abcdef", subscription);
+    }
+
 }

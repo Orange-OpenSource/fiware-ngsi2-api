@@ -18,7 +18,9 @@
 package com.orange.ngsi2.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.orange.ngsi2.model.*;
 import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.http.*;
@@ -423,7 +425,7 @@ public class Ngsi2Client {
     }
 
     /**
-     * Get a Subscription by subscriptionID
+     * Get a Subscription by subscription ID
      * @param subscriptionId the subscription ID
      * @return the subscription
      */
@@ -431,6 +433,17 @@ public class Ngsi2Client {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(subscriptionPath);
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(subscriptionId).toUriString(), null, Subscription.class));
+    }
+
+    /**
+     * Update the subscription by subscription ID
+     * @param subscriptionId the subscription ID
+     * @return
+     */
+    public ListenableFuture<Void> updateSubscription(String subscriptionId, Subscription subscription) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(subscriptionPath);
+        return adapt(request(HttpMethod.PATCH, builder.buildAndExpand(subscriptionId).toUriString(), subscription, Void.class));
     }
 
     /**
@@ -526,12 +539,14 @@ public class Ngsi2Client {
     }
 
     /**
-     * Inject an ObjectMapper supporting Java8 by default
+     * Inject an ObjectMapper supporting Java8 and JavaTime module by default
      */
     protected void injectJava8ObjectMapper() {
         MappingJackson2HttpMessageConverter converter = getMappingJackson2HttpMessageConverter();
         if (converter != null) {
-            converter.getObjectMapper().registerModule(new Jdk8Module());
+            converter.getObjectMapper().registerModule(new Jdk8Module())
+                    .registerModule(new JavaTimeModule())
+                    .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         }
     }
 
