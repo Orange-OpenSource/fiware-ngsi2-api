@@ -1,0 +1,33 @@
+[
+  {
+    "id": "abcdefg",
+    "subject": {
+      "entities": [
+        {
+          "id": "Bcn_Welt",
+          "type": "Room"
+        }
+      ],
+      "condition": {
+        "attrs": [
+          "temperature"
+        ],
+        "expression": {
+          "q": "temperature>40"
+        }
+      }
+    },
+    "notification": {
+      "callback": "http://localhost:1234",
+      "attributes": [
+        "temperature",
+        "humidity"
+      ],
+      "throttling": 5,
+      "timesSent": 12,
+      "lastNotification": "2015-10-05T16:00:00.00Z"
+    },
+    "expires": "2016-04-05T14:00:00.00Z",
+    "status": "active"
+  }
+]

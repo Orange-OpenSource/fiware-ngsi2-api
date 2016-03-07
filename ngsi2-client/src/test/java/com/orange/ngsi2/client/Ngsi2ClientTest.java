@@ -428,4 +428,55 @@ public class Ngsi2ClientTest {
 
         ngsiClient.deleteRegistration("abcdef").get();
     }
+
+    /*
+     * Subscriptions requests
+     */
+
+    @Test
+    public void testGetSubscriptions_Defaults() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getSubscriptionsResponse.json"), MediaType.APPLICATION_JSON));
+
+        Paginated<Subscription> subscriptions = ngsiClient.getSubscriptions(0,0,false).get();
+        assertEquals(1, subscriptions.getItems().size());
+        assertNotNull(subscriptions.getItems().get(0));
+        assertEquals("abcdefg", subscriptions.getItems().get(0).getId());
+        assertEquals("active", subscriptions.getItems().get(0).getStatus().toString());
+        assertEquals("Bcn_Welt", subscriptions.getItems().get(0).getSubject().getEntities().get(0).getId().get());
+        assertEquals("temperature", subscriptions.getItems().get(0).getSubject().getCondition().getAttrs().get(0));
+        assertEquals("temperature>40", subscriptions.getItems().get(0).getSubject().getCondition().getExpression().get("q"));
+        assertEquals("http://localhost:1234", subscriptions.getItems().get(0).getNotification().getCallback().toString());
+        assertEquals(2, subscriptions.getItems().get(0).getNotification().getAttributes().size());
+        assertTrue(subscriptions.getItems().get(0).getNotification().getAttributes().contains("temperature"));
+        assertTrue(subscriptions.getItems().get(0).getNotification().getAttributes().contains("humidity"));
+        assertEquals(new Long(5), subscriptions.getItems().get(0).getNotification().getThrottling().get());
+        assertEquals(12, subscriptions.getItems().get(0).getNotification().getTimesSent());
+
+        assertEquals(0, subscriptions.getOffset());
+        assertEquals(0, subscriptions.getLimit());
+        assertEquals(0, subscriptions.getTotal());
+    }
+
+    @Test
+    public void testGetSubscriptions_Paginated() throws Exception {
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        responseHeader.add("X-Total-Count", "1");
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions?offset=2&limit=10&options=count"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getSubscriptionsResponse.json"), MediaType.APPLICATION_JSON)
+                        .headers(responseHeader));
+
+        Paginated<Subscription> subscriptions = ngsiClient.getSubscriptions(2,10,true).get();
+
+        assertEquals(2, subscriptions.getOffset());
+        assertEquals(10, subscriptions.getLimit());
+        assertEquals(1, subscriptions.getTotal());
+    }
 }

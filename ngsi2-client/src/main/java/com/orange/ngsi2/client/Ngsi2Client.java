@@ -19,10 +19,7 @@ package com.orange.ngsi2.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.orange.ngsi2.model.Attribute;
-import com.orange.ngsi2.model.Entity;
-import com.orange.ngsi2.model.Paginated;
-import com.orange.ngsi2.model.Registration;
+import com.orange.ngsi2.model.*;
 import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -134,10 +131,10 @@ public class Ngsi2Client {
      * @return a pagined list of Entities
      */
     public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
-            Collection<String> types, Collection<String> attrs,
-            String query, String georel, String geometry, String coords,
-            Collection<String> orderBy,
-            int offset, int limit, boolean count) {
+                                                           Collection<String> types, Collection<String> attrs,
+                                                           String query, String georel, String geometry, String coords,
+                                                           Collection<String> orderBy,
+                                                           int offset, int limit, boolean count) {
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(entitiesPath);
@@ -373,6 +370,34 @@ public class Ngsi2Client {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
         builder.path(registrationsPath + "/" + registrationId);
         return adapt(request(HttpMethod.DELETE, builder.toUriString(), null, Void.class));
+    }
+
+    /*
+     * Subscriptions requests
+     */
+
+    /**
+     * Retrieve the list of all Subscriptions present in the system
+     * @param offset an optional offset (0 for none)
+     * @param limit an optional limit (0 for none)
+     * @param count true to return the total number of matching entities
+     * @return a pagined list of Subscriptions
+     */
+    public ListenableFuture<Paginated<Subscription>> getSubscriptions(int offset, int limit, boolean count) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(SubscriptionsPath);
+        addPaginationParams(builder, offset, limit);
+        if (count) {
+            addParam(builder, "options", "count");
+        }
+
+        ListenableFuture<ResponseEntity<Subscription[]>> e = request(HttpMethod.GET, builder.toUriString(), null, Subscription[].class);
+        return new ListenableFutureAdapter<Paginated<Subscription>, ResponseEntity<Subscription[]>>(e) {
+            @Override
+            protected Paginated<Subscription> adapt(ResponseEntity<Subscription[]> result) throws ExecutionException {
+                return new Paginated<>(Arrays.asList(result.getBody()), offset, limit, extractTotalCount(result));
+            }
+        };
     }
 
     /**
