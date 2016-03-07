@@ -546,4 +546,17 @@ public class Ngsi2ClientTest {
 
         assertEquals("", ngsiClient.addSubscription(subscription).get());
     }
+
+    @Test
+    public void testGetSubscription_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/subscriptions/abcdef"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getSubscriptionResponse.json"), MediaType.APPLICATION_JSON));
+
+        Subscription subscription = ngsiClient.getSubscription("abcdef").get();
+        assertEquals("abcdef", subscription.getId());
+        assertEquals("active", subscription.getStatus().toString());
+    }
 }

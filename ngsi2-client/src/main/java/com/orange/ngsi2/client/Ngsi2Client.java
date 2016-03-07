@@ -43,7 +43,8 @@ public class Ngsi2Client {
     private static final String entityPath = entitiesPath + "/{entity}";
     private static final String typesPath = basePath + "/types";
     private static final String registrationsPath = basePath + "/registrations";
-    private static final String SubscriptionsPath = basePath + "/subscriptions";
+    private static final String subscriptionsPath = basePath + "/subscriptions";
+    private static final String subscriptionPath = subscriptionsPath + "/{subscription}";
     private static final String attributePath = entityPath + "/attrs/{attributeName}";
     private static final String valuePath = attributePath + "/value";
 
@@ -385,7 +386,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Paginated<Subscription>> getSubscriptions(int offset, int limit, boolean count) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
-        builder.path(SubscriptionsPath);
+        builder.path(subscriptionsPath);
         addPaginationParams(builder, offset, limit);
         if (count) {
             addParam(builder, "options", "count");
@@ -406,7 +407,7 @@ public class Ngsi2Client {
      * @return subscription Id
      */
     public ListenableFuture<String> addSubscription(Subscription subscription) {
-        ListenableFuture<ResponseEntity<Void>> s = request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(SubscriptionsPath).toUriString(), subscription, Void.class);
+        ListenableFuture<ResponseEntity<Void>> s = request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path(subscriptionsPath).toUriString(), subscription, Void.class);
         return new ListenableFutureAdapter<String, ResponseEntity<Void>>(s) {
             @Override
             protected String adapt(ResponseEntity<Void> result) throws ExecutionException {
@@ -419,6 +420,17 @@ public class Ngsi2Client {
                 }
             }
         };
+    }
+
+    /**
+     * Get a Subscription by subscriptionID
+     * @param subscriptionId the subscription ID
+     * @return the subscription
+     */
+    public ListenableFuture<Subscription> getSubscription(String subscriptionId) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(subscriptionPath);
+        return adapt(request(HttpMethod.GET, builder.buildAndExpand(subscriptionId).toUriString(), null, Subscription.class));
     }
 
     /**
