@@ -1,0 +1,14 @@
+{
+  "attrs": {
+    "pressure": {
+      "type": "none"
+    },
+    "humidity": {
+      "type": "percentage"
+    },
+    "temperature": {
+      "type": "urn:phenomenum:temperature"
+    }
+  },
+  "count": 7
+}

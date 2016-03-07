@@ -22,14 +22,12 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.orange.ngsi2.model.*;
-import com.sun.org.apache.regexp.internal.RE;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureAdapter;
 import org.springframework.web.client.AsyncRestTemplate;
-import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
@@ -44,6 +42,7 @@ public class Ngsi2Client {
     private static final String entitiesPath = basePath + "/entities";
     private static final String entityPath = entitiesPath + "/{entity}";
     private static final String typesPath = basePath + "/types";
+    private static final String typePath = basePath + "/types/{entityType}";
     private static final String registrationsPath = basePath + "/registrations";
     private static final String subscriptionsPath = basePath + "/subscriptions";
     private static final String subscriptionPath = subscriptionsPath + "/{subscription}";
@@ -309,6 +308,45 @@ public class Ngsi2Client {
         HttpHeaders httpHeaders = cloneHttpHeaders();
         httpHeaders.setAccept(Collections.singletonList(MediaType.TEXT_PLAIN));
         return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityId, attributeName).toUriString(), httpHeaders, null, String.class));
+    }
+
+    /*
+     * Entity Type requests
+     */
+
+    /**
+     * Retrieve a list of entity types
+     * @param offset an optional offset (0 for none)
+     * @param limit an optional limit (0 for none)
+     * @param count true to return the total number of matching entities
+     * @return a pagined list of entity types
+     */
+    public ListenableFuture<Paginated<EntityType>> getEntityTypes(int offset, int limit, boolean count) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(typesPath);
+        addPaginationParams(builder, offset, limit);
+        if (count) {
+            addParam(builder, "options", "count");
+        }
+
+        ListenableFuture<ResponseEntity<EntityType[]>> e = request(HttpMethod.GET, builder.toUriString(), null, EntityType[].class);
+        return new ListenableFutureAdapter<Paginated<EntityType>, ResponseEntity<EntityType[]>>(e) {
+            @Override
+            protected Paginated<EntityType> adapt(ResponseEntity<EntityType[]> result) throws ExecutionException {
+                return new Paginated<>(Arrays.asList(result.getBody()), offset, limit, extractTotalCount(result));
+            }
+        };
+    }
+
+    /**
+     * Retrieve an entity type
+     * @param entityType the entityType to retrieve
+     * @return an entity type
+     */
+    public ListenableFuture<EntityType> getEntityType(String entityType) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path(typePath);
+        return adapt(request(HttpMethod.GET, builder.buildAndExpand(entityType).toUriString(), null, EntityType.class));
     }
 
     /*

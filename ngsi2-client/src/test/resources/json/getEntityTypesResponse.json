@@ -1,0 +1,32 @@
+[
+  {
+    "type": "Car",
+    "attrs": {
+      "speed": {
+        "type": "none"
+      },
+      "fuel": {
+        "type": "diesel"
+      },
+      "temperature": {
+        "type": "urn:phenomenum:temperature"
+      }
+    },
+    "count": 12
+  },
+  {
+    "type": "Room",
+    "attrs": {
+      "pressure": {
+        "type": "none"
+      },
+      "humidity": {
+        "type": "percentage"
+      },
+      "temperature": {
+        "type": "urn:phenomenum:temperature"
+      }
+    },
+    "count": 7
+  }
+]

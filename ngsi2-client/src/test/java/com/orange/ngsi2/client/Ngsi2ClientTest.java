@@ -33,6 +33,7 @@ import org.springframework.web.client.AsyncRestTemplate;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
@@ -335,6 +336,44 @@ public class Ngsi2ClientTest {
         String result = ngsiClient.getAttributeValueAsString("room1", "Room", "text").get();
 
         assertEquals("some random text", result);
+    }
+
+    /*
+     * Entity types requests
+     */
+
+    @Test
+    public void testGetEntityTypes_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/types"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getEntityTypesResponse.json"), MediaType.APPLICATION_JSON));
+
+        Paginated<EntityType> result = ngsiClient.getEntityTypes(0, 0, false).get();
+
+        assertNotNull(result.getItems());
+        assertEquals(result.getItems().size(), 2);
+        assertEquals(result.getItems().get(0).getType(), "Car");
+        assertNotNull(result.getItems().get(0).getAttrs());
+        assertEquals(result.getItems().get(0).getAttrs().size(), 3);
+        assertEquals(result.getItems().get(0).getAttrs().get("speed").getType(), "none");
+    }
+
+    @Test
+    public void testGetEntityType_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/types/Car"))
+                .andExpect(method(HttpMethod.GET))
+                .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
+                .andRespond(withSuccess(Utils.loadResource("json/getEntityTypeResponse.json"), MediaType.APPLICATION_JSON));
+
+        EntityType entityType = ngsiClient.getEntityType("Car").get();
+
+        assertNotNull(entityType);
+        assertNotNull(entityType.getAttrs());
+        assertEquals(entityType.getAttrs().size(), 3);
+        assertEquals(entityType.getAttrs().get("pressure").getType(), "none");
     }
 
     /*

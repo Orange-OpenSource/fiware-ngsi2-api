@@ -17,9 +17,8 @@
 
 package com.orange.ngsi2.model;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,11 +28,28 @@ import java.util.Map;
  */
 public class EntityType {
 
-    Map<String, AttributeType> attrs;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String type;
 
-    int count;
+    private Map<String, AttributeType> attrs;
+
+    private int count;
 
     public EntityType() {
+    }
+
+    public EntityType(String type, Map<String, AttributeType> attrs, int count) {
+        this.type = type;
+        this.attrs = attrs;
+        this.count = count;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Map<String, AttributeType> getAttrs() {
