@@ -36,11 +36,11 @@ public class Notification {
 
     URL callback;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    Map<String, String> headers;
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
+    Optional<Map<String, String>> headers;
 
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    Map<String, String> query;
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
+    Optional<Map<String, String>> query;
 
     @JsonInclude(JsonInclude.Include.NON_ABSENT)
     Optional<FormatEnum> attrsFormat;
@@ -100,36 +100,36 @@ public class Notification {
         this.lastNotification = lastNotification;
     }
 
-    public Map<String, String> getHeaders() {
+    public Optional<Map<String, String>> getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Map<String, String> headers) {
+    public void setHeaders(Optional<Map<String, String>> headers) {
         this.headers = headers;
     }
 
     @JsonIgnore
     public void setHeader(String key, String value) {
         if (this.headers == null) {
-            this.headers = new HashMap<String, String>();
+            this.headers = Optional.of(new HashMap<>());
         }
-        this.headers.put(key, value);
+        this.headers.get().put(key, value);
     }
 
-    public Map<String, String> getQuery() {
+    public Optional<Map<String, String>> getQuery() {
         return query;
     }
 
-    public void setQuery(Map<String, String> query) {
+    public void setQuery(Optional<Map<String, String>> query) {
         this.query = query;
     }
 
     @JsonIgnore
     public void setQuery(String key, String value) {
         if (this.query == null) {
-            this.query = new HashMap<String, String>();
+            this.query = Optional.of(new HashMap<>());
         }
-        this.query.put(key, value);
+        this.query.get().put(key, value);
     }
 
     public Optional<FormatEnum> getAttrsFormat() {

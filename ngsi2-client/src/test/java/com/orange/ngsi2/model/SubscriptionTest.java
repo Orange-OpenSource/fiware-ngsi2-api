@@ -114,12 +114,15 @@ public class SubscriptionTest {
         assertEquals(new URL("http://localhost:1234"), subscription.getNotification().getCallback());
         assertEquals(Optional.of(new Long(5)), subscription.getNotification().getThrottling());
         assertEquals(12, subscription.getNotification().getTimesSent());
-        assertEquals(1, subscription.getNotification().getHeaders().size());
-        assertTrue(subscription.getNotification().getHeaders().containsKey("X-MyHeader"));
-        assertEquals("foo", subscription.getNotification().getHeaders().get("X-MyHeader"));
-        assertEquals(1, subscription.getNotification().getQuery().size());
-        assertTrue(subscription.getNotification().getQuery().containsKey("authToken"));
-        assertEquals("bar", subscription.getNotification().getQuery().get("authToken"));
+        assertTrue(subscription.getNotification().getHeaders().isPresent());
+        assertEquals(1, subscription.getNotification().getHeaders().get().size());
+        assertTrue(subscription.getNotification().getHeaders().get().containsKey("X-MyHeader"));
+        assertEquals("foo", subscription.getNotification().getHeaders().get().get("X-MyHeader"));
+        assertTrue(subscription.getNotification().getQuery().isPresent());
+        assertEquals(1, subscription.getNotification().getQuery().get().size());
+        assertTrue(subscription.getNotification().getQuery().get().containsKey("authToken"));
+        assertEquals("bar", subscription.getNotification().getQuery().get().get("authToken"));
+        assertTrue(subscription.getNotification().getAttrsFormat().isPresent());
         assertEquals(FormatEnum.keyValues, subscription.getNotification().getAttrsFormat().get());
         assertEquals("2015-10-05T16:00:00.100Z", subscription.getNotification().getLastNotification().toString());
     }
