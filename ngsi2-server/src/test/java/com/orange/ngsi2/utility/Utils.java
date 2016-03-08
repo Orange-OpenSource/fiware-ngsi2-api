@@ -272,6 +272,9 @@ public class Utils {
         attributes.add("temperature");
         attributes.add("humidity");
         Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
+        notification.setHeader("X-MyHeader", "foo");
+        notification.setQuery("authToken", "bar");
+        notification.setAttrsFormat(Optional.of(FormatEnum.keyValues));
         notification.setThrottling(Optional.of(new Long(5)));
         notification.setTimesSent(12);
         notification.setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
