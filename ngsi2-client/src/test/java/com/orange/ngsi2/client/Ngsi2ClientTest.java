@@ -490,6 +490,13 @@ public class Ngsi2ClientTest {
         assertTrue(subscriptions.getItems().get(0).getSubject().getCondition().getAttributes().contains("temperature"));
         assertEquals("temperature>40", subscriptions.getItems().get(0).getSubject().getCondition().getExpression().get("q"));
         assertEquals("http://localhost:1234", subscriptions.getItems().get(0).getNotification().getCallback().toString());
+        assertEquals(1, subscriptions.getItems().get(0).getNotification().getHeaders().size());
+        assertTrue(subscriptions.getItems().get(0).getNotification().getHeaders().containsKey("X-MyHeader"));
+        assertEquals("foo", subscriptions.getItems().get(0).getNotification().getHeaders().get("X-MyHeader"));
+        assertEquals(1, subscriptions.getItems().get(0).getNotification().getQuery().size());
+        assertTrue(subscriptions.getItems().get(0).getNotification().getQuery().containsKey("authToken"));
+        assertEquals("bar", subscriptions.getItems().get(0).getNotification().getQuery().get("authToken"));
+        assertEquals(FormatEnum.keyValues, subscriptions.getItems().get(0).getNotification().getAttrsFormat().get());
         assertEquals(2, subscriptions.getItems().get(0).getNotification().getAttributes().size());
         assertTrue(subscriptions.getItems().get(0).getNotification().getAttributes().contains("temperature"));
         assertTrue(subscriptions.getItems().get(0).getNotification().getAttributes().contains("humidity"));

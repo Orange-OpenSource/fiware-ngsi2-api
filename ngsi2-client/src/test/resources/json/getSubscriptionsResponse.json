@@ -19,6 +19,13 @@
     },
     "notification": {
       "callback": "http://localhost:1234",
+      "headers": {
+        "X-MyHeader": "foo"
+      },
+      "query": {
+        "authToken": "bar"
+      },
+      "attrsFormat": "keyValues",
       "attributes": [
         "temperature",
         "humidity"
