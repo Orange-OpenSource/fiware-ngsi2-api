@@ -17,11 +17,14 @@
 
 package com.orange.ngsi2.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.net.URL;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -32,6 +35,15 @@ public class Notification {
     List<String> attributes;
 
     URL callback;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Map<String, String> headers;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    Map<String, String> query;
+
+    @JsonInclude(JsonInclude.Include.NON_ABSENT)
+    Optional<FormatEnum> attrsFormat;
 
     @JsonInclude(JsonInclude.Include.NON_ABSENT)
     Optional<Long> throttling;
@@ -86,5 +98,45 @@ public class Notification {
 
     public void setLastNotification(Instant lastNotification) {
         this.lastNotification = lastNotification;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    @JsonIgnore
+    public void setHeader(String key, String value) {
+        if (this.headers == null) {
+            this.headers = new HashMap<String, String>();
+        }
+        this.headers.put(key, value);
+    }
+
+    public Map<String, String> getQuery() {
+        return query;
+    }
+
+    public void setQuery(Map<String, String> query) {
+        this.query = query;
+    }
+
+    @JsonIgnore
+    public void setQuery(String key, String value) {
+        if (this.query == null) {
+            this.query = new HashMap<String, String>();
+        }
+        this.query.put(key, value);
+    }
+
+    public Optional<FormatEnum> getAttrsFormat() {
+        return attrsFormat;
+    }
+
+    public void setAttrsFormat(Optional<FormatEnum> attrsFormat) {
+        this.attrsFormat = attrsFormat;
     }
 }

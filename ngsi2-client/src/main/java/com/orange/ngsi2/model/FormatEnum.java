@@ -18,10 +18,8 @@
 package com.orange.ngsi2.model;
 
 /**
- * StatusEnum model
+ * FormatEnum model
  */
-public enum StatusEnum {
-
-    active, expired;
-
+public enum FormatEnum {
+    normalized, keyValues, values;
 }

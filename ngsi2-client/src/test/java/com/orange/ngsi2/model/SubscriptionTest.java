@@ -54,6 +54,13 @@ public class SubscriptionTest {
             "  \"notification\" : {\n" +
             "    \"attributes\" : [ \"temperature\", \"humidity\" ],\n" +
             "    \"callback\" : \"http://localhost:1234\",\n" +
+            "    \"headers\" : {\n" +
+            "      \"X-MyHeader\" : \"foo\"\n" +
+            "    },\n" +
+            "    \"query\" : {\n" +
+            "      \"authToken\" : \"bar\"\n" +
+            "    },\n" +
+            "    \"attrsFormat\" : \"keyValues\",\n" +
             "    \"throttling\" : 5,\n" +
             "    \"timesSent\" : 12,\n" +
             "    \"lastNotification\" : \"2015-10-05T16:00:00.100Z\"\n" +
@@ -80,6 +87,9 @@ public class SubscriptionTest {
         notification.setThrottling(Optional.of(new Long(5)));
         notification.setTimesSent(12);
         notification.setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
+        notification.setHeader("X-MyHeader", "foo");
+        notification.setQuery("authToken", "bar");
+        notification.setAttrsFormat(Optional.of(FormatEnum.keyValues));
         String json = writer.writeValueAsString(new Subscription("abcdefg", subjectSubscription, notification, Instant.parse("2016-04-05T14:00:00.20Z"), StatusEnum.active));
 
         assertEquals(jsonString, json);
@@ -104,6 +114,13 @@ public class SubscriptionTest {
         assertEquals(new URL("http://localhost:1234"), subscription.getNotification().getCallback());
         assertEquals(Optional.of(new Long(5)), subscription.getNotification().getThrottling());
         assertEquals(12, subscription.getNotification().getTimesSent());
+        assertEquals(1, subscription.getNotification().getHeaders().size());
+        assertTrue(subscription.getNotification().getHeaders().containsKey("X-MyHeader"));
+        assertEquals("foo", subscription.getNotification().getHeaders().get("X-MyHeader"));
+        assertEquals(1, subscription.getNotification().getQuery().size());
+        assertTrue(subscription.getNotification().getQuery().containsKey("authToken"));
+        assertEquals("bar", subscription.getNotification().getQuery().get("authToken"));
+        assertEquals(FormatEnum.keyValues, subscription.getNotification().getAttrsFormat().get());
         assertEquals("2015-10-05T16:00:00.100Z", subscription.getNotification().getLastNotification().toString());
     }
 }
