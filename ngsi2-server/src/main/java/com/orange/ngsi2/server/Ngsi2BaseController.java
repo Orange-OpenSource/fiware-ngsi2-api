@@ -91,7 +91,8 @@ public abstract class Ngsi2BaseController {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
         validateSyntax(id, type, attrs);
-        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, stringToGeorel(georel), stringToGeometry(geometry), coords, orderBy);
+        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, stringToGeorel(georel),
+                stringToGeometry(geometry), stringToCoordinates(coords), orderBy);
         List<Entity> entityList = paginatedEntity.getItems();
         if (options.isPresent() && (options.get().contains("count"))) {
             return new ResponseEntity<>(entityList , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
@@ -569,7 +570,7 @@ public abstract class Ngsi2BaseController {
     protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern,
                                              Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs,
                                              Optional<String> query, Optional<Georel> georel, Optional<GeometryEnum> geometry,
-                                             Optional<String> coords, Optional<Collection<String>> orderBy) throws Exception {
+                                             Optional<List<Coordinate>> coords, Optional<Collection<String>> orderBy) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -988,7 +989,7 @@ public abstract class Ngsi2BaseController {
                             if (stringModifier.length == 2) {
                                 try {
                                     modifier = ModifierEnum.valueOf(stringModifier[0]);
-                                    distance = new Float(stringModifier[1]);
+                                    distance = Float.parseFloat(stringModifier[1]);
                                 } catch (IllegalArgumentException e) {
                                     throw new InvalidatedSyntaxException(stringModifier[0]);
                                 }
@@ -1024,6 +1025,24 @@ public abstract class Ngsi2BaseController {
             }
         } catch (IllegalArgumentException e) {
             throw new InvalidatedSyntaxException(stringGeometry.get());
+        }
+    }
+
+    private Optional<List<Coordinate>> stringToCoordinates(Optional<String> stringCoord) {
+        if (stringCoord.isPresent()) {
+            String[] coords = stringCoord.get().split(";");
+            ArrayList<Coordinate> coordinates = new ArrayList<>();
+            for (int i = 0; i < coords.length ; i++) {
+                String[] stringCoordinate = coords[i].split("\\s*,\\s*");
+                if (stringCoordinate.length != 2) {
+                    throw new InvalidatedSyntaxException("coords");
+                }
+                Coordinate coordinate = new Coordinate(Double.parseDouble(stringCoordinate[0]), Double.parseDouble(stringCoordinate[1]));
+                coordinates.add(coordinate);
+            }
+            return Optional.of(coordinates);
+        } else {
+            return Optional.empty();
         }
     }
 }

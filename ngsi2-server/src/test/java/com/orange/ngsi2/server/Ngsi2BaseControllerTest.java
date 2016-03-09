@@ -153,7 +153,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "near;maxDistance:1000").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "near;maxDistance:1000").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
@@ -166,7 +166,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "proximity").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "proximity").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
@@ -179,7 +179,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "near;distance:1000").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "near;distance:1000").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
@@ -192,7 +192,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "near;maxDistance").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "near;maxDistance").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
@@ -205,7 +205,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "near;maxDistance:meter").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "near;maxDistance:meter").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
@@ -218,7 +218,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "coveredBy").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "coveredBy").param("geometry", "polygon").param("coords", "25.774,-80.190;18.466,-66.118;32.321,-64.757;25.774,-80.190")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
@@ -231,7 +231,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "intersects").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "intersects").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
@@ -244,7 +244,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "equals").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "equals").param("geometry", "point").param("coords", "-40.4,-3.51")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
@@ -257,7 +257,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "disjoint").param("geometry", "point").param("coords", "40.6391")
+                        .param("georel", "disjoint").param("geometry", "point").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
@@ -270,11 +270,24 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
                         .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
-                        .param("georel", "disjoint").param("geometry", "triangle").param("coords", "40.6391")
+                        .param("georel", "disjoint").param("geometry", "triangle").param("coords", "-40.4,-3.5")
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. triangle has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesWrongCoordsParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "disjoint").param("geometry", "point").param("coords", "-40.4")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. coords has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
