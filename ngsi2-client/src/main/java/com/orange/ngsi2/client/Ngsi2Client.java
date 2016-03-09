@@ -123,7 +123,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
                                                            Collection<String> types, Collection<String> attrs,
-                                                           String query, Georel georel, GeometryEnum geometry, String coords,
+                                                           String query, Georel georel, GeometryEnum geometry, List<Coordinate> coords,
                                                            Collection<String> orderBy,
                                                            int offset, int limit, boolean count) {
 
@@ -551,6 +551,22 @@ public class Ngsi2Client {
     private void addParam(UriComponentsBuilder builder, String key, GeometryEnum value) {
         if (value != null) {
             builder.queryParam(key, value.name());
+        }
+    }
+
+    private void addParam(UriComponentsBuilder builder, String key, List<Coordinate> value) {
+        if (!nullOrEmpty(value)) {
+            StringBuilder stringCoords = new StringBuilder(value.get(0).toString());
+            value.subList(1,value.size()).iterator().forEachRemaining(coordinate ->  {
+                stringCoords.append(";");
+                stringCoords.append(coordinate.toString());
+            });
+            /*StringBuilder stringCoords = new StringBuilder(value.iterator().next().toString());
+            while (value.iterator().hasNext()) {
+                stringCoords.append(";");
+                stringCoords.append(value.iterator().next().toString());
+            }*/
+            builder.queryParam(key, stringCoords.toString());
         }
     }
 

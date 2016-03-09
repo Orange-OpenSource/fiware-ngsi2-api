@@ -159,13 +159,13 @@ public class Ngsi2ClientTest {
         Collection<String> types = Arrays.asList("Room", "House");
         Collection<String> params = Arrays.asList("temp", "pressure", "humidity");
         String query = "temp>10";
-        Georel georel = new Georel(GeorelEnum.near, Optional.of(ModifierEnum.maxDistance), Optional.of(new Float("1000")));
+        Georel georel = new Georel(GeorelEnum.near, Optional.of(ModifierEnum.maxDistance), Optional.of(Float.parseFloat("1000")));
         GeometryEnum geometry = GeometryEnum.point;
-        String coords = "COORDS";
+        List<Coordinate> coords = Arrays.asList(new Coordinate(Double.parseDouble("-10.5"),Double.parseDouble("30.5")), new Coordinate(Double.parseDouble("-15.5"),Double.parseDouble("35.5")));
         Collection<String> orderBy = Arrays.asList("temp", "!humidity");
 
         mockServer.expect(requestTo(baseURL + "/v2/entities?id=room1,house1&idPattern=room.*&" +
-                "type=Room,House&attrs=temp,pressure,humidity&query=temp%253E10&georel=near;maxDistance:1000.0&geometry=point&coords=COORDS&" +
+                "type=Room,House&attrs=temp,pressure,humidity&query=temp%253E10&georel=near;maxDistance:1000.0&geometry=point&coords=-10.5,30.5;-15.5,35.5&" +
                 "orderBy=temp,!humidity&" +
                 "offset=2&limit=10"))
                 .andExpect(method(HttpMethod.GET))
