@@ -149,6 +149,136 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListEntitiesAllParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "near;maxDistance:1000").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListEntitiesWrongGeorelParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "proximity").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. proximity has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesWrongModifierParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "near;distance:1000").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. distance has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesEmptyDistanceParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "near;maxDistance").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. maxDistance has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesWrongDistanceParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "near;maxDistance:meter").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. maxDistance has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesCoveredByGeorelParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "coveredBy").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListEntitiesIntersectsGeorelParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "intersects").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListEntitiesEqualsGeorelParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "equals").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListEntitiesDisjointGeorelParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "disjoint").param("geometry", "point").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count","1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkListEntitiesWrongGeometryParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "disjoint").param("geometry", "triangle").param("coords", "40.6391")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. triangle has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void checkCreateEntityNotImplemented() throws Exception {
         mockMvc.perform(
                 post("/v2/ni/entities").content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)

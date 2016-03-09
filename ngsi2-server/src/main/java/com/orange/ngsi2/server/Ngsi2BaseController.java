@@ -67,6 +67,11 @@ public abstract class Ngsi2BaseController {
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
      * @param attrs an optional list of attributes separated by comma to return for all entities
+     * @param query an optional Simple Query Language query
+     * @param georel an optional Geo query. Possible values: near, coveredBy, intersects, equals, disjoint.
+     * @param geometry an optional geometry. Possible values: point, line, polygon, box.
+     * @param coords an optional coordinate
+     * @param orderBy an option list of attributes to difine the order of entities
      * @param options an optional list of options separated by comma. Possible values for option: count,keyValues,values.
      *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
      * @return a list of Entities http status 200 (ok)
@@ -74,13 +79,19 @@ public abstract class Ngsi2BaseController {
      */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
-    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type, @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs, @RequestParam Optional<String> options) throws Exception {
+    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type,
+                                                                   @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit,
+                                                                   @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs,
+                                                                   @RequestParam Optional<String> query, @RequestParam Optional<String> georel,
+                                                                   @RequestParam Optional<String> geometry, @RequestParam Optional<String> coords,
+                                                                   @RequestParam Optional<Collection<String>> orderBy,
+                                                                   @RequestParam Optional<String> options) throws Exception {
 
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
         validateSyntax(id, type, attrs);
-        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs);
+        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, stringToGeorel(georel), stringToGeometry(geometry), coords, orderBy);
         List<Entity> entityList = paginatedEntity.getItems();
         if (options.isPresent() && (options.get().contains("count"))) {
             return new ResponseEntity<>(entityList , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
@@ -525,6 +536,16 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
+    @ExceptionHandler({IllegalArgumentException.class})
+    public ResponseEntity<Object> illegalArgument(IllegalArgumentException exception, HttpServletRequest request) {
+        logger.error("Illegal Argument: {}", exception.getMessage());
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getMessage(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getMessage(), httpStatus);
+    }
+
     /*
      * Methods overridden by child classes to handle the NGSI v2 requests
      */
@@ -537,10 +558,18 @@ public abstract class Ngsi2BaseController {
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
      * @param attrs an optional list of attributes to return for all entities
+     * @param query an optional Simple Query Language query
+     * @param georel an optional Geo query. Possible values: near, coveredBy, intersects, equals, disjoint.
+     * @param geometry an optional geometry. Possible values: point, line, polygon, box.
+     * @param coords an optional coordinate
+     * @param orderBy an option list of attributes to define the order of entities
      * @return a paginated of list of Entities
      * @throws Exception
      */
-    protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs) throws Exception {
+    protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern,
+                                             Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs,
+                                             Optional<String> query, Optional<Georel> georel, Optional<GeometryEnum> geometry,
+                                             Optional<String> coords, Optional<Collection<String>> orderBy) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -945,4 +974,56 @@ public abstract class Ngsi2BaseController {
         }
     }
 
+    private Optional<Georel> stringToGeorel(Optional<String> stringGeorel) {
+        if (stringGeorel.isPresent()) {
+            String[] fieldGeorel = stringGeorel.get().split(";");
+            try {
+                GeorelEnum georel = GeorelEnum.valueOf(fieldGeorel[0]);
+                ModifierEnum modifier = null;
+                Float distance = null;
+                switch (georel) {
+                    case near:
+                        if (fieldGeorel.length > 1) {
+                            String[] stringModifier = fieldGeorel[1].split(":");
+                            if (stringModifier.length == 2) {
+                                try {
+                                    modifier = ModifierEnum.valueOf(stringModifier[0]);
+                                    distance = new Float(stringModifier[1]);
+                                } catch (IllegalArgumentException e) {
+                                    throw new InvalidatedSyntaxException(stringModifier[0]);
+                                }
+                                return Optional.of(new Georel(georel, Optional.of(modifier), Optional.of(distance)));
+                            }
+                            throw new InvalidatedSyntaxException(stringModifier[0]);
+                        }
+                        break;
+                    case coveredBy:
+                        break;
+                    case intersects:
+                        break;
+                    case equals:
+                        break;
+                    case disjoint:
+                        break;
+                }
+                return Optional.of(new Georel(georel));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidatedSyntaxException(fieldGeorel[0]);
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private Optional<GeometryEnum> stringToGeometry(Optional<String> stringGeometry) {
+        try {
+            if (stringGeometry.isPresent()) {
+                return Optional.of(GeometryEnum.valueOf(stringGeometry.get()));
+            } else {
+                return Optional.empty();
+            }
+        } catch (IllegalArgumentException e) {
+            throw new InvalidatedSyntaxException(stringGeometry.get());
+        }
+    }
 }
