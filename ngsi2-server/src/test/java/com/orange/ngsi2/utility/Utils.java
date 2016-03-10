@@ -111,7 +111,7 @@ public class Utils {
 
         HashMap<String, Attribute> attributes = new HashMap<>();
         Attribute noiseAttribut = new Attribute(31.5);
-        attributes.put("ambient%Noise", noiseAttribut);
+        attributes.put("ambient&Noise", noiseAttribut);
         return attributes;
     }
 
@@ -153,7 +153,7 @@ public class Utils {
 
         Attribute temperatureAttribute = new Attribute(25);
         Metadata metadata = new Metadata("CEL");
-        temperatureAttribute.addMetadata("unit%Code", metadata);
+        temperatureAttribute.addMetadata("unit?Code", metadata);
         return temperatureAttribute;
     }
 
@@ -247,7 +247,7 @@ public class Utils {
         subjectEntity.setType(Optional.of("Room"));
         SubjectRegistration subjectRegistration = new SubjectRegistration( Collections.singletonList(subjectEntity), Collections.singletonList("humidity"));
         registration.setSubject(subjectRegistration);
-        Metadata metadataProvider = new Metadata("example%", null);
+        Metadata metadataProvider = new Metadata("example&", null);
         registration.addMetadata("provider", metadataProvider);
         return registration;
     }
@@ -310,7 +310,7 @@ public class Utils {
         SubjectSubscription subjectSubscription = new SubjectSubscription(Collections.singletonList(subjectEntity), condition);
         List<String> attributes = new ArrayList<>();
         attributes.add("temperature");
-        attributes.add("humidity%");
+        attributes.add("humidity#");
         Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
         notification.setThrottling(Optional.of(new Long(5)));
         Subscription subscription = new Subscription();

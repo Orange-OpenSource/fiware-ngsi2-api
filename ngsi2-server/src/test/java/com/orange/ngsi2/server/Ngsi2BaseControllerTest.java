@@ -333,10 +333,10 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveEntityInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/i/entities/Bcn%Welt").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/entities/Bcn&Welt").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn%Welt has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn&Welt has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -364,11 +364,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkUpdateOrAppendEntityIdInvalidSyntax() throws Exception {
         mockMvc.perform(
-                post("/v2/i/entities/Bcn%Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                post("/v2/i/entities/Bcn&Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn%Welt has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn&Welt has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -396,11 +396,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkUpdateExistingEntityAttributesInvalidSyntax() throws Exception {
         mockMvc.perform(
-                patch("/v2/i/entities/Bcn%Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                patch("/v2/i/entities/Bcn&Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn%Welt has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn&Welt has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -432,7 +432,7 @@ public class Ngsi2BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. ambient%Noise has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. ambient&Noise has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -460,11 +460,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRemoveEntityInvalidSyntax() throws Exception {
         mockMvc.perform(
-                delete("/v2/i/entities/Bcn%Welt")
+                delete("/v2/i/entities/Bcn&Welt")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn%Welt has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn&Welt has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -512,10 +512,10 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveEntityTypeInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/i/types/Room%").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/types/Room&").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Room% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Room& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -552,10 +552,10 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveAttributeByEntityIdInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/i/entities/Bcn-Welt/attrs/temperature%").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/entities/Bcn-Welt/attrs/temperature&").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -586,7 +586,7 @@ public class Ngsi2BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. unit%Code has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. unit?Code has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -624,10 +624,10 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRemoveAttributeByEntityIdInvalidSyntax() throws Exception {
         mockMvc.perform(
-                delete("/v2/i/entities/Bcn-Welt/attrs/temperature%").contentType(MediaType.APPLICATION_JSON)
+                delete("/v2/i/entities/Bcn-Welt/attrs/temperature&").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -672,19 +672,19 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveAttributeValueInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/i/entities/Bcn%Welt/attrs/temperature/value").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/entities/Bcn&Welt/attrs/temperature/value").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn%Welt has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Bcn&Welt has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     public void checkRetrieveTextPlainAttributeValueInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/ni/entities/Bcn%Welt/attrs/temperature/value").contentType(MediaType.TEXT_PLAIN)
+                get("/v2/ni/entities/Bcn&Welt/attrs/temperature/value").contentType(MediaType.TEXT_PLAIN)
                         .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
-                .andExpect(content().string("error: 400 | description: The incoming request is invalid in this context. Bcn%Welt has a bad syntax. | affectedItems: []"))
+                .andExpect(content().string("error: 400 | description: The incoming request is invalid in this context. Bcn&Welt has a bad syntax. | affectedItems: []"))
                 .andExpect(status().isBadRequest());
     }
 
@@ -757,11 +757,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkUpdateAttributeValueInvalidSyntax() throws Exception {
         mockMvc.perform(
-                put("/v2/i/entities/Bcn-Welt/attrs/temperature%/value").content(json(jsonV2Converter, createValueReference()))
+                put("/v2/i/entities/Bcn-Welt/attrs/temperature&/value").content(json(jsonV2Converter, createValueReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. temperature& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -885,7 +885,7 @@ public class Ngsi2BaseControllerTest {
                 post("/v2/i/registrations").content(json(jsonV2Converter, createRegistrationReferenceWithBadSyntax())).contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. example% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. example& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -902,10 +902,10 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveRegistrationInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/i/registrations/abcde%").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/registrations/abcde&").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -933,11 +933,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkUpdateRegistrationInvalidSyntax() throws Exception {
         mockMvc.perform(
-                patch("/v2/i/registrations/abcde%").content(json(jsonV2Converter, updateRegistrationReference()))
+                patch("/v2/i/registrations/abcde&").content(json(jsonV2Converter, updateRegistrationReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -965,11 +965,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRemoveRegistrationInvalidSyntax() throws Exception {
         mockMvc.perform(
-                delete("/v2/i/registrations/abcde%")
+                delete("/v2/i/registrations/abcde&")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -1035,7 +1035,7 @@ public class Ngsi2BaseControllerTest {
                 post("/v2/i/subscriptions").content(json(jsonV2Converter, createSubscriptionReferenceWithBadSyntax())).contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. humidity% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. humidity# has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -1052,10 +1052,10 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRetrieveSubscriptionInvalidSyntax() throws Exception {
         mockMvc.perform(
-                get("/v2/i/subscriptions/abcdef%").contentType(MediaType.APPLICATION_JSON)
+                get("/v2/i/subscriptions/abcdef&").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcdef% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcdef& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -1083,11 +1083,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkUpdateSubscriptionInvalidSyntax() throws Exception {
         mockMvc.perform(
-                patch("/v2/i/subscriptions/abcdef%").content(json(jsonV2Converter, updateSubscriptionReference()))
+                patch("/v2/i/subscriptions/abcdef&").content(json(jsonV2Converter, updateSubscriptionReference()))
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcdef% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcdef& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -1115,11 +1115,11 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkRemoveSubscriptionInvalidSyntax() throws Exception {
         mockMvc.perform(
-                delete("/v2/i/subscriptions/abcde%")
+                delete("/v2/i/subscriptions/abcde&")
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde% has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. abcde& has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -1135,16 +1135,22 @@ public class Ngsi2BaseControllerTest {
 
     @Test
     public void checkPattern() {
-        assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn_Welt"));
-        assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", "Bcn-Welt"));
+        assertTrue(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn_Welt"));
+        assertTrue(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn-Welt"));
+        assertFalse(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn Welt"));
+        assertFalse(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn&Welt"));
+        assertFalse(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn?Welt"));
+        assertFalse(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn/Welt"));
+        assertFalse(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn#Welt"));
+
         String p257times = IntStream.range(0, 257)
                 .mapToObj(x -> "p")
                 .collect(Collectors.joining());
-        assertTrue(Pattern.matches("[a-zA-Z0-9_,-]*", p257times));
+        assertTrue(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", p257times));
         String invalid256times = IntStream.range(0, 256)
                 .mapToObj(x -> "?")
                 .collect(Collectors.joining());
-        assertFalse(Pattern.matches("[a-zA-Z0-9_,-]*", invalid256times));
+        assertFalse(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", invalid256times));
     }
 
 }

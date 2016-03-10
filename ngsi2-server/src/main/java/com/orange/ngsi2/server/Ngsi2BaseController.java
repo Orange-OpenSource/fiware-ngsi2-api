@@ -43,7 +43,11 @@ public abstract class Ngsi2BaseController {
 
     private static Logger logger = LoggerFactory.getLogger(Ngsi2BaseController.class);
 
-    private static Pattern fieldPattern = Pattern.compile("[a-zA-Z0-9_-]*");
+    /* Field allowed characters are the ones in the plain ASCII set except the following ones: control characters,
+       whitespace, &, ?, / and #.
+     */
+    //private static Pattern fieldPattern = Pattern.compile("[a-zA-Z0-9_-]*");
+    private static Pattern fieldPattern = Pattern.compile("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*");
 
     @Autowired
     ObjectMapper objectMapper;
