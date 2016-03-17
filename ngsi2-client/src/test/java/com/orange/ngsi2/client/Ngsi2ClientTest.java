@@ -823,4 +823,38 @@ public class Ngsi2ClientTest {
         assertEquals("Z2323232323", results[0]);
         assertEquals("2323EFDLKF23", results[1]);
     }
+
+    @Test
+    public void testBulkDiscover_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/discover?offset=20&limit=40&options=count"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.attributes[0]").value("temp"))
+                .andExpect(jsonPath("$.scopes[0].type").value("FIWARE::Geo::Distance"))
+                .andExpect(jsonPath("$.scopes[0].value").value("2.23,43.56"))
+                .andRespond(withSuccess(Utils.loadResource("json/postDiscoverResponse.json"), MediaType.APPLICATION_JSON));
+
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setId(Optional.of("room1"));
+        subjectEntity.setType(Optional.of("Room"));
+
+        BulkQueryRequest request = new BulkQueryRequest();
+        request.setEntities(Collections.singletonList(subjectEntity));
+        request.setAttributes(Collections.singletonList("temp"));
+        request.setScopes(Collections.singletonList(new Scope("FIWARE::Geo::Distance", "2.23,43.56")));
+
+        Paginated<Registration> results = ngsiClient.bulkDiscover(request, 20, 40, true).get();
+        assertNotNull(results);
+        assertNotNull(results.getItems());
+        assertEquals(2, results.getItems().size());
+        assertNotNull(results.getItems().get(0));
+        assertEquals("abcde", results.getItems().get(0).getId());
+        assertEquals("Foo", results.getItems().get(0).getSubject().getEntities().get(0).getId().get());
+        assertEquals("myFooType", results.getItems().get(0).getSubject().getEntities().get(0).getType().get());
+        assertEquals("http://localhost:1234", results.getItems().get(0).getCallback().toString());
+        assertEquals("PT1M", results.getItems().get(0).getDuration());
+    }
 }

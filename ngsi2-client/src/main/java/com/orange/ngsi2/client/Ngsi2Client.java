@@ -506,6 +506,24 @@ public class Ngsi2Client {
     }
 
     /**
+     * Discover registration matching entities and their attributes
+     * @param bulkQueryRequest defines the list of entities, attributes and scopes to match registrations
+     * @param offset an optional offset (0 for none)
+     * @param limit an optional limit (0 for none)
+     * @param count true to return the total number of matching entities
+     * @return a paginated list of registration
+     */
+    public ListenableFuture<Paginated<Registration>> bulkDiscover(BulkQueryRequest bulkQueryRequest, int offset, int limit, boolean count) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path("v2/op/discover");
+        addPaginationParams(builder, offset, limit);
+        if (count) {
+            addParam(builder, "options", "count");
+        }
+        return adaptPaginated(request(HttpMethod.POST, builder.toUriString(), bulkQueryRequest, Registration[].class), offset, limit);
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */
