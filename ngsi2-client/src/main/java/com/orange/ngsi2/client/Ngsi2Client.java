@@ -461,6 +461,21 @@ public class Ngsi2Client {
         return adapt(request(HttpMethod.DELETE, builder.buildAndExpand(subscriptionId).toUriString(), null, Void.class));
     }
 
+    /*
+     * POJ RPC "bulk" Operations
+     */
+
+    /**
+     * Update, append or delete multiple entities in a single operation
+     * @param bulkUpdateRequest a BulkUpdateRequest with an actionType and a list of entities to update
+     * @return Nothing on success
+     */
+    public ListenableFuture<Void> bulkUpdate(BulkUpdateRequest bulkUpdateRequest) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path("v2/op/update");
+        return adapt(request(HttpMethod.POST, builder.toUriString(), bulkUpdateRequest, Void.class));
+    }
+
     /**
      * Default headers
      * @return the default headers

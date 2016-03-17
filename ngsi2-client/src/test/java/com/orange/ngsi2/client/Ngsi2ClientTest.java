@@ -633,4 +633,79 @@ public class Ngsi2ClientTest {
         ngsiClient.deleteSubscription("abcdef");
     }
 
+    /*
+     * Bulk requests
+     */
+
+    @Test
+    public void testBulkUpdate_Append() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/update"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("APPEND"))
+                .andExpect(jsonPath("$.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.entities[0].temp.value").value(22))
+                .andRespond(withNoContent());
+
+        Entity e = new Entity("room1", "Room");
+        e.setAttributes(Collections.singletonMap("temp", new Attribute(22)));
+        BulkUpdateRequest request = new BulkUpdateRequest(BulkUpdateRequest.Action.APPEND, Collections.singletonList(e));
+        ngsiClient.bulkUpdate(request).get();
+    }
+
+    @Test
+    public void testBulkUpdate_AppendStrict() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/update"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("APPEND_STRICT"))
+                .andExpect(jsonPath("$.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.entities[0].temp.value").value(22))
+                .andRespond(withNoContent());
+
+        Entity e = new Entity("room1", "Room");
+        e.setAttributes(Collections.singletonMap("temp", new Attribute(22)));
+        BulkUpdateRequest request = new BulkUpdateRequest(BulkUpdateRequest.Action.APPEND_STRICT, Collections.singletonList(e));
+        ngsiClient.bulkUpdate(request).get();
+    }
+
+    @Test
+    public void testBulkUpdate_Update() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/update"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("UPDATE"))
+                .andExpect(jsonPath("$.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.entities[0].temp.value").value(22))
+                .andRespond(withNoContent());
+
+        Entity e = new Entity("room1", "Room");
+        e.setAttributes(Collections.singletonMap("temp", new Attribute(22)));
+        BulkUpdateRequest request = new BulkUpdateRequest(BulkUpdateRequest.Action.UPDATE, Collections.singletonList(e));
+        ngsiClient.bulkUpdate(request).get();
+    }
+
+    @Test
+    public void testBulkUpdate_Delete() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/update"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("DELETE"))
+                .andExpect(jsonPath("$.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.entities[0].temp.value").value(22))
+                .andRespond(withNoContent());
+
+        Entity e = new Entity("room1", "Room");
+        e.setAttributes(Collections.singletonMap("temp", new Attribute(22)));
+        BulkUpdateRequest request = new BulkUpdateRequest(BulkUpdateRequest.Action.DELETE, Collections.singletonList(e));
+        ngsiClient.bulkUpdate(request).get();
+    }
 }
