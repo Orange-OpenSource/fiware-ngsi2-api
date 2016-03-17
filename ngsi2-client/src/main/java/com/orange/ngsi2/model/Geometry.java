@@ -18,8 +18,8 @@
 package com.orange.ngsi2.model;
 
 /**
- * Modifier Enum model
+ * Geometry enum used for entities querying
  */
-public enum ModifierEnum {
-    maxDistance, minDistance;
+public enum Geometry {
+    point, line, polygon, box;
 }

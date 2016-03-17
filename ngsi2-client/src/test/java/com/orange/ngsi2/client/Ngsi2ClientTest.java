@@ -33,7 +33,6 @@ import org.springframework.web.client.AsyncRestTemplate;
 import java.net.URL;
 import java.time.Instant;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
@@ -159,8 +158,8 @@ public class Ngsi2ClientTest {
         Collection<String> types = Arrays.asList("Room", "House");
         Collection<String> params = Arrays.asList("temp", "pressure", "humidity");
         String query = "temp>10";
-        Georel georel = new Georel(GeorelEnum.near, Optional.of(ModifierEnum.maxDistance), Optional.of(Float.parseFloat("1000")));
-        GeometryEnum geometry = GeometryEnum.point;
+        Georel georel = new Georel(Georel.Relation.near, Optional.of(Georel.Modifier.maxDistance), Optional.of(Float.parseFloat("1000")));
+        Geometry geometry = Geometry.point;
         List<Coordinate> coords = Arrays.asList(new Coordinate(Double.parseDouble("-10.5"),Double.parseDouble("30.5")), new Coordinate(Double.parseDouble("-15.5"),Double.parseDouble("35.5")));
         Collection<String> orderBy = Arrays.asList("temp", "!humidity");
 
@@ -499,7 +498,7 @@ public class Ngsi2ClientTest {
         assertTrue(subscriptions.getItems().get(0).getNotification().getQuery().get().containsKey("authToken"));
         assertEquals("bar", subscriptions.getItems().get(0).getNotification().getQuery().get().get("authToken"));
         assertTrue(subscriptions.getItems().get(0).getNotification().getAttrsFormat().isPresent());
-        assertEquals(FormatEnum.keyValues, subscriptions.getItems().get(0).getNotification().getAttrsFormat().get());
+        assertEquals(Notification.Format.keyValues, subscriptions.getItems().get(0).getNotification().getAttrsFormat().get());
         assertEquals(2, subscriptions.getItems().get(0).getNotification().getAttributes().size());
         assertTrue(subscriptions.getItems().get(0).getNotification().getAttributes().contains("temperature"));
         assertTrue(subscriptions.getItems().get(0).getNotification().getAttributes().contains("humidity"));

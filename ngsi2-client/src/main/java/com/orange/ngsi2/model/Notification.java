@@ -32,6 +32,13 @@ import java.util.Optional;
  */
 public class Notification {
 
+    /**
+     * Format model
+     */
+    public enum Format {
+        normalized, keyValues, values;
+    }
+
     List<String> attributes;
 
     URL callback;
@@ -43,7 +50,7 @@ public class Notification {
     Optional<Map<String, String>> query;
 
     @JsonInclude(JsonInclude.Include.NON_ABSENT)
-    Optional<FormatEnum> attrsFormat;
+    Optional<Format> attrsFormat;
 
     @JsonInclude(JsonInclude.Include.NON_ABSENT)
     Optional<Long> throttling;
@@ -132,11 +139,11 @@ public class Notification {
         this.query.get().put(key, value);
     }
 
-    public Optional<FormatEnum> getAttrsFormat() {
+    public Optional<Format> getAttrsFormat() {
         return attrsFormat;
     }
 
-    public void setAttrsFormat(Optional<FormatEnum> attrsFormat) {
+    public void setAttrsFormat(Optional<Format> attrsFormat) {
         this.attrsFormat = attrsFormat;
     }
 }

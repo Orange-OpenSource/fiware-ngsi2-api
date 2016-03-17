@@ -573,7 +573,7 @@ public abstract class Ngsi2BaseController {
      */
     protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern,
                                              Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs,
-                                             Optional<String> query, Optional<Georel> georel, Optional<GeometryEnum> geometry,
+                                             Optional<String> query, Optional<Georel> georel, Optional<Geometry> geometry,
                                              Optional<List<Coordinate>> coords, Optional<Collection<String>> orderBy) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
@@ -926,10 +926,8 @@ public abstract class Ngsi2BaseController {
     }
 
     private HttpHeaders locationHeader(String entityId) {
-        StringBuilder location = new StringBuilder("/v2/entities/");
-        location.append(entityId);
         HttpHeaders headers = new HttpHeaders();
-        headers.put("Location", Collections.singletonList(location.toString()));
+        headers.put("Location", Collections.singletonList("/v2/entities/" + entityId));
         return headers;
     }
 
@@ -945,9 +943,9 @@ public abstract class Ngsi2BaseController {
         } else if (value instanceof String) {
             return (String)value;
         } else if (value instanceof Boolean) {
-            return ((Boolean)value).toString();
+            return value.toString();
         } else if (value instanceof Number) {
-            return String.valueOf((Number)value);
+            return String.valueOf(value);
         } else {
             return objectMapper.writeValueAsString(value);
         }
@@ -955,9 +953,9 @@ public abstract class Ngsi2BaseController {
 
     private Object stringToValue(String value) {
         if  (value.equalsIgnoreCase("true")) {
-            return new Boolean(true);
+            return true;
         } else if (value.equalsIgnoreCase("false")) {
-            return new Boolean(false);
+            return false;
         } else if (value.equalsIgnoreCase("null")) {
             return null;
         } else if ((value.startsWith("\"")) && (value.endsWith("\""))) {
@@ -983,8 +981,8 @@ public abstract class Ngsi2BaseController {
         if (stringGeorel.isPresent()) {
             String[] fieldGeorel = stringGeorel.get().split(";");
             try {
-                GeorelEnum georel = GeorelEnum.valueOf(fieldGeorel[0]);
-                ModifierEnum modifier = null;
+                Georel.Relation georel = Georel.Relation.valueOf(fieldGeorel[0]);
+                Georel.Modifier modifier = null;
                 Float distance = null;
                 switch (georel) {
                     case near:
@@ -992,7 +990,7 @@ public abstract class Ngsi2BaseController {
                             String[] stringModifier = fieldGeorel[1].split(":");
                             if (stringModifier.length == 2) {
                                 try {
-                                    modifier = ModifierEnum.valueOf(stringModifier[0]);
+                                    modifier = Georel.Modifier.valueOf(stringModifier[0]);
                                     distance = Float.parseFloat(stringModifier[1]);
                                 } catch (IllegalArgumentException e) {
                                     throw new InvalidatedSyntaxException(stringModifier[0]);
@@ -1020,10 +1018,10 @@ public abstract class Ngsi2BaseController {
         }
     }
 
-    private Optional<GeometryEnum> stringToGeometry(Optional<String> stringGeometry) {
+    private Optional<Geometry> stringToGeometry(Optional<String> stringGeometry) {
         try {
             if (stringGeometry.isPresent()) {
-                return Optional.of(GeometryEnum.valueOf(stringGeometry.get()));
+                return Optional.of(Geometry.valueOf(stringGeometry.get()));
             } else {
                 return Optional.empty();
             }

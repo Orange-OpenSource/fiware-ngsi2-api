@@ -18,12 +18,18 @@
 package com.orange.ngsi2.model;
 
 import java.time.Instant;
-import java.util.Date;
 
 /**
  * Subscription model
  */
 public class Subscription {
+
+    /**
+     * Status model
+     */
+    public enum Status {
+        active, expired;
+    }
 
     String id;
 
@@ -33,12 +39,12 @@ public class Subscription {
 
     Instant expires;
 
-    StatusEnum status;
+    Status status;
 
     public Subscription() {
     }
 
-    public Subscription(String id, SubjectSubscription subject, Notification notification, Instant expires, StatusEnum status) {
+    public Subscription(String id, SubjectSubscription subject, Notification notification, Instant expires, Status status) {
         this.id = id;
         this.subject = subject;
         this.notification = notification;
@@ -70,11 +76,11 @@ public class Subscription {
         this.notification = notification;
     }
 
-    public StatusEnum getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(StatusEnum status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 

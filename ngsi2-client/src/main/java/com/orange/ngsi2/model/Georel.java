@@ -20,39 +20,53 @@ package com.orange.ngsi2.model;
 import java.util.Optional;
 
 /**
- * Georel model
+ * Georel is used for entities querying
  */
 public class Georel {
 
-    GeorelEnum georel;
+    /**
+     * Georel Enum model
+     */
+    public enum Relation {
+        near, coveredBy, intersects, equals, disjoint;
+    }
 
-    Optional<ModifierEnum> modifier;
+    /**
+     * Modifier Enum model
+     */
+    public enum Modifier {
+        maxDistance, minDistance;
+    }
 
-    Optional<Float> distance = null;
+    private Relation georel;
 
-    public Georel(GeorelEnum georel) {
+    private Optional<Modifier> modifier;
+
+    private Optional<Float> distance = null;
+
+    public Georel(Relation georel) {
         this.georel = georel;
     }
 
-    public Georel(GeorelEnum georel, Optional<ModifierEnum> modifier, Optional<Float> distance) {
+    public Georel(Relation georel, Optional<Modifier> modifier, Optional<Float> distance) {
         this.georel = georel;
         this.modifier = modifier;
         this.distance = distance;
     }
 
-    public GeorelEnum getGeorel() {
+    public Relation getGeorel() {
         return georel;
     }
 
-    public void setGeorel(GeorelEnum georel) {
+    public void setGeorel(Relation georel) {
         this.georel = georel;
     }
 
-    public Optional<ModifierEnum> getModifier() {
+    public Optional<Modifier> getModifier() {
         return modifier;
     }
 
-    public void setModifier(Optional<ModifierEnum> modifier) {
+    public void setModifier(Optional<Modifier> modifier) {
         this.modifier = modifier;
     }
 

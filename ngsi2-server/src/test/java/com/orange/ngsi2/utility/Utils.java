@@ -274,11 +274,11 @@ public class Utils {
         Notification notification = new Notification(attributes, new URL("http://localhost:1234"));
         notification.setHeader("X-MyHeader", "foo");
         notification.setQuery("authToken", "bar");
-        notification.setAttrsFormat(Optional.of(FormatEnum.keyValues));
+        notification.setAttrsFormat(Optional.of(Notification.Format.keyValues));
         notification.setThrottling(Optional.of(new Long(5)));
         notification.setTimesSent(12);
         notification.setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
-        Subscription subscription = new Subscription("abcdefg", subjectSubscription, notification, Instant.parse("2016-04-05T14:00:00.20Z"), StatusEnum.active);
+        Subscription subscription = new Subscription("abcdefg", subjectSubscription, notification, Instant.parse("2016-04-05T14:00:00.20Z"), Subscription.Status.active);
         return Collections.singletonList(subscription);
     }
 
@@ -326,7 +326,7 @@ public class Utils {
         subscription.setId("abcdef");
         subscription.getNotification().setTimesSent(12);
         subscription.getNotification().setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
-        subscription.setStatus(StatusEnum.active);
+        subscription.setStatus(Subscription.Status.active);
         return subscription;
     }
 

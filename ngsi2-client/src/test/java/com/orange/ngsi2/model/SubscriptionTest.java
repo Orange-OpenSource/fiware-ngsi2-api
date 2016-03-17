@@ -89,8 +89,8 @@ public class SubscriptionTest {
         notification.setLastNotification(Instant.parse("2015-10-05T16:00:00.10Z"));
         notification.setHeader("X-MyHeader", "foo");
         notification.setQuery("authToken", "bar");
-        notification.setAttrsFormat(Optional.of(FormatEnum.keyValues));
-        String json = writer.writeValueAsString(new Subscription("abcdefg", subjectSubscription, notification, Instant.parse("2016-04-05T14:00:00.20Z"), StatusEnum.active));
+        notification.setAttrsFormat(Optional.of(Notification.Format.keyValues));
+        String json = writer.writeValueAsString(new Subscription("abcdefg", subjectSubscription, notification, Instant.parse("2016-04-05T14:00:00.20Z"), Subscription.Status.active));
 
         assertEquals(jsonString, json);
     }
@@ -101,7 +101,7 @@ public class SubscriptionTest {
         Subscription subscription = Utils.objectMapper.readValue(jsonString, Subscription.class);
         assertEquals("abcdefg", subscription.getId());
         assertEquals("2016-04-05T14:00:00.200Z", subscription.getExpires().toString());
-        assertEquals(StatusEnum.active, subscription.getStatus());
+        assertEquals(Subscription.Status.active, subscription.getStatus());
         assertEquals(1, subscription.getSubject().getEntities().size());
         assertEquals(1, subscription.getSubject().getCondition().getAttributes().size());
         assertTrue(subscription.getSubject().getCondition().getAttributes().contains("temperature"));
@@ -123,7 +123,7 @@ public class SubscriptionTest {
         assertTrue(subscription.getNotification().getQuery().get().containsKey("authToken"));
         assertEquals("bar", subscription.getNotification().getQuery().get().get("authToken"));
         assertTrue(subscription.getNotification().getAttrsFormat().isPresent());
-        assertEquals(FormatEnum.keyValues, subscription.getNotification().getAttrsFormat().get());
+        assertEquals(Notification.Format.keyValues, subscription.getNotification().getAttrsFormat().get());
         assertEquals("2015-10-05T16:00:00.100Z", subscription.getNotification().getLastNotification().toString());
     }
 }

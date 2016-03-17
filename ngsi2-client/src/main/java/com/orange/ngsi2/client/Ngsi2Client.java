@@ -123,7 +123,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
                                                            Collection<String> types, Collection<String> attrs,
-                                                           String query, Georel georel, GeometryEnum geometry, List<Coordinate> coords,
+                                                           String query, Georel georel, Geometry geometry, List<Coordinate> coords,
                                                            Collection<String> orderBy,
                                                            int offset, int limit, boolean count) {
 
@@ -548,7 +548,7 @@ public class Ngsi2Client {
         }
     }
 
-    private void addParam(UriComponentsBuilder builder, String key, GeometryEnum value) {
+    private void addParam(UriComponentsBuilder builder, String key, Geometry value) {
         if (value != null) {
             builder.queryParam(key, value.name());
         }
