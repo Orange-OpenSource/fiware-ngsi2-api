@@ -143,13 +143,7 @@ public class Ngsi2Client {
             addParam(builder, "options", "count");
         }
 
-        ListenableFuture<ResponseEntity<Entity[]>> e = request(HttpMethod.GET, builder.toUriString(), null, Entity[].class);
-        return new ListenableFutureAdapter<Paginated<Entity>, ResponseEntity<Entity[]>>(e) {
-            @Override
-            protected Paginated<Entity> adapt(ResponseEntity<Entity[]> result) throws ExecutionException {
-                return new Paginated<>(Arrays.asList(result.getBody()), offset, limit, extractTotalCount(result));
-            }
-        };
+        return adaptPaginated(request(HttpMethod.GET, builder.toUriString(), null, Entity[].class), offset, limit);
     }
 
     /**
@@ -319,14 +313,7 @@ public class Ngsi2Client {
         if (count) {
             addParam(builder, "options", "count");
         }
-
-        ListenableFuture<ResponseEntity<EntityType[]>> e = request(HttpMethod.GET, builder.toUriString(), null, EntityType[].class);
-        return new ListenableFutureAdapter<Paginated<EntityType>, ResponseEntity<EntityType[]>>(e) {
-            @Override
-            protected Paginated<EntityType> adapt(ResponseEntity<EntityType[]> result) throws ExecutionException {
-                return new Paginated<>(Arrays.asList(result.getBody()), offset, limit, extractTotalCount(result));
-            }
-        };
+        return adaptPaginated(request(HttpMethod.GET, builder.toUriString(), null, EntityType[].class), offset, limit);
     }
 
     /**
@@ -423,13 +410,7 @@ public class Ngsi2Client {
             addParam(builder, "options", "count");
         }
 
-        ListenableFuture<ResponseEntity<Subscription[]>> e = request(HttpMethod.GET, builder.toUriString(), null, Subscription[].class);
-        return new ListenableFutureAdapter<Paginated<Subscription>, ResponseEntity<Subscription[]>>(e) {
-            @Override
-            protected Paginated<Subscription> adapt(ResponseEntity<Subscription[]> result) throws ExecutionException {
-                return new Paginated<>(Arrays.asList(result.getBody()), offset, limit, extractTotalCount(result));
-            }
-        };
+        return adaptPaginated(request(HttpMethod.GET, builder.toUriString(), null, Subscription[].class), offset, limit);
     }
 
     /**
@@ -508,6 +489,15 @@ public class Ngsi2Client {
             @Override
             protected T adapt(ResponseEntity<T> result) throws ExecutionException {
                 return result.getBody();
+            }
+        };
+    }
+
+    private <T> ListenableFuture<Paginated<T>> adaptPaginated(ListenableFuture<ResponseEntity<T[]>> responseEntityListenableFuture, int offset, int limit) {
+        return new ListenableFutureAdapter<Paginated<T>, ResponseEntity<T[]>>(responseEntityListenableFuture) {
+            @Override
+            protected Paginated<T> adapt(ResponseEntity<T[]> result) throws ExecutionException {
+                return new Paginated<>(Arrays.asList(result.getBody()), offset, limit, extractTotalCount(result));
             }
         };
     }
