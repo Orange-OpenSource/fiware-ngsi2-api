@@ -619,7 +619,7 @@ public class Ngsi2ClientTest {
 
         Subscription subscription = new Subscription();
         subscription.setExpires(Instant.parse("2017-04-05T14:00:00.200Z"));
-        ngsiClient.updateSubscription("abcdef", subscription);
+        ngsiClient.updateSubscription("abcdef", subscription).get();
     }
 
     @Test
