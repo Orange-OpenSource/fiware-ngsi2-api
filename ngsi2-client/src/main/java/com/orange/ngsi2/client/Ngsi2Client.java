@@ -590,11 +590,10 @@ public class Ngsi2Client {
     private String extractId(ResponseEntity responseEntity) {
         String location = responseEntity.getHeaders().getFirst("Location");
         String paths[] = location.split("/");
-        if (paths.length >= 1) {
+        if (paths != null && paths.length > 0) {
             return paths[paths.length - 1];
-        } else {
-            return "";
         }
+        return "";
     }
 
     /**
