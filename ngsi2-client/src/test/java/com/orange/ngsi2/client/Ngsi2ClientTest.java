@@ -708,4 +708,35 @@ public class Ngsi2ClientTest {
         BulkUpdateRequest request = new BulkUpdateRequest(BulkUpdateRequest.Action.DELETE, Collections.singletonList(e));
         ngsiClient.bulkUpdate(request).get();
     }
+
+    @Test
+    public void testBulkQuery_OK() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/query?offset=20&limit=40&orderBy=temp&options=count"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.entities[0].type").value("Room"))
+                .andExpect(jsonPath("$.attributes[0]").value("temp"))
+                .andExpect(jsonPath("$.scopes[0].type").value("FIWARE::Geo::Distance"))
+                .andExpect(jsonPath("$.scopes[0].value").value("2.23,43.56"))
+                .andRespond(withSuccess(Utils.loadResource("json/postQueryResponse.json"), MediaType.APPLICATION_JSON));
+
+        SubjectEntity subjectEntity = new SubjectEntity();
+        subjectEntity.setId(Optional.of("room1"));
+        subjectEntity.setType(Optional.of("Room"));
+
+        BulkQueryRequest request = new BulkQueryRequest();
+        request.setEntities(Collections.singletonList(subjectEntity));
+        request.setAttributes(Collections.singletonList("temp"));
+        request.setScopes(Collections.singletonList(new Scope("FIWARE::Geo::Distance", "2.23,43.56")));
+
+        Paginated<Entity> results = ngsiClient.bulkQuery(request, Collections.singletonList("temp"), 20, 40, true).get();
+
+        assertNotNull(results);
+        assertNotNull(results.getItems());
+        assertEquals(3, results.getItems().size());
+        assertNotNull(results.getItems().get(0));
+        assertEquals(35.6, results.getItems().get(0).getAttributes().get("temperature").getValue());
+    }
 }

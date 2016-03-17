@@ -477,6 +477,26 @@ public class Ngsi2Client {
     }
 
     /**
+     * Query multiple entities in a single operation
+     * @param bulkQueryRequest defines the list of entities, attributes and scopes to match entities
+     * @param orderBy an optional list of attributes to order the entities (null or empty for none)
+     * @param offset an optional offset (0 for none)
+     * @param limit an optional limit (0 for none)
+     * @param count true to return the total number of matching entities
+     * @return a paginated list of entities
+     */
+    public ListenableFuture<Paginated<Entity>> bulkQuery(BulkQueryRequest bulkQueryRequest, Collection<String> orderBy, int offset, int limit, boolean count) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseURL);
+        builder.path("v2/op/query");
+        addPaginationParams(builder, offset, limit);
+        addParam(builder, "orderBy", orderBy);
+        if (count) {
+            addParam(builder, "options", "count");
+        }
+        return adaptPaginated(request(HttpMethod.POST, builder.toUriString(), bulkQueryRequest, Entity[].class), offset, limit);
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */
