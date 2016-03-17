@@ -497,6 +497,15 @@ public class Ngsi2Client {
     }
 
     /**
+     * Create, update or delete registrations to multiple entities in a single operation
+     * @param bulkRegisterRequest defines the list of entities to register
+     * @return a list of registration ids
+     */
+    public ListenableFuture<String[]> bulkRegister(BulkRegisterRequest bulkRegisterRequest) {
+        return adapt(request(HttpMethod.POST, UriComponentsBuilder.fromHttpUrl(baseURL).path("v2/op/register").toUriString(), bulkRegisterRequest, String[].class));
+    }
+
+    /**
      * Default headers
      * @return the default headers
      */

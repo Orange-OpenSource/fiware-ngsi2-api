@@ -739,4 +739,88 @@ public class Ngsi2ClientTest {
         assertNotNull(results.getItems().get(0));
         assertEquals(35.6, results.getItems().get(0).getAttributes().get("temperature").getValue());
     }
+
+    @Test
+    public void testBulkRegister_Create() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/register"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("CREATE"))
+                .andExpect(jsonPath("$.registrations[0].subject.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.registrations[0].subject.attributes[0]").value("temp"))
+                .andExpect(jsonPath("$.registrations[0].callback").value("http://server/callback"))
+                .andExpect(jsonPath("$.registrations[0].duration").value("P1M"))
+                .andRespond(withSuccess(Utils.loadResource("json/postRegisterResponse.json"), MediaType.APPLICATION_JSON));
+
+        Registration registration = new Registration();
+        registration.setSubject(new SubjectRegistration(Collections.singletonList(new SubjectEntity(Optional.of("room1"))), Collections.singletonList("temp")));
+        registration.setCallback(new URL("http://server/callback"));
+        registration.setDuration("P1M");
+
+        BulkRegisterRequest request = new BulkRegisterRequest();
+        request.setActionType(BulkRegisterRequest.ActionType.CREATE);
+        request.setRegistrations(Collections.singletonList(registration));
+
+        String[] results = ngsiClient.bulkRegister(request).get();
+        assertNotNull(results);
+        assertEquals(2, results.length);
+        assertEquals("Z2323232323", results[0]);
+        assertEquals("2323EFDLKF23", results[1]);
+    }
+
+    @Test
+    public void testBulkRegister_Update() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/register"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("UPDATE"))
+                .andExpect(jsonPath("$.registrations[0].id").value("Z2323232323"))
+                .andExpect(jsonPath("$.registrations[0].subject.entities[0].id").value("room1"))
+                .andExpect(jsonPath("$.registrations[0].subject.attributes[0]").value("temp"))
+                .andExpect(jsonPath("$.registrations[0].callback").value("http://server/callback"))
+                .andExpect(jsonPath("$.registrations[0].duration").value("P1M"))
+                .andRespond(withSuccess(Utils.loadResource("json/postRegisterResponse.json"), MediaType.APPLICATION_JSON));
+
+        Registration registration = new Registration();
+        registration.setId("Z2323232323");
+        registration.setSubject(new SubjectRegistration(Collections.singletonList(new SubjectEntity(Optional.of("room1"))), Collections.singletonList("temp")));
+        registration.setCallback(new URL("http://server/callback"));
+        registration.setDuration("P1M");
+
+        BulkRegisterRequest request = new BulkRegisterRequest();
+        request.setActionType(BulkRegisterRequest.ActionType.UPDATE);
+        request.setRegistrations(Collections.singletonList(registration));
+
+        String[] results = ngsiClient.bulkRegister(request).get();
+        assertNotNull(results);
+        assertEquals(2, results.length);
+        assertEquals("Z2323232323", results[0]);
+        assertEquals("2323EFDLKF23", results[1]);
+    }
+
+    @Test
+    public void testBulkRegister_Delete() throws Exception {
+
+        mockServer.expect(requestTo(baseURL + "/v2/op/register"))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Content-Type", MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(jsonPath("$.actionType").value("DELETE"))
+                .andExpect(jsonPath("$.registrations[0].id").value("Z2323232323"))
+                .andRespond(withSuccess(Utils.loadResource("json/postRegisterResponse.json"), MediaType.APPLICATION_JSON));
+
+        Registration registration = new Registration();
+        registration.setId("Z2323232323");
+
+        BulkRegisterRequest request = new BulkRegisterRequest();
+        request.setActionType(BulkRegisterRequest.ActionType.DELETE);
+        request.setRegistrations(Collections.singletonList(registration));
+
+        String[] results = ngsiClient.bulkRegister(request).get();
+        assertNotNull(results);
+        assertEquals(2, results.length);
+        assertEquals("Z2323232323", results[0]);
+        assertEquals("2323EFDLKF23", results[1]);
+    }
 }
