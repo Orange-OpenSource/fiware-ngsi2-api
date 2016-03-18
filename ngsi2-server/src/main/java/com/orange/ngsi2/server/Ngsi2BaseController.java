@@ -958,8 +958,8 @@ public abstract class Ngsi2BaseController {
             return false;
         } else if (value.equalsIgnoreCase("null")) {
             return null;
-        } else if ((value.startsWith("\"")) && (value.endsWith("\""))) {
-            return value;
+        } else if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 1) {
+            return value.substring(1, value.length()-1);
         } else {
             try {
                 return Long.parseLong(value);
