@@ -717,6 +717,15 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkTextPlainRetrieveAttributeValueStringOK() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt/attrs/hello/value")
+                        .header("Host", "localhost").accept(MediaType.TEXT_PLAIN))
+                .andExpect(content().string("\"hello, world\""))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     public void checkTextPlainRetrieveAttributeValueJsonObjectOK() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities/Bcn-Welt/attrs/pressure/value")

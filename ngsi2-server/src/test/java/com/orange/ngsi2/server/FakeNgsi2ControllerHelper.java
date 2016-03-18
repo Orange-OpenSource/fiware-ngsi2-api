@@ -112,6 +112,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
             return true;
         } else if (attrName.equals("color")) {
             return null;
+        } else if (attrName.equals("hello")) {
+            return "hello, world";
         } else {
             return createValueReference();
         }

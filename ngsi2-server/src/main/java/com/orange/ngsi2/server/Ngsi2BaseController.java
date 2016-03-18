@@ -941,7 +941,7 @@ public abstract class Ngsi2BaseController {
         if (value == null) {
             return "null";
         } else if (value instanceof String) {
-            return (String)value;
+            return '"' + (String)value + '"';
         } else if (value instanceof Boolean) {
             return value.toString();
         } else if (value instanceof Number) {
