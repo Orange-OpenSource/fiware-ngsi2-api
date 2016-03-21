@@ -17,8 +17,6 @@
 
 package com.orange.ngsi2.model;
 
-import java.util.Optional;
-
 /**
  * Georel is used for entities querying
  */
@@ -28,28 +26,39 @@ public class Georel {
      * Georel Enum model
      */
     public enum Relation {
-        near, coveredBy, intersects, equals, disjoint;
+        near, coveredBy, intersects, equals, disjoint
     }
 
     /**
      * Modifier Enum model
      */
     public enum Modifier {
-        maxDistance, minDistance;
+        maxDistance, minDistance
     }
 
-    private Relation georel;
+    private final Relation georel;
 
-    private Optional<Modifier> modifier;
+    /**
+     * Defined only for a near georel
+     */
+    private Modifier modifier;
 
-    private Optional<Float> distance = null;
+    /**
+     * Defined only for a near georel
+     */
+    private float distance;
 
     public Georel(Relation georel) {
         this.georel = georel;
     }
 
-    public Georel(Relation georel, Optional<Modifier> modifier, Optional<Float> distance) {
-        this.georel = georel;
+    /**
+     * Defines a near georel with modifier and distance
+     * @param modifier
+     * @param distance
+     */
+    public Georel(Modifier modifier, float distance) {
+        this.georel = Relation.near;
         this.modifier = modifier;
         this.distance = distance;
     }
@@ -58,23 +67,19 @@ public class Georel {
         return georel;
     }
 
-    public void setGeorel(Relation georel) {
-        this.georel = georel;
-    }
-
-    public Optional<Modifier> getModifier() {
+    public Modifier getModifier() {
         return modifier;
     }
 
-    public void setModifier(Optional<Modifier> modifier) {
+    public void setModifier(Modifier modifier) {
         this.modifier = modifier;
     }
 
-    public Optional<Float> getDistance() {
+    public float getDistance() {
         return distance;
     }
 
-    public void setDistance(Optional<Float> distance) {
+    public void setDistance(float distance) {
         this.distance = distance;
     }
 }

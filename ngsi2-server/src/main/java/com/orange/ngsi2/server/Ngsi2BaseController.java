@@ -94,14 +94,28 @@ public abstract class Ngsi2BaseController {
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
         }
+
         validateSyntax(id, type, attrs);
-        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, stringToGeorel(georel),
-                stringToGeometry(geometry), stringToCoordinates(coords), orderBy);
-        List<Entity> entityList = paginatedEntity.getItems();
-        if (options.isPresent() && (options.get().contains("count"))) {
-            return new ResponseEntity<>(entityList , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
+
+        // Parse the geometry related args
+        Optional<Georel> georelQuery = Optional.empty();
+        Optional<Geometry> geometryQuery = Optional.empty();
+        Optional<List<Coordinate>> coordsQuery = Optional.empty();
+        if (georel.isPresent()) {
+            georelQuery = Optional.of(stringToGeorel(georel.get()));
+        }
+        if (geometry.isPresent()) {
+            geometryQuery = Optional.of(stringToGeometry(geometry.get()));
+        }
+        if (coords.isPresent()) {
+            coordsQuery = Optional.of(stringToCoordinates(coords.get()));
+        }
+
+        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, georelQuery, geometryQuery, coordsQuery, orderBy);
+        if ("count".equals(options.orElse(""))) {
+            return new ResponseEntity<>(paginatedEntity.getItems() , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(entityList, HttpStatus.OK);
+            return new ResponseEntity<>(paginatedEntity.getItems(), HttpStatus.OK);
         }
     }
 
@@ -977,74 +991,47 @@ public abstract class Ngsi2BaseController {
         }
     }
 
-    private Optional<Georel> stringToGeorel(Optional<String> stringGeorel) {
-        if (stringGeorel.isPresent()) {
-            String[] fieldGeorel = stringGeorel.get().split(";");
-            try {
-                Georel.Relation georel = Georel.Relation.valueOf(fieldGeorel[0]);
-                Georel.Modifier modifier = null;
-                Float distance = null;
-                switch (georel) {
-                    case near:
-                        if (fieldGeorel.length > 1) {
-                            String[] stringModifier = fieldGeorel[1].split(":");
-                            if (stringModifier.length == 2) {
-                                try {
-                                    modifier = Georel.Modifier.valueOf(stringModifier[0]);
-                                    distance = Float.parseFloat(stringModifier[1]);
-                                } catch (IllegalArgumentException e) {
-                                    throw new InvalidatedSyntaxException(stringModifier[0]);
-                                }
-                                return Optional.of(new Georel(georel, Optional.of(modifier), Optional.of(distance)));
-                            }
-                            throw new InvalidatedSyntaxException(stringModifier[0]);
-                        }
-                        break;
-                    case coveredBy:
-                        break;
-                    case intersects:
-                        break;
-                    case equals:
-                        break;
-                    case disjoint:
-                        break;
-                }
-                return Optional.of(new Georel(georel));
-            } catch (IllegalArgumentException e) {
-                throw new InvalidatedSyntaxException(fieldGeorel[0]);
-            }
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    private Optional<Geometry> stringToGeometry(Optional<String> stringGeometry) {
+    private Georel stringToGeorel(String stringGeorel) {
+        String[] fieldGeorel = stringGeorel.split(";");
+        Georel.Relation georel;
         try {
-            if (stringGeometry.isPresent()) {
-                return Optional.of(Geometry.valueOf(stringGeometry.get()));
-            } else {
-                return Optional.empty();
-            }
+            georel = Georel.Relation.valueOf(fieldGeorel[0]);
         } catch (IllegalArgumentException e) {
-            throw new InvalidatedSyntaxException(stringGeometry.get());
+            throw new InvalidatedSyntaxException(fieldGeorel[0]);
+        }
+        if (georel == Georel.Relation.near && fieldGeorel.length > 1) {
+            String[] stringModifier = fieldGeorel[1].split(":");
+            if (stringModifier.length != 2) {
+                throw new InvalidatedSyntaxException(fieldGeorel[1]);
+            }
+            try {
+                return new Georel(Georel.Modifier.valueOf(stringModifier[0]), Float.parseFloat(stringModifier[1]));
+            } catch (IllegalArgumentException e) {
+                throw new InvalidatedSyntaxException(fieldGeorel[1]);
+            }
+        }
+        return new Georel(georel);
+
+    }
+
+    private Geometry stringToGeometry(String stringGeometry) {
+        try {
+            return Geometry.valueOf(stringGeometry);
+        } catch (IllegalArgumentException e) {
+            throw new InvalidatedSyntaxException(stringGeometry);
         }
     }
 
-    private Optional<List<Coordinate>> stringToCoordinates(Optional<String> stringCoord) {
-        if (stringCoord.isPresent()) {
-            String[] coords = stringCoord.get().split(";");
-            ArrayList<Coordinate> coordinates = new ArrayList<>();
-            for (int i = 0; i < coords.length ; i++) {
-                String[] stringCoordinate = coords[i].split("\\s*,\\s*");
-                if (stringCoordinate.length != 2) {
-                    throw new InvalidatedSyntaxException("coords");
-                }
-                Coordinate coordinate = new Coordinate(Double.parseDouble(stringCoordinate[0]), Double.parseDouble(stringCoordinate[1]));
-                coordinates.add(coordinate);
+    private List<Coordinate> stringToCoordinates(String stringCoord) {
+        String[] coords = stringCoord.split(";");
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
+        for (int i = 0; i < coords.length ; i++) {
+            String[] stringCoordinate = coords[i].split("\\s*,\\s*");
+            if (stringCoordinate.length != 2) {
+                throw new InvalidatedSyntaxException("coords");
             }
-            return Optional.of(coordinates);
-        } else {
-            return Optional.empty();
+            coordinates.add(new Coordinate(Double.parseDouble(stringCoordinate[0]), Double.parseDouble(stringCoordinate[1])));
         }
+        return coordinates;
     }
 }

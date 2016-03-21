@@ -183,7 +183,7 @@ public class Ngsi2BaseControllerTest {
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. distance has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. distance:1000 has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -209,7 +209,7 @@ public class Ngsi2BaseControllerTest {
                         .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
                         .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. maxDistance has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. maxDistance:meter has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
