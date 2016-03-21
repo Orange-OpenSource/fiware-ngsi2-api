@@ -587,7 +587,7 @@ public class Ngsi2Client {
 
     private void addParam(UriComponentsBuilder builder, String key, Georel value) {
         if (value != null) {
-            StringBuilder stringGeorel = new StringBuilder(value.getGeorel().name());
+            StringBuilder stringGeorel = new StringBuilder(value.getRelation().name());
             if (value.getModifier().isPresent()) {
                 stringGeorel.append(';');
                 stringGeorel.append(value.getModifier().get());

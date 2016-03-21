@@ -36,35 +36,35 @@ public class Georel {
         maxDistance, minDistance
     }
 
-    private final Relation georel;
+    private final Relation relation;
 
     /**
-     * Defined only for a near georel
+     * Defined only for a near relation
      */
     private Modifier modifier;
 
     /**
-     * Defined only for a near georel
+     * Defined only for a near relation
      */
     private float distance;
 
-    public Georel(Relation georel) {
-        this.georel = georel;
+    public Georel(Relation relation) {
+        this.relation = relation;
     }
 
     /**
-     * Defines a near georel with modifier and distance
+     * Defines a near relation with modifier and distance
      * @param modifier
      * @param distance
      */
     public Georel(Modifier modifier, float distance) {
-        this.georel = Relation.near;
+        this.relation = Relation.near;
         this.modifier = modifier;
         this.distance = distance;
     }
 
-    public Relation getGeorel() {
-        return georel;
+    public Relation getRelation() {
+        return relation;
     }
 
     public Modifier getModifier() {
