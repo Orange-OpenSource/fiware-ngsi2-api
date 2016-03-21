@@ -515,6 +515,16 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
+    @ExceptionHandler({BadRequestException.class})
+    public ResponseEntity<Object> incompatibleParameter(BadRequestException exception, HttpServletRequest request) {
+        logger.error("Bad request: {}", exception.getMessage());
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
+    }
+
     @ExceptionHandler({IncompatibleParameterException.class})
     public ResponseEntity<Object> incompatibleParameter(IncompatibleParameterException exception, HttpServletRequest request) {
         logger.error("Incompatible parameter: {}", exception.getMessage());
