@@ -18,7 +18,7 @@
 package com.orange.ngsi2.model;
 
 /**
- * Coordinate model.
+ * Simple coordinate model for GeoQuery
  */
 public class Coordinate {
 

@@ -97,21 +97,16 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(id, type, attrs);
 
-        // Parse the geometry related args
-        Optional<Georel> georelQuery = Optional.empty();
-        Optional<Geometry> geometryQuery = Optional.empty();
-        Optional<List<Coordinate>> coordsQuery = Optional.empty();
-        if (georel.isPresent()) {
-            georelQuery = Optional.of(stringToGeorel(georel.get()));
-        }
-        if (geometry.isPresent()) {
-            geometryQuery = Optional.of(stringToGeometry(geometry.get()));
-        }
-        if (coords.isPresent()) {
-            coordsQuery = Optional.of(stringToCoordinates(coords.get()));
+        Optional<GeoQuery> geoQuery = Optional.empty();
+        // If one of them is present, all are mandatory
+        if (georel.isPresent() || geometry.isPresent() || coords.isPresent()) {
+            if (!(georel.isPresent() && geometry.isPresent() && coords.isPresent())) {
+                throw new BadRequestException("Missing one argument of georel, geometry or coords");
+            }
+            geoQuery = Optional.of(parseGeoQuery(georel.get(), geometry.get(), coords.get()));
         }
 
-        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, georelQuery, geometryQuery, coordsQuery, orderBy);
+        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, geoQuery, orderBy);
         if ("count".equals(options.orElse(""))) {
             return new ResponseEntity<>(paginatedEntity.getItems() , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
         } else {
@@ -588,17 +583,14 @@ public abstract class Ngsi2BaseController {
      * @param offset an optional offset (0 for none)
      * @param attrs an optional list of attributes to return for all entities
      * @param query an optional Simple Query Language query
-     * @param georel an optional Geo query. Possible values: near, coveredBy, intersects, equals, disjoint.
-     * @param geometry an optional geometry. Possible values: point, line, polygon, box.
-     * @param coords an optional coordinate
+     * @param geoQuery an optional Geo query
      * @param orderBy an option list of attributes to define the order of entities
      * @return a paginated of list of Entities
      * @throws Exception
      */
     protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern,
                                              Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs,
-                                             Optional<String> query, Optional<Georel> georel, Optional<Geometry> geometry,
-                                             Optional<List<Coordinate>> coords, Optional<Collection<String>> orderBy) throws Exception {
+                                             Optional<String> query, Optional<GeoQuery> geoQuery, Optional<Collection<String>> orderBy) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -1001,38 +993,39 @@ public abstract class Ngsi2BaseController {
         }
     }
 
-    private Georel stringToGeorel(String stringGeorel) {
-        String[] fieldGeorel = stringGeorel.split(";");
-        Georel.Relation georel;
+    private GeoQuery parseGeoQuery(String georel, String geometry, String coords) {
+        String[] georelFields = georel.split(";");
+        GeoQuery.Relation relation;
         try {
-            georel = Georel.Relation.valueOf(fieldGeorel[0]);
+            relation = GeoQuery.Relation.valueOf(georelFields[0]);
         } catch (IllegalArgumentException e) {
-            throw new InvalidatedSyntaxException(fieldGeorel[0]);
+            throw new InvalidatedSyntaxException(georelFields[0]);
         }
-        if (georel == Georel.Relation.near && fieldGeorel.length > 1) {
-            String[] stringModifier = fieldGeorel[1].split(":");
-            if (stringModifier.length != 2) {
-                throw new InvalidatedSyntaxException(fieldGeorel[1]);
+        if (relation == GeoQuery.Relation.near && georelFields.length > 1) {
+            String[] modifierFields = georelFields[1].split(":");
+            if (modifierFields.length != 2) {
+                throw new InvalidatedSyntaxException(georelFields[1]);
             }
             try {
-                return new Georel(Georel.Modifier.valueOf(stringModifier[0]), Float.parseFloat(stringModifier[1]));
+                return new GeoQuery(GeoQuery.Modifier.valueOf(modifierFields[0]), Float.parseFloat(modifierFields[1]),
+                        parseGeometry(geometry), parseCoordinates(coords));
             } catch (IllegalArgumentException e) {
-                throw new InvalidatedSyntaxException(fieldGeorel[1]);
+                throw new InvalidatedSyntaxException(georelFields[1]);
             }
         }
-        return new Georel(georel);
+        return new GeoQuery(relation, parseGeometry(geometry), parseCoordinates(coords));
 
     }
 
-    private Geometry stringToGeometry(String stringGeometry) {
+    private GeoQuery.Geometry parseGeometry(String stringGeometry) {
         try {
-            return Geometry.valueOf(stringGeometry);
+            return GeoQuery.Geometry.valueOf(stringGeometry);
         } catch (IllegalArgumentException e) {
             throw new InvalidatedSyntaxException(stringGeometry);
         }
     }
 
-    private List<Coordinate> stringToCoordinates(String stringCoord) {
+    private List<Coordinate> parseCoordinates(String stringCoord) {
         String[] coords = stringCoord.split(";");
         ArrayList<Coordinate> coordinates = new ArrayList<>();
         for (int i = 0; i < coords.length ; i++) {

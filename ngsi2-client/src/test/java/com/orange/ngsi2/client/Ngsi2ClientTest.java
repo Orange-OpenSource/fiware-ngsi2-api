@@ -158,9 +158,8 @@ public class Ngsi2ClientTest {
         Collection<String> types = Arrays.asList("Room", "House");
         Collection<String> params = Arrays.asList("temp", "pressure", "humidity");
         String query = "temp>10";
-        Georel georel = new Georel(Georel.Relation.near, Optional.of(Georel.Modifier.maxDistance), Optional.of(Float.parseFloat("1000")));
-        Geometry geometry = Geometry.point;
-        List<Coordinate> coords = Arrays.asList(new Coordinate(Double.parseDouble("-10.5"),Double.parseDouble("30.5")), new Coordinate(Double.parseDouble("-15.5"),Double.parseDouble("35.5")));
+        List<Coordinate> coords = Arrays.asList(new Coordinate(-10.5d, 30.5d), new Coordinate(-15.5d, 35.5d));
+        GeoQuery geoQuery = new GeoQuery(GeoQuery.Modifier.maxDistance, Float.parseFloat("1000"), GeoQuery.Geometry.point, coords);
         Collection<String> orderBy = Arrays.asList("temp", "!humidity");
 
         mockServer.expect(requestTo(baseURL + "/v2/entities?id=room1,house1&idPattern=room.*&" +
@@ -171,7 +170,7 @@ public class Ngsi2ClientTest {
                 .andExpect(header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE))
                 .andRespond(withSuccess(Utils.loadResource("json/getEntitiesResponse.json"), MediaType.APPLICATION_JSON));
 
-        ngsiClient.getEntities(ids, idPattern, types, params, query, georel, geometry, coords, orderBy, 2, 10, false).get();
+        ngsiClient.getEntities(ids, idPattern, types, params, query, geoQuery, orderBy, 2, 10, false).get();
     }
 
     @Test

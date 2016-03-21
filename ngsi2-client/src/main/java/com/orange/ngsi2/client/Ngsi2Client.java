@@ -32,6 +32,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 /**
  * NGSIv2 API Client
@@ -102,7 +103,7 @@ public class Ngsi2Client {
             Collection<String> types, Collection<String> attrs,
             int offset, int limit, boolean count) {
 
-        return getEntities(ids, idPattern, types, attrs, null, null, null, null, null, offset, limit, count);
+        return getEntities(ids, idPattern, types, attrs, null, null, null, offset, limit, count);
     }
 
     /**
@@ -112,9 +113,7 @@ public class Ngsi2Client {
      * @param types an optional list of types of entity
      * @param attrs an optional list of attributes to return for all entities
      * @param query an optional Simple Query Language query
-     * @param georel an optional Geo query
-     * @param geometry an optional geometry
-     * @param coords an optional coordinate
+     * @param geoQuery an optional Geo query
      * @param orderBy an option list of attributes to difine the order of entities
      * @param offset an optional offset (0 for none)
      * @param limit an optional limit (0 for none)
@@ -123,7 +122,7 @@ public class Ngsi2Client {
      */
     public ListenableFuture<Paginated<Entity>> getEntities(Collection<String> ids, String idPattern,
                                                            Collection<String> types, Collection<String> attrs,
-                                                           String query, Georel georel, Geometry geometry, List<Coordinate> coords,
+                                                           String query, GeoQuery geoQuery,
                                                            Collection<String> orderBy,
                                                            int offset, int limit, boolean count) {
 
@@ -134,9 +133,7 @@ public class Ngsi2Client {
         addParam(builder, "type", types);
         addParam(builder, "attrs", attrs);
         addParam(builder, "query", query);
-        addParam(builder, "georel", georel);
-        addParam(builder, "geometry", geometry);
-        addParam(builder, "coords", coords);
+        addGeoQueryParams(builder, geoQuery);
         addParam(builder, "orderBy", orderBy);
         addPaginationParams(builder, offset, limit);
         if (count) {
@@ -585,40 +582,16 @@ public class Ngsi2Client {
         }
     }
 
-    private void addParam(UriComponentsBuilder builder, String key, Georel value) {
-        if (value != null) {
-            StringBuilder stringGeorel = new StringBuilder(value.getRelation().name());
-            if (value.getModifier().isPresent()) {
-                stringGeorel.append(';');
-                stringGeorel.append(value.getModifier().get());
-                if (value.getDistance().isPresent()) {
-                    stringGeorel.append(':');
-                    stringGeorel.append(value.getDistance().get());
-                }
+    private void addGeoQueryParams(UriComponentsBuilder builder, GeoQuery geoQuery) {
+        if (geoQuery != null) {
+            StringBuilder georel = new StringBuilder(geoQuery.getRelation().name());
+            if (geoQuery.getRelation() == GeoQuery.Relation.near) {
+                georel.append(';').append(geoQuery.getModifier());
+                georel.append(':').append(geoQuery.getDistance());
             }
-            builder.queryParam(key, stringGeorel.toString());
-        }
-    }
-
-    private void addParam(UriComponentsBuilder builder, String key, Geometry value) {
-        if (value != null) {
-            builder.queryParam(key, value.name());
-        }
-    }
-
-    private void addParam(UriComponentsBuilder builder, String key, List<Coordinate> value) {
-        if (!nullOrEmpty(value)) {
-            StringBuilder stringCoords = new StringBuilder(value.get(0).toString());
-            value.subList(1,value.size()).iterator().forEachRemaining(coordinate ->  {
-                stringCoords.append(";");
-                stringCoords.append(coordinate.toString());
-            });
-            /*StringBuilder stringCoords = new StringBuilder(value.iterator().next().toString());
-            while (value.iterator().hasNext()) {
-                stringCoords.append(";");
-                stringCoords.append(value.iterator().next().toString());
-            }*/
-            builder.queryParam(key, stringCoords.toString());
+            builder.queryParam("georel", georel.toString());
+            builder.queryParam("geometry", geoQuery.getGeometry());
+            builder.queryParam("coords", geoQuery.getCoordinates().stream().map(Coordinate::toString).collect(Collectors.joining(";")));
         }
     }
 

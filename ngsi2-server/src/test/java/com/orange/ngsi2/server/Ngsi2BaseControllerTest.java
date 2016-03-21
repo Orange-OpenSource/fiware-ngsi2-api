@@ -162,6 +162,42 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListEntitiesMissingGeorelParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("geometry", "point").param("coords", "-40.4,-3.5")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Bad request: Missing one argument of georel, geometry or coords"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesMissingGeometryParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "proximity").param("coords", "-40.4,-3.5")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Bad request: Missing one argument of georel, geometry or coords"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesMissingCoordsParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "proximity").param("geometry", "point")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Bad request: Missing one argument of georel, geometry or coords"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void checkListEntitiesWrongGeorelParameters() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")

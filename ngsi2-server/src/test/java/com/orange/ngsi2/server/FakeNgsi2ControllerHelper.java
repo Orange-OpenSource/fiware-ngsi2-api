@@ -40,9 +40,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Paginated<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs, Optional<String> query, Optional<Georel> georel, Optional<Geometry> geometry,
-                                             Optional<List<Coordinate>> coords, Optional<Collection<String>> orderBy) throws Exception {
-        Paginated<Entity> paginatedEntity;
+    protected Paginated<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit,
+            Optional<Integer> offset, Optional<String> attrs, Optional<String> query, Optional<GeoQuery> geoquery, Optional<Collection<String>> orderBy) throws Exception {
         if (id.isPresent() && id.get().equals("Bcn-Welt")) {
             return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
         }

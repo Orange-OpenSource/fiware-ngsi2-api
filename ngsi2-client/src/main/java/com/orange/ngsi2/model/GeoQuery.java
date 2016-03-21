@@ -17,13 +17,15 @@
 
 package com.orange.ngsi2.model;
 
+import java.util.List;
+
 /**
- * Georel is used for entities querying
+ * GeoQuery is used for entities querying
  */
-public class Georel {
+public class GeoQuery {
 
     /**
-     * Georel Enum model
+     * GeoQuery Enum model
      */
     public enum Relation {
         near, coveredBy, intersects, equals, disjoint
@@ -36,20 +38,41 @@ public class Georel {
         maxDistance, minDistance
     }
 
+    /**
+     * Geometry enum used for entities querying
+     */
+    public enum Geometry {
+        point, line, polygon, box
+    }
+
     private final Relation relation;
 
-    /**
-     * Defined only for a near relation
-     */
-    private Modifier modifier;
+    private final Geometry geometry;
+
+    private final List<Coordinate> coordinates;
 
     /**
      * Defined only for a near relation
      */
-    private float distance;
+    private final Modifier modifier;
 
-    public Georel(Relation relation) {
+    /**
+     * Defined only for a near relation
+     */
+    private final float distance;
+
+    /**
+     * Default constructor
+     * @param relation relation to the geometry
+     * @param geometry geometry to match
+     * @param coordinates coordinates for the geometry
+     */
+    public GeoQuery(Relation relation, Geometry geometry, List<Coordinate> coordinates) {
         this.relation = relation;
+        this.geometry = geometry;
+        this.coordinates = coordinates;
+        this.modifier = null;
+        this.distance = 0;
     }
 
     /**
@@ -57,10 +80,12 @@ public class Georel {
      * @param modifier
      * @param distance
      */
-    public Georel(Modifier modifier, float distance) {
+    public GeoQuery(Modifier modifier, float distance, Geometry geometry, List<Coordinate> coordinates) {
         this.relation = Relation.near;
         this.modifier = modifier;
         this.distance = distance;
+        this.geometry = geometry;
+        this.coordinates = coordinates;
     }
 
     public Relation getRelation() {
@@ -71,15 +96,15 @@ public class Georel {
         return modifier;
     }
 
-    public void setModifier(Modifier modifier) {
-        this.modifier = modifier;
-    }
-
     public float getDistance() {
         return distance;
     }
 
-    public void setDistance(float distance) {
-        this.distance = distance;
+    public Geometry getGeometry() {
+        return geometry;
+    }
+
+    public List<Coordinate> getCoordinates() {
+        return coordinates;
     }
 }
