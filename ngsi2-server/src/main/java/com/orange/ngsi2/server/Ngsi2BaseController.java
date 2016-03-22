@@ -555,6 +555,27 @@ public abstract class Ngsi2BaseController {
     }
 
     /*
+     * POJ RPC "bulk" Operations
+     */
+
+    /**
+     * Update, append or delete multiple entities in a single operation
+     * @param bulkUpdateRequest a BulkUpdateRequest with an actionType and a list of entities to update
+     * @param options an optional list of options separated by comma. values option is not supported.
+     * @return http status 204 (no content)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.POST, value = {"/op/update"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity bulkUpdateEndpoint(@RequestBody BulkUpdateRequest bulkUpdateRequest, @RequestParam Optional<Set<String>> options) {
+        bulkUpdateRequest.getEntities().forEach(this::validateSyntax);
+        //TODO: to support values as options
+        if ((options.isPresent()) && (options.get().contains("keyValues"))) {
+            throw new UnsupportedOptionException("keyValues");
+        }
+        bulkUpdate(bulkUpdateRequest);
+        return new ResponseEntity(HttpStatus.NO_CONTENT);
+    }
+    /*
      * Exception handling
      */
 
@@ -890,6 +911,14 @@ public abstract class Ngsi2BaseController {
      */
     protected void removeSubscription(String subscriptionId){
         throw new UnsupportedOperationException("Remove Subscription");
+    }
+
+    /**
+     * Update, append or delete multiple entities in a single operation
+     * @param bulkUpdateRequest a BulkUpdateRequest with an actionType and a list of entities to update
+     */
+    protected void bulkUpdate(BulkUpdateRequest bulkUpdateRequest){
+        throw new UnsupportedOperationException("Update");
     }
 
     /*

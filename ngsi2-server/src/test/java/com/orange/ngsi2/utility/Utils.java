@@ -72,6 +72,34 @@ public class Utils {
         return entities;
     }
 
+    static public List<Entity> createListEntitiesWrongSyntax() {
+
+        List<Entity> entities = new ArrayList<Entity>();
+
+        Entity entityRoomDC = new Entity("DC_S1 D41", "Room");
+        entityRoomDC.setAttributes("temperature", new Attribute(35.6));
+        entities.add(entityRoomDC);
+
+        Entity entityRoomBoe = new Entity("Boe Idearium", "Room");
+        entityRoomBoe.setAttributes("temperature", new Attribute(22.5));
+        entities.add(entityRoomBoe);
+
+        Entity entityCar = new Entity("P-9873 K", "Car");
+        Attribute speedAttribute = new Attribute(100);
+        speedAttribute.setType(Optional.of("number"));
+        Metadata accuracyMetadata = new Metadata();
+        accuracyMetadata.setValue(2);
+        Metadata timestampMetadata = new Metadata();
+        timestampMetadata.setValue("2015-06-04T07:20:27.378Z");
+        timestampMetadata.setType("date");
+        speedAttribute.addMetadata("accuracy", accuracyMetadata);
+        speedAttribute.addMetadata("timestamp", timestampMetadata);
+        entityCar.setAttributes("speed", speedAttribute);
+        entities.add(entityCar);
+
+        return entities;
+    }
+
     static public Entity createEntityBcnWelt() {
 
         Entity EntityBcnWelt = new Entity("Bcn-Welt", "Room");
@@ -335,6 +363,14 @@ public class Utils {
         Subscription subscription = new Subscription();
         subscription.setExpires(Instant.parse("2016-04-05T14:00:00.20Z"));
         return subscription;
+    }
+
+    static public BulkUpdateRequest updateReference() {
+        return new BulkUpdateRequest(BulkUpdateRequest.Action.APPEND, createListEntitiesReference());
+    }
+
+    static public BulkUpdateRequest updateWrongSyntax() {
+        return new BulkUpdateRequest(BulkUpdateRequest.Action.APPEND, createListEntitiesWrongSyntax());
     }
 
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {

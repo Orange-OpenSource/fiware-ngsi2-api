@@ -17,6 +17,7 @@
 
 package com.orange.ngsi2.server;
 
+import com.orange.ngsi2.model.BulkUpdateRequest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static com.orange.ngsi2.utility.Utils.*;
+import static com.orange.ngsi2.utility.Utils.updateReference;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -1343,6 +1345,49 @@ public class Ngsi2BaseControllerTest {
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(""))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void checkBulkUpdateNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/op/update").content(json(jsonV2Converter, updateReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Update' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkBulkUpdateOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/update").content(json(jsonV2Converter, updateReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void checkBulkUpdateWrongSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/update").content(json(jsonV2Converter, updateWrongSyntax())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. DC_S1 D41 has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkBulkUpdateUnsupportedKeyValuesOption() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/update").content(json(jsonV2Converter, updateReference()))
+                        .param("options","keyValues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
     }
 
     @Test

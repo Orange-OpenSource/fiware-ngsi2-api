@@ -182,4 +182,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected void removeSubscription(String subscriptionId){
     }
+
+    @Override
+    protected void bulkUpdate(BulkUpdateRequest bulkUpdateRequest){
+    }
 }
