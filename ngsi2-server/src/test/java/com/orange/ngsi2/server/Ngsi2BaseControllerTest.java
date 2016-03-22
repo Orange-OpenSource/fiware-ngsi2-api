@@ -166,7 +166,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("id", "Bcn-Welt").param("options","keyValues").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues, values or unique"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -175,7 +175,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("id", "Bcn-Welt").param("options","values").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'values' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues, values or unique"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -184,7 +184,7 @@ public class Ngsi2BaseControllerTest {
         mockMvc.perform(
                 get("/v2/i/entities").param("id", "Bcn-Welt").param("options","unique").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'unique' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues, values or unique"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -418,7 +418,7 @@ public class Ngsi2BaseControllerTest {
                 post("/v2/i/entities").content(json(jsonV2Converter, createEntityBcnWelt())).param("options","keyValues").contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -469,7 +469,7 @@ public class Ngsi2BaseControllerTest {
                         .param("options","keyValues")
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -480,7 +480,7 @@ public class Ngsi2BaseControllerTest {
                         .param("options","values")
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'values' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: values"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -491,7 +491,7 @@ public class Ngsi2BaseControllerTest {
                         .param("options","unique")
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'unique' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: unique"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -546,7 +546,7 @@ public class Ngsi2BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -590,7 +590,7 @@ public class Ngsi2BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -634,7 +634,7 @@ public class Ngsi2BaseControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues"))
                 .andExpect(status().isNotImplemented());
     }
 
@@ -698,7 +698,7 @@ public class Ngsi2BaseControllerTest {
                         .param("options","values")
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'values' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: values"))
                 .andExpect(status().isNotImplemented());
     }
 

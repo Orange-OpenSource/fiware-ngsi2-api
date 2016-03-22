@@ -89,7 +89,7 @@ public abstract class Ngsi2BaseController {
                                                                    @RequestParam Optional<String> query, @RequestParam Optional<String> georel,
                                                                    @RequestParam Optional<String> geometry, @RequestParam Optional<String> coords,
                                                                    @RequestParam Optional<Collection<String>> orderBy,
-                                                                   @RequestParam Optional<String> options) throws Exception {
+                                                                   @RequestParam Optional<Set<String>> options) throws Exception {
 
         if (id.isPresent() && idPattern.isPresent()) {
             throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
@@ -106,14 +106,19 @@ public abstract class Ngsi2BaseController {
             geoQuery = Optional.of(Ngsi2ParsingHelper.parseGeoQuery(georel.get(), geometry.get(), coords.get()));
         }
 
-        //TODO: to support keyValues, values and unique as options
-        if (("keyValues".equals(options.orElse(""))) || ("values".equals(options.orElse(""))) || ("unique".equals(options.orElse("")))) {
-            throw new UnsupportedOptionException(options.get());
+        boolean count = false;
+        if (options.isPresent()) {
+            Set<String> optionsSet = options.get();
+            //TODO: to support keyValues, values and unique as options
+            if (optionsSet.contains("keyValues") || optionsSet.contains("values") || optionsSet.contains("unique")) {
+                throw new UnsupportedOptionException("keyValues, values or unique");
+            }
+            count = optionsSet.contains("count");
         }
 
         Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, geoQuery, orderBy);
-        if ("count".equals(options.orElse(""))) {
-            return new ResponseEntity<>(paginatedEntity.getItems() , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
+        if (count) {
+            return new ResponseEntity<>(paginatedEntity.getItems(), xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(paginatedEntity.getItems(), HttpStatus.OK);
         }
@@ -130,7 +135,7 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(entity);
         //TODO: to support keyValues as options
-        if ("keyValues".equals(options.orElse("")))  {
+        if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
         }
         createEntity(entity);
@@ -153,7 +158,7 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(Optional.of(entityId), Optional.empty(), attrs);
         //TODO: to support keyValues, values and unique as options
-        if (("keyValues".equals(options.orElse(""))) || ("values".equals(options.orElse(""))) || ("unique".equals(options.orElse("")))) {
+        if (options.isPresent()) {
             throw new UnsupportedOptionException(options.get());
         }
         return new ResponseEntity<>(retrieveEntity(entityId, attrs), HttpStatus.OK);
@@ -172,13 +177,17 @@ public abstract class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateOrAppendEntityEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
-                                                             @RequestParam Optional<String> options) throws Exception {
+                                                             @RequestParam Optional<Set<String>> options) throws Exception {
         validateSyntax(entityId, attributes);
-        //TODO: to support keyValues as options
-        if ("keyValues".equals(options.orElse("")))  {
-            throw new UnsupportedOptionException(options.get());
+
+        boolean append = false;
+        if (options.isPresent()) {
+            //TODO: to support keyValues as options
+            if (options.get().contains("keyValues")) {
+                throw new UnsupportedOptionException("keyValues");
+            }
+            append = options.get().contains("append");
         }
-        boolean append = options.orElse("").contains("count");
         updateOrAppendEntity(entityId, attributes, append);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -197,7 +206,7 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(entityId, attributes);
         //TODO: to support keyValues as options
-        if ("keyValues".equals(options.orElse("")))  {
+        if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
         }
         updateExistingEntityAttributes(entityId, attributes);
@@ -218,7 +227,7 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(entityId, attributes);
         //TODO: to support keyValues as options
-        if ("keyValues".equals(options.orElse("")))  {
+        if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
         }
         replaceAllEntityAttributes(entityId, attributes);
@@ -371,13 +380,16 @@ public abstract class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.GET, value = {"/types"})
     final public ResponseEntity<List<EntityType>> retrieveEntityTypesEndpoint(@RequestParam Optional<Integer> limit,
             @RequestParam Optional<Integer> offset,
-            @RequestParam Optional<String> options) throws Exception {
+            @RequestParam Optional<Set<String>> options) throws Exception {
 
-        //TODO: to support values as options
-        if ("values".equals(options.orElse("")))  {
-            throw new UnsupportedOptionException(options.get());
+        boolean count = false;
+        if (options.isPresent()) {
+            //TODO: to support values as options
+            if (options.get().contains("values")) {
+                throw new UnsupportedOptionException("values");
+            }
+            count = options.get().contains("count");
         }
-        boolean count = options.orElse("").contains("count");
         Paginated<EntityType> entityTypes = retrieveEntityTypes(limit, offset, count);
         if (count) {
             return new ResponseEntity<>(entityTypes.getItems() , xTotalCountHeader(entityTypes.getTotal()), HttpStatus.OK);

@@ -19,11 +19,9 @@ package com.orange.ngsi2.server;
 
 import com.orange.ngsi2.exception.InvalidatedSyntaxException;
 import com.orange.ngsi2.model.GeoQuery;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 

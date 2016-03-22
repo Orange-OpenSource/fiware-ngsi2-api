@@ -22,7 +22,7 @@ package com.orange.ngsi2.exception;
  */
 public class UnsupportedOptionException extends Ngsi2Exception {
 
-    private final static String message = "this option '%s' is not implemented";
+    private final static String message = "Unsupported option value: %s";
 
     public UnsupportedOptionException(String optionName) {
         super("501", String.format(message, optionName), null);
