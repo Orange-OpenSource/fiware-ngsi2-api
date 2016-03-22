@@ -103,7 +103,7 @@ public abstract class Ngsi2BaseController {
             if (!(georel.isPresent() && geometry.isPresent() && coords.isPresent())) {
                 throw new BadRequestException("Missing one argument of georel, geometry or coords");
             }
-            geoQuery = Optional.of(parseGeoQuery(georel.get(), geometry.get(), coords.get()));
+            geoQuery = Optional.of(Ngsi2ParsingHelper.parseGeoQuery(georel.get(), geometry.get(), coords.get()));
         }
 
         //TODO: to support keyValues, values and unique as options
@@ -354,7 +354,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity updatePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody String value) throws Exception {
 
         validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
-        updateAttributeValue(entityId, attrName, type, parseTextValue(value));
+        updateAttributeValue(entityId, attrName, type, Ngsi2ParsingHelper.parseTextValue(value));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -1008,85 +1008,5 @@ public abstract class Ngsi2BaseController {
         HttpHeaders headers = new HttpHeaders();
         headers.put("X-Total-Count", Collections.singletonList(Integer.toString(countNumber)));
         return headers;
-    }
-
-    /**
-     * Attempt to parse a text value as boolean, double quoted string, or number
-     * @param value the text value to parse
-     * @return the value
-     * @throws NotAcceptableException if text cannot be parsed
-     */
-    private Object parseTextValue(String value) {
-        if  (value.equalsIgnoreCase("true")) {
-            return true;
-        } else if (value.equalsIgnoreCase("false")) {
-            return false;
-        } else if (value.equalsIgnoreCase("null")) {
-            return null;
-        } else if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 1) {
-            return value.substring(1, value.length()-1);
-        }
-        // Attempt to parse as the simplest number format possible...
-        try {
-            return Integer.parseInt(value);
-        } catch (NumberFormatException ignored) {}
-        try {
-            return Long.parseLong(value);
-        } catch (NumberFormatException ignored) {}
-        try {
-            return Float.parseFloat(value);
-        } catch (NumberFormatException ignored) {}
-        try {
-            return Double.parseDouble(value);
-        } catch (NumberFormatException ignored) {}
-        throw new NotAcceptableException();
-    }
-
-    private GeoQuery parseGeoQuery(String georel, String geometry, String coords) {
-        String[] georelFields = georel.split(";");
-        GeoQuery.Relation relation;
-        try {
-            relation = GeoQuery.Relation.valueOf(georelFields[0]);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidatedSyntaxException(georelFields[0]);
-        }
-        if (relation == GeoQuery.Relation.near && georelFields.length > 1) {
-            String[] modifierFields = georelFields[1].split(":");
-            if (modifierFields.length != 2) {
-                throw new InvalidatedSyntaxException(georelFields[1]);
-            }
-            try {
-                return new GeoQuery(GeoQuery.Modifier.valueOf(modifierFields[0]), Float.parseFloat(modifierFields[1]),
-                        parseGeometry(geometry), parseCoordinates(coords));
-            } catch (IllegalArgumentException e) {
-                throw new InvalidatedSyntaxException(georelFields[1]);
-            }
-        }
-        return new GeoQuery(relation, parseGeometry(geometry), parseCoordinates(coords));
-
-    }
-
-    private GeoQuery.Geometry parseGeometry(String stringGeometry) {
-        try {
-            return GeoQuery.Geometry.valueOf(stringGeometry);
-        } catch (IllegalArgumentException e) {
-            throw new InvalidatedSyntaxException(stringGeometry);
-        }
-    }
-
-    private List<Coordinate> parseCoordinates(String stringCoord) {
-        String[] coords = stringCoord.split("\\s*(;|,)\\s*");
-        if (coords.length == 0 || coords.length % 2 != 0) {
-            throw new InvalidatedSyntaxException("coords");
-        }
-        List<Coordinate> coordinates = new ArrayList<>();
-        try {
-            for (int i = 0; i < coords.length; i += 2) {
-                coordinates.add(new Coordinate(Double.parseDouble(coords[i]), Double.parseDouble(coords[i + 1])));
-            }
-        } catch (NumberFormatException e) {
-            throw new InvalidatedSyntaxException("coords");
-        }
-        return coordinates;
     }
 }
