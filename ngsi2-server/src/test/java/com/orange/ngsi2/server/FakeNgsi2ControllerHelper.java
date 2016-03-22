@@ -186,4 +186,10 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     @Override
     protected void bulkUpdate(BulkUpdateRequest bulkUpdateRequest){
     }
+
+    @Override
+    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit,
+                                             Optional<Integer> offset, Optional<Collection<String>> orderBy, Boolean count) {
+        return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
+    }
 }

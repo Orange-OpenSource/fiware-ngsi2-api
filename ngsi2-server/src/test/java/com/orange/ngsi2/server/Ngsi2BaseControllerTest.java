@@ -1386,7 +1386,63 @@ public class Ngsi2BaseControllerTest {
                         .header("Host", "localhost")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkBulkQueryNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/op/query").content(json(jsonV2Converter, queryReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Query' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkBulkQueryOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/query").content(json(jsonV2Converter, queryReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().doesNotExist("X-Total-Count"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkBulkQueryOKWithCount() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/query").content(json(jsonV2Converter, queryReference())).contentType(MediaType.APPLICATION_JSON)
+                        .param("options","count")
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("Bcn-Welt"))
+                .andExpect(header().string("X-Total-Count", "1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkBulkQueryWrongSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/query").content(json(jsonV2Converter, queryWrongSyntax())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. FIWARE: :... has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkBulkQueryUnsupportedKeyValuesOption() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/query").content(json(jsonV2Converter, queryReference()))
+                        .param("options","keyValues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues, values or unique"))
                 .andExpect(status().isNotImplemented());
     }
 

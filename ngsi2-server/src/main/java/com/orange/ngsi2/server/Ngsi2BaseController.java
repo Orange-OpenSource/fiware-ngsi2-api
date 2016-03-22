@@ -561,20 +561,63 @@ public abstract class Ngsi2BaseController {
     /**
      * Update, append or delete multiple entities in a single operation
      * @param bulkUpdateRequest a BulkUpdateRequest with an actionType and a list of entities to update
-     * @param options an optional list of options separated by comma. values option is not supported.
+     * @param options an optional list of options separated by comma. keyValues option is not supported.
      * @return http status 204 (no content)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.POST, value = {"/op/update"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity bulkUpdateEndpoint(@RequestBody BulkUpdateRequest bulkUpdateRequest, @RequestParam Optional<Set<String>> options) {
+    final public ResponseEntity bulkUpdateEndpoint(@RequestBody BulkUpdateRequest bulkUpdateRequest, @RequestParam Optional<String> options) {
         bulkUpdateRequest.getEntities().forEach(this::validateSyntax);
-        //TODO: to support values as options
-        if ((options.isPresent()) && (options.get().contains("keyValues"))) {
-            throw new UnsupportedOptionException("keyValues");
+        //TODO: to support keyValues as options
+        if (options.isPresent())  {
+            throw new UnsupportedOptionException(options.get());
         }
         bulkUpdate(bulkUpdateRequest);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
+
+    /**
+     * Query multiple entities in a single operation
+     * @param bulkQueryRequest defines the list of entities, attributes and scopes to match entities
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param orderBy an optional list of attributes to order the entities (null or empty for none)
+     * @param options an optional list of options separated by comma. Possible value for option: count.
+     *        Theses keyValues,values and unique options are not supported.
+     *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
+     * @return a list of Entities http status 200 (ok)
+     * @throws Exception
+     */
+    @RequestMapping(method = RequestMethod.POST, value = {"/op/query"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity<List<Entity>> bulkQueryEndpoint(@RequestBody BulkQueryRequest bulkQueryRequest, @RequestParam Optional<Integer> limit,
+                                                  @RequestParam Optional<Integer> offset, @RequestParam Optional<Collection<String>> orderBy,
+                                                  @RequestParam Optional<Set<String>> options) {
+        validateSyntax(bulkQueryRequest.getEntities());
+        bulkQueryRequest.getAttributes().forEach(this::validateSyntax);
+        bulkQueryRequest.getScopes().forEach(scope -> {
+            if (scope.getType() != null) {
+                validateSyntax(scope.getType());
+            }
+        });
+
+        boolean count = false;
+        if (options.isPresent()) {
+            Set<String> optionsSet = options.get();
+            //TODO: to support keyValues, values and unique as options
+            if (optionsSet.contains("keyValues") || optionsSet.contains("values") || optionsSet.contains("unique")) {
+                throw new UnsupportedOptionException("keyValues, values or unique");
+            }
+            count = optionsSet.contains("count");
+        }
+
+        Paginated<Entity> paginatedEntity = bulkQuery(bulkQueryRequest, limit, offset, orderBy, count);
+        if (count) {
+            return new ResponseEntity<>(paginatedEntity.getItems(), xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(paginatedEntity.getItems(), HttpStatus.OK);
+        }
+    }
+
     /*
      * Exception handling
      */
@@ -919,6 +962,20 @@ public abstract class Ngsi2BaseController {
      */
     protected void bulkUpdate(BulkUpdateRequest bulkUpdateRequest){
         throw new UnsupportedOperationException("Update");
+    }
+
+    /**
+     * Query multiple entities in a single operation
+     * @param bulkQueryRequest an optional list of entity IDs (cannot be used with idPatterns)
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param orderBy an option list of attributes to define the order of entities
+     * @param count is true if the count is required
+     * @return a paginated of list of Entities
+     * @throws Exception
+     */
+    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Optional<Collection<String>> orderBy, Boolean count){
+        throw new UnsupportedOperationException("Query");
     }
 
     /*

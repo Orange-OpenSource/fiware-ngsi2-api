@@ -373,6 +373,44 @@ public class Utils {
         return new BulkUpdateRequest(BulkUpdateRequest.Action.APPEND, createListEntitiesWrongSyntax());
     }
 
+    static public BulkQueryRequest queryReference() {
+        List<SubjectEntity> entities = new ArrayList<>();
+        SubjectEntity subjectEntity1 = new SubjectEntity();
+        subjectEntity1.setIdPattern(Optional.of(".*"));
+        subjectEntity1.setType(Optional.of("myFooType"));
+        entities.add(subjectEntity1);
+        SubjectEntity subjectEntity2 = new SubjectEntity();
+        subjectEntity2.setId(Optional.of("myBar"));
+        subjectEntity2.setType(Optional.of("myBarType"));
+        entities.add(subjectEntity2);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity");
+        List<Scope> scopes = new ArrayList<>();
+        Scope scope = new Scope("FIWARE::...", "...");
+        scopes.add(scope);
+        return new BulkQueryRequest(entities, attributes, scopes);
+    }
+
+    static public BulkQueryRequest queryWrongSyntax() {
+        List<SubjectEntity> entities = new ArrayList<>();
+        SubjectEntity subjectEntity1 = new SubjectEntity();
+        subjectEntity1.setIdPattern(Optional.of(".*"));
+        subjectEntity1.setType(Optional.of("myFooType"));
+        entities.add(subjectEntity1);
+        SubjectEntity subjectEntity2 = new SubjectEntity();
+        subjectEntity2.setId(Optional.of("myBar"));
+        subjectEntity2.setType(Optional.of("myBarType"));
+        entities.add(subjectEntity2);
+        List<String> attributes = new ArrayList<>();
+        attributes.add("temperature");
+        attributes.add("humidity");
+        List<Scope> scopes = new ArrayList<>();
+        Scope scope = new Scope("FIWARE: :...", "...");
+        scopes.add(scope);
+        return new BulkQueryRequest(entities, attributes, scopes);
+    }
+
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
         MockHttpOutputMessage mockHttpOutputMessage = new MockHttpOutputMessage();
         mapping.write(o, MediaType.APPLICATION_JSON, mockHttpOutputMessage);
