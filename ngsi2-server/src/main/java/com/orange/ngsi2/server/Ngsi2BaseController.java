@@ -17,7 +17,6 @@
 
 package com.orange.ngsi2.server;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orange.ngsi2.exception.*;
 import com.orange.ngsi2.exception.UnsupportedOperationException;
@@ -322,7 +321,7 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
         Object value = retrieveAttributeValue(entityId, attrName, type);
-        return new ResponseEntity<>(valueToString(value), HttpStatus.OK);
+        return new ResponseEntity<>(objectMapper.writeValueAsString(value), HttpStatus.OK);
     }
 
     /**
@@ -355,7 +354,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity updatePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody String value) throws Exception {
 
         validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
-        updateAttributeValue(entityId, attrName, type, stringToValue(value));
+        updateAttributeValue(entityId, attrName, type, parseTextValue(value));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -1011,21 +1010,13 @@ public abstract class Ngsi2BaseController {
         return headers;
     }
 
-    private String valueToString(Object value) throws JsonProcessingException {
-        if (value == null) {
-            return "null";
-        } else if (value instanceof String) {
-            return '"' + (String)value + '"';
-        } else if (value instanceof Boolean) {
-            return value.toString();
-        } else if (value instanceof Number) {
-            return String.valueOf(value);
-        } else {
-            return objectMapper.writeValueAsString(value);
-        }
-    }
-
-    private Object stringToValue(String value) {
+    /**
+     * Attempt to parse a text value as boolean, double quoted string, or number
+     * @param value the text value to parse
+     * @return the value
+     * @throws NotAcceptableException if text cannot be parsed
+     */
+    private Object parseTextValue(String value) {
         if  (value.equalsIgnoreCase("true")) {
             return true;
         } else if (value.equalsIgnoreCase("false")) {
@@ -1034,21 +1025,21 @@ public abstract class Ngsi2BaseController {
             return null;
         } else if (value.startsWith("\"") && value.endsWith("\"") && value.length() > 1) {
             return value.substring(1, value.length()-1);
-        } else {
-            try {
-                return Long.parseLong(value);
-            } catch (NumberFormatException e1) {
-                try {
-                    return Float.parseFloat(value);
-                } catch (NumberFormatException e2) {
-                    try {
-                        return Double.parseDouble(value);
-                    } catch (NumberFormatException e3) {
-                        throw new NotAcceptableException();
-                    }
-                }
-            }
         }
+        // Attempt to parse as the simplest number format possible...
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException ignored) {}
+        try {
+            return Long.parseLong(value);
+        } catch (NumberFormatException ignored) {}
+        try {
+            return Float.parseFloat(value);
+        } catch (NumberFormatException ignored) {}
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException ignored) {}
+        throw new NotAcceptableException();
     }
 
     private GeoQuery parseGeoQuery(String georel, String geometry, String coords) {
