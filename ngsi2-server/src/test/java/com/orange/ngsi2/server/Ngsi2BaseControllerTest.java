@@ -355,6 +355,45 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListEntitiesEmptyCoordsParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "disjoint").param("geometry", "point").param("coords", "")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. coords has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesMissingNumberCoordsParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "disjoint").param("geometry", "polygon").param("coords", "31.2,23.2;23.2")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. coords has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkListEntitiesBadNumberCoordsParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
+                        .param("type", "Room").param("id", "Bcn-Welt").param("q", "temperature>40")
+                        .param("georel", "disjoint").param("geometry", "polygon").param("coords", "31.2,23.2;23.2,BAD")
+                        .param("attrs","seatNumber").param("orderBy", "temperature,!speed")
+                        .contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. coords has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void checkCreateEntityNotImplemented() throws Exception {
         mockMvc.perform(
                 post("/v2/ni/entities").content(json(jsonV2Converter, createEntityBcnWelt())).contentType(MediaType.APPLICATION_JSON)
