@@ -76,7 +76,8 @@ public abstract class Ngsi2BaseController {
      * @param geometry an optional geometry. Possible values: point, line, polygon, box.
      * @param coords an optional coordinate
      * @param orderBy an option list of attributes to difine the order of entities
-     * @param options an optional list of options separated by comma. Possible values for option: count,keyValues,values.
+     * @param options an optional list of options separated by comma. Possible value for option: count.
+     *        Theses keyValues,values and unique options are not supported.
      *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
      * @return a list of Entities http status 200 (ok)
      * @throws Exception
@@ -106,6 +107,11 @@ public abstract class Ngsi2BaseController {
             geoQuery = Optional.of(parseGeoQuery(georel.get(), geometry.get(), coords.get()));
         }
 
+        //TODO: to support keyValues, values and unique as options
+        if (("keyValues".equals(options.orElse(""))) || ("values".equals(options.orElse(""))) || ("unique".equals(options.orElse("")))) {
+            throw new UnsupportedOptionException(options.get());
+        }
+
         Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, geoQuery, orderBy);
         if ("count".equals(options.orElse(""))) {
             return new ResponseEntity<>(paginatedEntity.getItems() , xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
@@ -117,12 +123,17 @@ public abstract class Ngsi2BaseController {
     /**
      * Endpoint post /v2/entities
      * @param entity
+     * @param options keyValues is not supported.
      * @return http status 201 (created) and location header /v2/entities/{entityId}
      */
     @RequestMapping(method = RequestMethod.POST, value = "/entities", consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity createEntityEndpoint(@RequestBody Entity entity) {
+    final public ResponseEntity createEntityEndpoint(@RequestBody Entity entity, @RequestParam Optional<String> options) {
 
         validateSyntax(entity);
+        //TODO: to support keyValues as options
+        if ("keyValues".equals(options.orElse("")))  {
+            throw new UnsupportedOptionException(options.get());
+        }
         createEntity(entity);
         return new ResponseEntity(locationHeader(entity.getId()), HttpStatus.CREATED);
     }
@@ -131,14 +142,21 @@ public abstract class Ngsi2BaseController {
      * Endpoint get /v2/entities/{entityId}
      * @param entityId the entity ID
      * @param attrs an optional list of attributes to return for the entity
+     * @param options an optional list of options separated by comma.
+     *        Theses keyValues,values and unique options are not supported.
      * @return the entity and http status 200 (ok) or 409 (conflict)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities/{entityId}"})
-    final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> attrs) throws Exception {
+    final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> attrs,
+                                                               @RequestParam Optional<String> options) throws Exception {
 
         validateSyntax(Optional.of(entityId), Optional.empty(), attrs);
+        //TODO: to support keyValues, values and unique as options
+        if (("keyValues".equals(options.orElse(""))) || ("values".equals(options.orElse(""))) || ("unique".equals(options.orElse("")))) {
+            throw new UnsupportedOptionException(options.get());
+        }
         return new ResponseEntity<>(retrieveEntity(entityId, attrs), HttpStatus.OK);
     }
 
@@ -146,15 +164,23 @@ public abstract class Ngsi2BaseController {
      * Endpoint post /v2/entities/{entityId}
      * @param entityId the entity ID
      * @param attributes the attributes to update or to append
+     * @param options an optional list of options separated by comma. Possible value for option: append.
+     *        keyValues options is not supported.
+     *        If append is present then the operation is an append operation
      * @return http status 201 (created)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.POST,
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity updateOrAppendEntityEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
-
+    final public ResponseEntity updateOrAppendEntityEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
+                                                             @RequestParam Optional<String> options) throws Exception {
         validateSyntax(entityId, attributes);
-        updateOrAppendEntity(entityId, attributes);
+        //TODO: to support keyValues as options
+        if ("keyValues".equals(options.orElse("")))  {
+            throw new UnsupportedOptionException(options.get());
+        }
+        boolean append = options.orElse("").contains("count");
+        updateOrAppendEntity(entityId, attributes, append);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -162,13 +188,19 @@ public abstract class Ngsi2BaseController {
      * Endpoint patch /v2/entities/{entityId}
      * @param entityId the entity ID
      * @param attributes the attributes to update
+     * @param options keyValues is not supported.
      * @return http status 204 (no content)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.PATCH, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity updateExistingEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+    final public ResponseEntity updateExistingEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
+                                                                       @RequestParam Optional<String> options) throws Exception {
 
         validateSyntax(entityId, attributes);
+        //TODO: to support keyValues as options
+        if ("keyValues".equals(options.orElse("")))  {
+            throw new UnsupportedOptionException(options.get());
+        }
         updateExistingEntityAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -177,13 +209,19 @@ public abstract class Ngsi2BaseController {
      * Endpoint put /v2/entities/{entityId}
      * @param entityId the entity ID
      * @param attributes the new set of attributes
+     * @param options keyValues is not supported.
      * @return http status 204 (no content)
      * @throws Exception
      */
     @RequestMapping(method = RequestMethod.PUT, value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
-    final public ResponseEntity replaceAllEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes) throws Exception {
+    final public ResponseEntity replaceAllEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
+                                                                   @RequestParam Optional<String> options) throws Exception {
 
         validateSyntax(entityId, attributes);
+        //TODO: to support keyValues as options
+        if ("keyValues".equals(options.orElse("")))  {
+            throw new UnsupportedOptionException(options.get());
+        }
         replaceAllEntityAttributes(entityId, attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -323,6 +361,11 @@ public abstract class Ngsi2BaseController {
 
     /**
      * Endpoint get /v2/types
+     * @param limit an optional limit (0 for none)
+     * @param offset an optional offset (0 for none)
+     * @param options an optional list of options separated by comma. Possible value for option: count.
+     *        values option is not supported.
+     *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
      * @return the entity type json object and http status 200 (ok)
      * @throws Exception
      */
@@ -331,6 +374,10 @@ public abstract class Ngsi2BaseController {
             @RequestParam Optional<Integer> offset,
             @RequestParam Optional<String> options) throws Exception {
 
+        //TODO: to support values as options
+        if ("values".equals(options.orElse("")))  {
+            throw new UnsupportedOptionException(options.get());
+        }
         boolean count = options.orElse("").contains("count");
         Paginated<EntityType> entityTypes = retrieveEntityTypes(limit, offset, count);
         if (count) {
@@ -510,6 +557,16 @@ public abstract class Ngsi2BaseController {
         return new ResponseEntity<>(exception.getError(), httpStatus);
     }
 
+    @ExceptionHandler({UnsupportedOptionException.class})
+    public ResponseEntity<Object> unsupportedOption(UnsupportedOptionException exception, HttpServletRequest request) {
+        logger.error("Unsupported option: {}", exception.getMessage());
+        HttpStatus httpStatus = HttpStatus.NOT_IMPLEMENTED;
+        if (request.getHeader("Accept").contains(MediaType.TEXT_PLAIN_VALUE)) {
+            return new ResponseEntity<>(exception.getError().toString(), httpStatus);
+        }
+        return new ResponseEntity<>(exception.getError(), httpStatus);
+    }
+
     @ExceptionHandler({BadRequestException.class})
     public ResponseEntity<Object> incompatibleParameter(BadRequestException exception, HttpServletRequest request) {
         logger.error("Bad request: {}", exception.getMessage());
@@ -626,8 +683,9 @@ public abstract class Ngsi2BaseController {
      * Update existing or append some attributes to an entity
      * @param entityId the entity ID
      * @param attributes the attributes to update or to append
+     * @param append boolean true if the operation is an append operation
      */
-    protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes){
+    protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes, Boolean append){
         throw new UnsupportedOperationException("Update Or Append Entity");
     }
 

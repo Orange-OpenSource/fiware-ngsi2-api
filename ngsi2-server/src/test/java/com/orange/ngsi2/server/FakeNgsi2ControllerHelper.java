@@ -60,7 +60,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes){ }
+    protected void updateOrAppendEntity(String entityId, Map<String, Attribute> attributes, Boolean append){ }
 
     @Override
     protected void updateExistingEntityAttributes(String entityId, Map<String, Attribute> attributes){ }

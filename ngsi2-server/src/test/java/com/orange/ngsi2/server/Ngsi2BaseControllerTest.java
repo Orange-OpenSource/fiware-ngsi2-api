@@ -162,6 +162,33 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkListEntitiesUnsupportedKeyValuesOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Bcn-Welt").param("options","keyValues").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkListEntitiesUnsupportedValuesOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Bcn-Welt").param("options","values").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'values' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkListEntitiesUnsupportedUniqueOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities").param("id", "Bcn-Welt").param("options","unique").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'unique' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
     public void checkListEntitiesMissingGeorelParameters() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities").param("limit", "20").param("offset", "20").param("options","count")
@@ -347,6 +374,16 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkCreateEntityUnsupportedKeyValuesOptions() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/entities").content(json(jsonV2Converter, createEntityBcnWelt())).param("options","keyValues").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
     public void checkRetrieveEntityNotImplemented() throws Exception {
         mockMvc.perform(
                 get("/v2/ni/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
@@ -387,6 +424,39 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkRetrieveEntityUnsupportedKeyValuesOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .param("options","keyValues")
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRetrieveEntityUnsupportedValuesOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .param("options","values")
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'values' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkRetrieveEntityUnsupportedUniqueOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .param("options","unique")
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'unique' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
     public void checkUpdateOrAppendEntityIdNotImplemented() throws Exception {
         mockMvc.perform(
                 post("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
@@ -416,6 +486,29 @@ public class Ngsi2BaseControllerTest {
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(""))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void checkUpdateOrAppendEntityIdWithAppend() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .param("options","append")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(content().string(""))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void checkUpdateOrAppendEntityIdUnsupportedKeyValuesOptions() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .param("options","keyValues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
     }
 
     @Test
@@ -451,6 +544,18 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkUpdateExistingEntityAttributesUnsupportedKeyValuesOptions() throws Exception {
+        mockMvc.perform(
+                patch("/v2/i/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .param("options","keyValues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
     public void checkReplaceAllEntityAttributesNotImplemented() throws Exception {
         mockMvc.perform(
                 put("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
@@ -480,6 +585,18 @@ public class Ngsi2BaseControllerTest {
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(content().string(""))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void checkReplaceAllEntityAttributesUnsupportedKeyValuesOptions() throws Exception {
+        mockMvc.perform(
+                put("/v2/ni/entities/Bcn-Welt").content(json(jsonV2Converter, createUpdateAttributesReference()))
+                        .param("options","keyValues")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'keyValues' is not implemented"))
+                .andExpect(status().isNotImplemented());
     }
 
     @Test
@@ -533,6 +650,17 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].attrs[*]", hasSize(3)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].count").value(7))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkRetrieveEntityTypesUnsupportedValuesOptions() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/types").contentType(MediaType.APPLICATION_JSON)
+                        .param("options","values")
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this option 'values' is not implemented"))
+                .andExpect(status().isNotImplemented());
     }
 
     @Test
