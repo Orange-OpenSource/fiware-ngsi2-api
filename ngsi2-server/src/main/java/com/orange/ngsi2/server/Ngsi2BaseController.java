@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the NGSI v2 requests
@@ -83,19 +84,19 @@ public abstract class Ngsi2BaseController {
      */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities"})
-    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<String> id, @RequestParam Optional<String> type,
+    final public ResponseEntity<List<Entity>> listEntitiesEndpoint(@RequestParam Optional<Set<String>> id, @RequestParam Optional<Set<String>> type,
                                                                    @RequestParam Optional<String> idPattern, @RequestParam Optional<Integer> limit,
-                                                                   @RequestParam Optional<Integer> offset, @RequestParam Optional<String> attrs,
+                                                                   @RequestParam Optional<Integer> offset, @RequestParam Optional<List<String>> attrs,
                                                                    @RequestParam Optional<String> query, @RequestParam Optional<String> georel,
                                                                    @RequestParam Optional<String> geometry, @RequestParam Optional<String> coords,
-                                                                   @RequestParam Optional<Collection<String>> orderBy,
+                                                                   @RequestParam Optional<List<String>> orderBy,
                                                                    @RequestParam Optional<Set<String>> options) throws Exception {
 
         if (id.isPresent() && idPattern.isPresent()) {
-            throw new IncompatibleParameterException(id.get(), idPattern.get(), "List entities");
+            throw new IncompatibleParameterException("id", "idPattern", "List entities");
         }
 
-        validateSyntax(id, type, attrs);
+        validateSyntax(id.orElse(null), type.orElse(null), attrs.orElse(null));
 
         Optional<GeoQuery> geoQuery = Optional.empty();
         // If one of them is present, all are mandatory
@@ -154,10 +155,10 @@ public abstract class Ngsi2BaseController {
      */
     @RequestMapping(method = RequestMethod.GET,
             value = {"/entities/{entityId}"})
-    final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> type, @RequestParam Optional<String> attrs,
+    final public ResponseEntity<Entity> retrieveEntityEndpoint(@PathVariable String entityId, @RequestParam Optional<String> type, @RequestParam Optional<List<String>> attrs,
                                                                @RequestParam Optional<String> options) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, attrs);
+        validateSyntax(entityId, type.orElse(null), attrs.orElse(null));
         //TODO: to support keyValues, values and unique as options
         if (options.isPresent()) {
             throw new UnsupportedOptionException(options.get());
@@ -180,7 +181,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateOrAppendEntityEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
                                                              @RequestParam Optional<String> type, @RequestParam Optional<Set<String>> options) throws Exception {
-        validateSyntax(entityId, type, attributes);
+        validateSyntax(entityId, type.orElse(null), attributes);
 
         boolean append = false;
         if (options.isPresent()) {
@@ -207,7 +208,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity updateExistingEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
                                                                        @RequestParam Optional<String> type, @RequestParam Optional<String> options) throws Exception {
 
-        validateSyntax(entityId, type, attributes);
+        validateSyntax(entityId, type.orElse(null), attributes);
         //TODO: to support keyValues as options
         if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
@@ -229,7 +230,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity replaceAllEntityAttributesEndpoint(@PathVariable String entityId, @RequestBody HashMap<String, Attribute> attributes,
                                                                    @RequestParam Optional<String> type, @RequestParam Optional<String> options) throws Exception {
 
-        validateSyntax(entityId, type, attributes);
+        validateSyntax(entityId, type.orElse(null), attributes);
         //TODO: to support keyValues as options
         if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
@@ -266,7 +267,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}/attrs/{attrName}"})
     final public ResponseEntity<Attribute> retrieveAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         return new ResponseEntity<>(retrieveAttributeByEntityId(entityId, attrName, type), HttpStatus.OK);
     }
 
@@ -282,7 +283,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}/attrs/{attrName}"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody Attribute attribute) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         validateSyntax(attribute);
         updateAttributeByEntityId(entityId, attrName, type, attribute);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
@@ -299,7 +300,7 @@ public abstract class Ngsi2BaseController {
     @RequestMapping(method = RequestMethod.DELETE, value = {"/entities/{entityId}/attrs/{attrName}"})
     final public ResponseEntity removeAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         removeAttributeByEntityId(entityId, attrName, type);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -316,7 +317,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}/attrs/{attrName}/value"}, produces = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity<Object> retrieveAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         Object value = retrieveAttributeValue(entityId, attrName, type);
         if ((value == null) || (value instanceof String) || (value instanceof Number) || (value instanceof Boolean)) {
             throw new NotAcceptableException();
@@ -336,7 +337,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}/attrs/{attrName}/value"}, produces = MediaType.TEXT_PLAIN_VALUE)
     final public ResponseEntity<String> retrievePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         Object value = retrieveAttributeValue(entityId, attrName, type);
         return new ResponseEntity<>(objectMapper.writeValueAsString(value), HttpStatus.OK);
     }
@@ -353,7 +354,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}/attrs/{attrName}/value"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity updateAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody Object value) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         updateAttributeValue(entityId, attrName, type, value);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -370,7 +371,7 @@ public abstract class Ngsi2BaseController {
             value = {"/entities/{entityId}/attrs/{attrName}/value"}, consumes = MediaType.TEXT_PLAIN_VALUE)
     final public ResponseEntity updatePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody String value) throws Exception {
 
-        validateSyntax(Optional.of(entityId), type, Optional.of(attrName));
+        validateSyntax(entityId, type.orElse(null), attrName);
         updateAttributeValue(entityId, attrName, type, Ngsi2ParsingHelper.parseTextValue(value));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
@@ -599,7 +600,7 @@ public abstract class Ngsi2BaseController {
      */
     @RequestMapping(method = RequestMethod.POST, value = {"/op/query"}, consumes = MediaType.APPLICATION_JSON_VALUE)
     final public ResponseEntity<List<Entity>> bulkQueryEndpoint(@RequestBody BulkQueryRequest bulkQueryRequest, @RequestParam Optional<Integer> limit,
-                                                  @RequestParam Optional<Integer> offset, @RequestParam Optional<Collection<String>> orderBy,
+                                                  @RequestParam Optional<Integer> offset, @RequestParam Optional<List<String>> orderBy,
                                                   @RequestParam Optional<Set<String>> options) throws Exception {
 
         validateSyntax(bulkQueryRequest);
@@ -763,9 +764,9 @@ public abstract class Ngsi2BaseController {
      * @return a paginated of list of Entities
      * @throws Exception
      */
-    protected Paginated<Entity> listEntities(Optional<String> ids, Optional<String> types, Optional<String> idPattern,
-                                             Optional<Integer> limit, Optional<Integer> offset, Optional<String> attrs,
-                                             Optional<String> query, Optional<GeoQuery> geoQuery, Optional<Collection<String>> orderBy) throws Exception {
+    protected Paginated<Entity> listEntities(Optional<Set<String>> ids, Optional<Set<String>> types, Optional<String> idPattern,
+                                             Optional<Integer> limit, Optional<Integer> offset, Optional<List<String>> attrs,
+                                             Optional<String> query, Optional<GeoQuery> geoQuery, Optional<List<String>> orderBy) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -794,7 +795,7 @@ public abstract class Ngsi2BaseController {
      * @return the Entity
      * @throws ConflictingEntitiesException
      */
-    protected Entity retrieveEntity(String entityId, Optional<String> type, Optional<String> attrs) throws ConflictingEntitiesException {
+    protected Entity retrieveEntity(String entityId, Optional<String> type, Optional<List<String>> attrs) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Retrieve Entity");
     }
 
@@ -1020,7 +1021,7 @@ public abstract class Ngsi2BaseController {
      * @param count is true if the count is required
      * @return a paginated of list of Entities
      */
-    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Optional<Collection<String>> orderBy, Boolean count){
+    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Optional<List<String>> orderBy, Boolean count){
         throw new UnsupportedOperationException("Query");
     }
 
@@ -1055,22 +1056,28 @@ public abstract class Ngsi2BaseController {
         }
     }
 
-    private void validateSyntax(String[] stringTab) throws InvalidatedSyntaxException {
-        for (String aStringTab : stringTab) {
-            validateSyntax(aStringTab);
+    private void validateSyntax(Collection<String> strings) {
+        if (strings != null) {
+            strings.forEach(this::validateSyntax);
         }
     }
 
-    private void validateSyntax(Optional<String> ids, Optional<String> types, Optional<String> attrs) {
-        if (ids.isPresent()) {
-            validateSyntax(ids.get().split(","));
-        }
-        if (types.isPresent()) {
-            validateSyntax(types.get().split(","));
-        }
-        if (attrs.isPresent()) {
-            validateSyntax(attrs.get().split(","));
-        }
+    private void validateSyntax(Set<String> ids, Set<String> types, List<String> attrs) {
+        validateSyntax(ids);
+        validateSyntax(types);
+        validateSyntax(attrs);
+    }
+
+    private void validateSyntax(String id, String type, List<String> attrs) {
+        if (id != null) validateSyntax(id);
+        if (type != null) validateSyntax(type);
+        validateSyntax(attrs);
+    }
+
+    private void validateSyntax(String id, String type, String attributeName) {
+        if (id != null) validateSyntax(id);
+        if (type != null) validateSyntax(type);
+        if (attributeName != null) validateSyntax(attributeName);
     }
 
     private void validateSyntax(Entity entity) {
@@ -1109,10 +1116,12 @@ public abstract class Ngsi2BaseController {
         attributes.values().forEach(this::validateSyntax);
     }
 
-    private void validateSyntax(String entityId, Optional<String> type, Map<String, Attribute> attributes) {
-        validateSyntax(entityId);
+    private void validateSyntax(String entityId, String type, Map<String, Attribute> attributes) {
+        if (entityId != null) {
+            validateSyntax(entityId);
+        }
         if (type != null) {
-            type.ifPresent(this::validateSyntax);
+            validateSyntax(type);
         }
         if (attributes != null) {
             validateSyntax(attributes);
@@ -1168,7 +1177,7 @@ public abstract class Ngsi2BaseController {
 
     private void validateSyntax(BulkQueryRequest bulkQueryRequest) {
         validateSyntax(bulkQueryRequest.getEntities());
-        bulkQueryRequest.getAttributes().forEach(this::validateSyntax);
+        validateSyntax(bulkQueryRequest.getAttributes());
         bulkQueryRequest.getScopes().forEach(scope -> {
             if (scope.getType() != null) {
                 validateSyntax(scope.getType());

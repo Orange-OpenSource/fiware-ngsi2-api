@@ -40,9 +40,9 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Paginated<Entity> listEntities(Optional<String> id, Optional<String> type, Optional<String> idPattern, Optional<Integer> limit,
-            Optional<Integer> offset, Optional<String> attrs, Optional<String> query, Optional<GeoQuery> geoquery, Optional<Collection<String>> orderBy) throws Exception {
-        if (id.isPresent() && id.get().equals("Bcn-Welt")) {
+    protected Paginated<Entity> listEntities(Optional<Set<String>> id, Optional<Set<String>> type, Optional<String> idPattern, Optional<Integer> limit,
+            Optional<Integer> offset, Optional<List<String>> attrs, Optional<String> query, Optional<GeoQuery> geoquery, Optional<List<String>> orderBy) throws Exception {
+        if (id.isPresent() && id.get().contains("Bcn-Welt")) {
             return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
         }
         return new Paginated<>(createListEntitiesConflictingReference(), 2, 2, 2);
@@ -52,7 +52,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     protected void createEntity(Entity entity){ }
 
     @Override
-    protected Entity retrieveEntity(String entityId, Optional<String> type, Optional<String> attrs) throws ConflictingEntitiesException {
+    protected Entity retrieveEntity(String entityId, Optional<String> type, Optional<List<String>> attrs) throws ConflictingEntitiesException {
         if (entityId.equals("Bcn-Welt")) {
             return createEntityBcnWelt();
         }
@@ -189,7 +189,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
 
     @Override
     protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit,
-                                             Optional<Integer> offset, Optional<Collection<String>> orderBy, Boolean count) {
+                                             Optional<Integer> offset, Optional<List<String>> orderBy, Boolean count) {
         return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
     }
 

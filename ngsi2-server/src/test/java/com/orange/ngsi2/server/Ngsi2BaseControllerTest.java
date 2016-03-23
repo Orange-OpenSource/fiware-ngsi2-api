@@ -91,9 +91,9 @@ public class Ngsi2BaseControllerTest {
     @Test
     public void checkListEntitiesIncompatibleParameter() throws Exception {
         mockMvc.perform(
-                get("/v2/i/entities").param("id", "Boe_Idearium").param("idPattern", "Bode_.*").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                get("/v2/i/entities").param("id", "Boe_Idearium,Bcn-Welt").param("idPattern", "Bode_.*").contentType(MediaType.APPLICATION_JSON).header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. The parameter Boe_Idearium is incompatible with Bode_.* in List entities operation."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. The parameter id is incompatible with idPattern in List entities operation."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -458,6 +458,18 @@ public class Ngsi2BaseControllerTest {
     public void checkRetrieveEntityOK() throws Exception {
         mockMvc.perform(
                 get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.type").value("Room"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("Bcn-Welt"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkRetrieveEntityAllParameters() throws Exception {
+        mockMvc.perform(
+                get("/v2/i/entities/Bcn-Welt").contentType(MediaType.APPLICATION_JSON)
+                        .param("type", "Room")
+                        .param("attrs","temperature,humidity")
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.type").value("Room"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.id").value("Bcn-Welt"))
