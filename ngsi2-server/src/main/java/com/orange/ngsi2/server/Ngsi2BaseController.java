@@ -592,14 +592,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<List<Entity>> bulkQueryEndpoint(@RequestBody BulkQueryRequest bulkQueryRequest, @RequestParam Optional<Integer> limit,
                                                   @RequestParam Optional<Integer> offset, @RequestParam Optional<Collection<String>> orderBy,
                                                   @RequestParam Optional<Set<String>> options) {
-        validateSyntax(bulkQueryRequest.getEntities());
-        bulkQueryRequest.getAttributes().forEach(this::validateSyntax);
-        bulkQueryRequest.getScopes().forEach(scope -> {
-            if (scope.getType() != null) {
-                validateSyntax(scope.getType());
-            }
-        });
-
+        validateSyntax(bulkQueryRequest);
         boolean count = false;
         if (options.isPresent()) {
             Set<String> optionsSet = options.get();
@@ -609,7 +602,6 @@ public abstract class Ngsi2BaseController {
             }
             count = optionsSet.contains("count");
         }
-
         Paginated<Entity> paginatedEntity = bulkQuery(bulkQueryRequest, limit, offset, orderBy, count);
         if (count) {
             return new ResponseEntity<>(paginatedEntity.getItems(), xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
@@ -627,6 +619,33 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<List<String>> bulkRegisterEndpoint(@RequestBody BulkRegisterRequest bulkRegisterRequest) {
         bulkRegisterRequest.getRegistrations().forEach(this::validateSyntax);
         return new ResponseEntity<>(bulkRegister(bulkRegisterRequest), HttpStatus.OK);
+    }
+
+    /**
+     * Discover registration matching entities and their attributes
+     * @param bulkQueryRequest defines the list of entities, attributes and scopes to match registrations
+     * @param offset an optional offset (0 for none)
+     * @param limit an optional limit (0 for none)
+     * @param options an optional list of options separated by comma. Possible value for option: count.
+     *        If count is present then the total number of registrations is returned in the response as a HTTP header named `X-Total-Count`.
+     * @return a paginated list of registration
+     */
+    @RequestMapping(method = RequestMethod.POST, value = {"/op/discover"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity<List<Registration>> bulkDiscoverEndpoint(@RequestBody BulkQueryRequest bulkQueryRequest, @RequestParam Optional<Integer> limit,
+                                                                @RequestParam Optional<Integer> offset,
+                                                                @RequestParam Optional<Set<String>> options) {
+        validateSyntax(bulkQueryRequest);
+        boolean count = false;
+        if (options.isPresent()) {
+            Set<String> optionsSet = options.get();
+            count = optionsSet.contains("count");
+        }
+        Paginated<Registration> paginatedRegistration = bulkDiscover(bulkQueryRequest, limit, offset, count);
+        if (count) {
+            return new ResponseEntity<>(paginatedRegistration.getItems(), xTotalCountHeader(paginatedRegistration.getTotal()), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(paginatedRegistration.getItems(), HttpStatus.OK);
+        }
     }
 
     /*
@@ -997,6 +1016,18 @@ public abstract class Ngsi2BaseController {
         throw new UnsupportedOperationException("Register");
     }
 
+    /**
+     * Discover registration matching entities and their attributes
+     * @param bulkQueryRequest defines the list of entities, attributes and scopes to match registrations
+     * @param offset an optional offset (0 for none)
+     * @param limit an optional limit (0 for none)
+     * @param count is true if the count is required
+     * @return a paginated list of registration
+     */
+    protected Paginated<Registration> bulkDiscover(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Boolean count) {
+        throw new UnsupportedOperationException("Discover");
+    }
+
     /*
      * Private Methods 
      */
@@ -1113,6 +1144,16 @@ public abstract class Ngsi2BaseController {
         if ((subscription.getNotification() != null) && (subscription.getNotification().getAttributes() != null)) {
             subscription.getNotification().getAttributes().forEach(this::validateSyntax);
         }
+    }
+
+    private void validateSyntax(BulkQueryRequest bulkQueryRequest) {
+        validateSyntax(bulkQueryRequest.getEntities());
+        bulkQueryRequest.getAttributes().forEach(this::validateSyntax);
+        bulkQueryRequest.getScopes().forEach(scope -> {
+            if (scope.getType() != null) {
+                validateSyntax(scope.getType());
+            }
+        });
     }
 
     private HttpHeaders locationHeader(String entityId) {

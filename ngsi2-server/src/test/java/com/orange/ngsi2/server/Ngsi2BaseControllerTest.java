@@ -1479,6 +1479,49 @@ public class Ngsi2BaseControllerTest {
     }
 
     @Test
+    public void checkBulkDiscoverNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/op/discover").content(json(jsonV2Converter, queryReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Discover' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkBulkDiscoverOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/discover").content(json(jsonV2Converter, queryReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("abcdefg"))
+                .andExpect(header().doesNotExist("X-Total-Count"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkBulkDiscoverOKWithCount() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/discover").content(json(jsonV2Converter, queryReference())).contentType(MediaType.APPLICATION_JSON)
+                        .param("options","count")
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0].id").value("abcdefg"))
+                .andExpect(header().string("X-Total-Count", "1"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkBulkDiscoverWrongSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/discover").content(json(jsonV2Converter, queryWrongSyntax())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. FIWARE::...? has a bad syntax."))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     public void checkPattern() {
         assertTrue(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn_Welt"));
         assertTrue(Pattern.matches("[\\x21\\x22\\x24\\x25\\x27-\\x2E\\x30-\\x3E\\x40-\\x7E]*", "Bcn-Welt"));

@@ -200,4 +200,14 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
         registrations.add("efgh");
         return registrations;
     }
+
+    @Override
+    protected Paginated<Registration> bulkDiscover(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit,
+                                          Optional<Integer> offset, Boolean count) {
+        try {
+            return new Paginated<>(createListRegistrationsReference(),1, 1, 1);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
 }
