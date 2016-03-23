@@ -192,4 +192,12 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
                                              Optional<Integer> offset, Optional<Collection<String>> orderBy, Boolean count) {
         return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
     }
+
+    @Override
+    protected List<String> bulkRegister(BulkRegisterRequest bulkRegisterRequest) {
+        List<String> registrations = new ArrayList<>();
+        registrations.add("abcd");
+        registrations.add("efgh");
+        return registrations;
+    }
 }

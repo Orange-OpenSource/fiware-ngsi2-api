@@ -618,6 +618,17 @@ public abstract class Ngsi2BaseController {
         }
     }
 
+    /**
+     * Create, update or delete registrations to multiple entities in a single operation
+     * @param bulkRegisterRequest defines the list of entities to register
+     * @return a list of registration ids
+     */
+    @RequestMapping(method = RequestMethod.POST, value = {"/op/register"}, consumes = MediaType.APPLICATION_JSON_VALUE)
+    final public ResponseEntity<List<String>> bulkRegisterEndpoint(@RequestBody BulkRegisterRequest bulkRegisterRequest) {
+        bulkRegisterRequest.getRegistrations().forEach(this::validateSyntax);
+        return new ResponseEntity<>(bulkRegister(bulkRegisterRequest), HttpStatus.OK);
+    }
+
     /*
      * Exception handling
      */
@@ -972,10 +983,18 @@ public abstract class Ngsi2BaseController {
      * @param orderBy an option list of attributes to define the order of entities
      * @param count is true if the count is required
      * @return a paginated of list of Entities
-     * @throws Exception
      */
     protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Optional<Collection<String>> orderBy, Boolean count){
         throw new UnsupportedOperationException("Query");
+    }
+
+    /**
+     * Create, update or delete registrations to multiple entities in a single operation
+     * @param bulkRegisterRequest defines the list of entities to register
+     * @return a list of registration ids
+     */
+    protected List<String> bulkRegister(BulkRegisterRequest bulkRegisterRequest) {
+        throw new UnsupportedOperationException("Register");
     }
 
     /*

@@ -1429,7 +1429,7 @@ public class Ngsi2BaseControllerTest {
                 post("/v2/i/op/query").content(json(jsonV2Converter, queryWrongSyntax())).contentType(MediaType.APPLICATION_JSON)
                         .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. FIWARE: :... has a bad syntax."))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. FIWARE::...? has a bad syntax."))
                 .andExpect(status().isBadRequest());
     }
 
@@ -1444,6 +1444,38 @@ public class Ngsi2BaseControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("Unsupported option value: keyValues, values or unique"))
                 .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkBulkRegisterNotImplemented() throws Exception {
+        mockMvc.perform(
+                post("/v2/ni/op/register").content(json(jsonV2Converter, registerReference()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("501"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("this operation 'Register' is not implemented"))
+                .andExpect(status().isNotImplemented());
+    }
+
+    @Test
+    public void checkBulkRegisterOK() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/register").content(json(jsonV2Converter, registerReference())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[0]").value("abcd"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.[1]").value("efgh"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void checkBulkRegisterWrongSyntax() throws Exception {
+        mockMvc.perform(
+                post("/v2/i/op/register").content(json(jsonV2Converter, registerWrongSyntax())).contentType(MediaType.APPLICATION_JSON)
+                        .header("Host", "localhost").accept(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.error").value("400"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.description").value("The incoming request is invalid in this context. Room? has a bad syntax."))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

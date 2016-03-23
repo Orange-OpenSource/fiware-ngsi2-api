@@ -393,22 +393,44 @@ public class Utils {
     }
 
     static public BulkQueryRequest queryWrongSyntax() {
-        List<SubjectEntity> entities = new ArrayList<>();
+        BulkQueryRequest bulkQueryRequest = queryReference();
+        bulkQueryRequest.getScopes().get(0).setType(bulkQueryRequest.getScopes().get(0).getType() + "?");
+        return bulkQueryRequest;
+    }
+
+    static public BulkRegisterRequest registerReference() throws MalformedURLException {
+        List<Registration> registrations = new ArrayList<>();
+        Registration registration1 = new Registration();
+        registration1.setCallback(new URL("http://localhost:1234"));
+        registration1.setDuration("PT1M");
+        SubjectRegistration subjectRegistration1 = new SubjectRegistration();
         SubjectEntity subjectEntity1 = new SubjectEntity();
-        subjectEntity1.setIdPattern(Optional.of(".*"));
-        subjectEntity1.setType(Optional.of("myFooType"));
-        entities.add(subjectEntity1);
+        subjectEntity1.setType(Optional.of("Room"));
+        subjectRegistration1.setEntities(Collections.singletonList(subjectEntity1));
+        subjectRegistration1.setAttributes(Collections.singletonList("humidity"));
+        registration1.setSubject(subjectRegistration1);
+        registrations.add(registration1);
+        Registration registration2 = new Registration();
+        registration1.setCallback(new URL("http://localhost:5678"));
+        registration1.setDuration("PT1M");
+        SubjectRegistration subjectRegistration2 = new SubjectRegistration();
         SubjectEntity subjectEntity2 = new SubjectEntity();
-        subjectEntity2.setId(Optional.of("myBar"));
-        subjectEntity2.setType(Optional.of("myBarType"));
-        entities.add(subjectEntity2);
-        List<String> attributes = new ArrayList<>();
-        attributes.add("temperature");
-        attributes.add("humidity");
-        List<Scope> scopes = new ArrayList<>();
-        Scope scope = new Scope("FIWARE: :...", "...");
-        scopes.add(scope);
-        return new BulkQueryRequest(entities, attributes, scopes);
+        subjectEntity2.setType(Optional.of("Car"));
+        subjectRegistration2.setEntities(Collections.singletonList(subjectEntity2));
+        subjectRegistration2.setAttributes(Collections.singletonList("speed"));
+        registration2.setSubject(subjectRegistration2);
+        registrations.add(registration2);
+        return new BulkRegisterRequest(BulkRegisterRequest.ActionType.CREATE, registrations);
+    }
+
+    static public BulkRegisterRequest registerWrongSyntax() throws MalformedURLException {
+        BulkRegisterRequest bulkRegisterRequest = registerReference();
+        bulkRegisterRequest.getRegistrations().get(0).getSubject().getEntities().forEach(subjectEntity -> {
+            if (subjectEntity.getType().isPresent()) {
+                subjectEntity.setType(Optional.of(subjectEntity.getType().get()+"?"));
+            }
+        });
+        return bulkRegisterRequest;
     }
 
     static public String json(MappingJackson2HttpMessageConverter mapping, Object o) throws IOException {
