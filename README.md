@@ -1,6 +1,9 @@
 # FIWARE NGSI API
 
-[![Build Status](https://travis-ci.org/Orange-OpenSource/fiware-ngsi2-api.svg?branch=master)](https://travis-ci.org/Orange-OpenSource/fiware-ngsi2-api) [![Coverity Scan Status](https://scan.coverity.com/projects/7943/badge.svg)](https://scan.coverity.com/projects/7943) [![Coverage Status](https://coveralls.io/repos/github/Orange-OpenSource/fiware-ngsi2-api/badge.svg?branch=master)](https://coveralls.io/github/Orange-OpenSource/fiware-ngsi2-api?branch=master) [![Apache Version 2 Licence](https://img.shields.io/badge/License-Apache%20Version%202-blue.svg)](LICENSE.txt)
+[![Build Status](https://travis-ci.org/Orange-OpenSource/fiware-ngsi2-api.svg?branch=master)](https://travis-ci.org/Orange-OpenSource/fiware-ngsi2-api) [![Coverity Scan Status](https://scan.coverity.com/projects/7943/badge.svg)](https://scan.coverity.com/projects/7943) [![Coverage Status](https://coveralls.io/repos/github/Orange-OpenSource/fiware-ngsi2-api/badge.svg?branch=master)](https://coveralls.io/github/Orange-OpenSource/fiware-ngsi2-api?branch=master) 
+[![Client Doc](https://img.shields.io/badge/client%20doc-latest-brightgreen.svg)](http://www.javadoc.io/doc/com.orange.fiware/ngsi2-client)
+[![Server Doc](https://img.shields.io/badge/server%20doc-latest-brightgreen.svg)](http://www.javadoc.io/doc/com.orange.fiware/ngsi2-server)
+[![Apache Version 2 Licence](https://img.shields.io/badge/License-Apache%20Version%202-blue.svg)](LICENSE.txt)
 
 This project is a Java library for the [NGSI v2 API](http://telefonicaid.github.io/fiware-orion/api/v2/)
 
