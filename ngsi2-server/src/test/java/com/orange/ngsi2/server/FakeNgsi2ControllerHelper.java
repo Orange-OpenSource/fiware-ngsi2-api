@@ -40,9 +40,9 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Paginated<Entity> listEntities(Optional<Set<String>> id, Optional<Set<String>> type, Optional<String> idPattern, Optional<Integer> limit,
-            Optional<Integer> offset, Optional<List<String>> attrs, Optional<String> query, Optional<GeoQuery> geoquery, Optional<List<String>> orderBy) throws Exception {
-        if (id.isPresent() && id.get().contains("Bcn-Welt")) {
+    protected Paginated<Entity> listEntities(Set<String> id, Set<String> type, String idPattern, int limit,
+            int offset, List<String> attrs, String query, GeoQuery geoquery, List<String> orderBy) throws Exception {
+        if ((id != null) && id.contains("Bcn-Welt")) {
             return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
         }
         return new Paginated<>(createListEntitiesConflictingReference(), 2, 2, 2);
@@ -52,7 +52,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     protected void createEntity(Entity entity){ }
 
     @Override
-    protected Entity retrieveEntity(String entityId, Optional<String> type, Optional<List<String>> attrs) throws ConflictingEntitiesException {
+    protected Entity retrieveEntity(String entityId, String type, List<String> attrs) throws ConflictingEntitiesException {
         if (entityId.equals("Bcn-Welt")) {
             return createEntityBcnWelt();
         }
@@ -60,19 +60,19 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected void updateOrAppendEntity(String entityId, Optional<String> type, Map<String, Attribute> attributes, Boolean append){ }
+    protected void updateOrAppendEntity(String entityId, String type, Map<String, Attribute> attributes, Boolean append){ }
 
     @Override
-    protected void updateExistingEntityAttributes(String entityId, Optional<String> type, Map<String, Attribute> attributes){ }
+    protected void updateExistingEntityAttributes(String entityId, String type, Map<String, Attribute> attributes){ }
 
     @Override
-    protected void replaceAllEntityAttributes(String entityId, Optional<String> type, Map<String, Attribute> attributes){ }
+    protected void replaceAllEntityAttributes(String entityId, String type, Map<String, Attribute> attributes){ }
 
     @Override
     protected void removeEntity(String entityId){ }
 
     @Override
-    protected Paginated<EntityType> retrieveEntityTypes(Optional<Integer> offset, Optional<Integer> limit, boolean count) {
+    protected Paginated<EntityType> retrieveEntityTypes(int limit, int offset, boolean count) {
         return createEntityTypesRoom();
     }
 
@@ -82,7 +82,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Attribute retrieveAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
+    protected Attribute retrieveAttributeByEntityId(String entityId, String attrName, String type) throws ConflictingEntitiesException {
         if (entityId.equals("Bcn-Welt")) {
             return createTemperatureEntityBcnWelt();
         }
@@ -90,21 +90,21 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected void updateAttributeByEntityId(String entityId, String attrName, Optional<String> type, Attribute attribute) throws ConflictingEntitiesException {
+    protected void updateAttributeByEntityId(String entityId, String attrName, String type, Attribute attribute) throws ConflictingEntitiesException {
         if (!entityId.equals("Bcn-Welt")) {
             throw new ConflictingEntitiesException("Boe-Idearium", "PUT /v2/entities/Boe-Idearium/attrs/temperature?type=");
         }
     }
 
     @Override
-    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
+    protected void removeAttributeByEntityId(String entityId, String attrName, String type) throws ConflictingEntitiesException {
         if (!entityId.equals("Bcn-Welt")) {
             throw new ConflictingEntitiesException("Boe-Idearium", "DELETE /v2/entities/Boe-Idearium/attrs/temperature?type=");
         }
     }
 
     @Override
-    protected Object retrieveAttributeValue(String entityId, String attrName, Optional<String> type) {
+    protected Object retrieveAttributeValue(String entityId, String attrName, String type) {
         if (attrName.equals("temperature")) {
             return new Float(25.0);
         } else if (attrName.equals("on")) {
@@ -119,7 +119,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected void updateAttributeValue(String entityId, String attrName, Optional<String> type, Object value) throws ConflictingEntitiesException {
+    protected void updateAttributeValue(String entityId, String attrName, String type, Object value) throws ConflictingEntitiesException {
         if (!entityId.equals("Bcn-Welt")) {
             throw new ConflictingEntitiesException("Boe-Idearium", "PUT /v2/entities/Boe-Idearium/attrs/temperature/value?type=");
         }
@@ -155,7 +155,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Paginated<Subscription> listSubscriptions( Optional<Integer> limit, Optional<Integer> offset) {
+    protected Paginated<Subscription> listSubscriptions(int limit, int offset) {
         try {
             return new Paginated<>(createListSubscriptionsReference(), 2, 2, 1);
         } catch (MalformedURLException e) {
@@ -188,8 +188,8 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit,
-                                             Optional<Integer> offset, Optional<List<String>> orderBy, Boolean count) {
+    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, int limit,
+                                             int offset, List<String> orderBy, Boolean count) {
         return new Paginated<>(Collections.singletonList(createEntityBcnWelt()),1, 1, 1);
     }
 
@@ -202,8 +202,7 @@ public class FakeNgsi2ControllerHelper extends Ngsi2BaseController {
     }
 
     @Override
-    protected Paginated<Registration> bulkDiscover(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit,
-                                          Optional<Integer> offset, Boolean count) {
+    protected Paginated<Registration> bulkDiscover(BulkQueryRequest bulkQueryRequest, int limit, int offset, Boolean count) {
         try {
             return new Paginated<>(createListRegistrationsReference(),1, 1, 1);
         } catch (MalformedURLException e) {

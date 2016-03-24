@@ -117,7 +117,7 @@ public abstract class Ngsi2BaseController {
             count = optionsSet.contains("count");
         }
 
-        Paginated<Entity> paginatedEntity = listEntities(id, type, idPattern, limit, offset, attrs, query, geoQuery, orderBy);
+        Paginated<Entity> paginatedEntity = listEntities(id.orElse(null), type.orElse(null), idPattern.orElse(null), limit.orElse(0), offset.orElse(0), attrs.orElse(new ArrayList<>()), query.orElse(null), geoQuery.orElse(null), orderBy.orElse(new ArrayList<>()));
         if (count) {
             return new ResponseEntity<>(paginatedEntity.getItems(), xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
         } else {
@@ -163,7 +163,7 @@ public abstract class Ngsi2BaseController {
         if (options.isPresent()) {
             throw new UnsupportedOptionException(options.get());
         }
-        return new ResponseEntity<>(retrieveEntity(entityId, type, attrs), HttpStatus.OK);
+        return new ResponseEntity<>(retrieveEntity(entityId, type.orElse(null), attrs.orElse(new ArrayList<>())), HttpStatus.OK);
     }
 
     /**
@@ -191,7 +191,7 @@ public abstract class Ngsi2BaseController {
             }
             append = options.get().contains("append");
         }
-        updateOrAppendEntity(entityId, type, attributes, append);
+        updateOrAppendEntity(entityId, type.orElse(null), attributes, append);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -213,7 +213,7 @@ public abstract class Ngsi2BaseController {
         if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
         }
-        updateExistingEntityAttributes(entityId, type, attributes);
+        updateExistingEntityAttributes(entityId, type.orElse(null), attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -235,7 +235,7 @@ public abstract class Ngsi2BaseController {
         if (options.isPresent())  {
             throw new UnsupportedOptionException(options.get());
         }
-        replaceAllEntityAttributes(entityId, type, attributes);
+        replaceAllEntityAttributes(entityId, type.orElse(null), attributes);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -268,7 +268,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<Attribute> retrieveAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
         validateSyntax(entityId, type.orElse(null), attrName);
-        return new ResponseEntity<>(retrieveAttributeByEntityId(entityId, attrName, type), HttpStatus.OK);
+        return new ResponseEntity<>(retrieveAttributeByEntityId(entityId, attrName, type.orElse(null)), HttpStatus.OK);
     }
 
     /**
@@ -285,7 +285,7 @@ public abstract class Ngsi2BaseController {
 
         validateSyntax(entityId, type.orElse(null), attrName);
         validateSyntax(attribute);
-        updateAttributeByEntityId(entityId, attrName, type, attribute);
+        updateAttributeByEntityId(entityId, attrName, type.orElse(null), attribute);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -301,7 +301,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity removeAttributeByEntityIdEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
         validateSyntax(entityId, type.orElse(null), attrName);
-        removeAttributeByEntityId(entityId, attrName, type);
+        removeAttributeByEntityId(entityId, attrName, type.orElse(null));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -318,7 +318,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<Object> retrieveAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
         validateSyntax(entityId, type.orElse(null), attrName);
-        Object value = retrieveAttributeValue(entityId, attrName, type);
+        Object value = retrieveAttributeValue(entityId, attrName, type.orElse(null));
         if ((value == null) || (value instanceof String) || (value instanceof Number) || (value instanceof Boolean)) {
             throw new NotAcceptableException();
         }
@@ -338,7 +338,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity<String> retrievePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type) throws Exception {
 
         validateSyntax(entityId, type.orElse(null), attrName);
-        Object value = retrieveAttributeValue(entityId, attrName, type);
+        Object value = retrieveAttributeValue(entityId, attrName, type.orElse(null));
         return new ResponseEntity<>(objectMapper.writeValueAsString(value), HttpStatus.OK);
     }
 
@@ -355,7 +355,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity updateAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody Object value) throws Exception {
 
         validateSyntax(entityId, type.orElse(null), attrName);
-        updateAttributeValue(entityId, attrName, type, value);
+        updateAttributeValue(entityId, attrName, type.orElse(null), value);
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -372,7 +372,7 @@ public abstract class Ngsi2BaseController {
     final public ResponseEntity updatePlainTextAttributeValueEndpoint(@PathVariable String entityId, @PathVariable String attrName, @RequestParam Optional<String> type, @RequestBody String value) throws Exception {
 
         validateSyntax(entityId, type.orElse(null), attrName);
-        updateAttributeValue(entityId, attrName, type, Ngsi2ParsingHelper.parseTextValue(value));
+        updateAttributeValue(entityId, attrName, type.orElse(null), Ngsi2ParsingHelper.parseTextValue(value));
         return new ResponseEntity(HttpStatus.NO_CONTENT);
     }
 
@@ -399,7 +399,7 @@ public abstract class Ngsi2BaseController {
             }
             count = options.get().contains("count");
         }
-        Paginated<EntityType> entityTypes = retrieveEntityTypes(limit, offset, count);
+        Paginated<EntityType> entityTypes = retrieveEntityTypes(limit.orElse(0), offset.orElse(0), count);
         if (count) {
             return new ResponseEntity<>(entityTypes.getItems() , xTotalCountHeader(entityTypes.getTotal()), HttpStatus.OK);
         }
@@ -499,7 +499,7 @@ public abstract class Ngsi2BaseController {
             value = {"/subscriptions"})
     final public ResponseEntity<List<Subscription>> listSubscriptionsEndpoint(@RequestParam Optional<Integer> limit, @RequestParam Optional<Integer> offset, @RequestParam Optional<String> options) throws Exception {
 
-        Paginated<Subscription> paginatedSubscription = listSubscriptions( limit, offset);
+        Paginated<Subscription> paginatedSubscription = listSubscriptions(limit.orElse(0), offset.orElse(0));
         List<Subscription> subscriptionList = paginatedSubscription.getItems();
         if (options.isPresent() && (options.get().contains("count"))) {
             return new ResponseEntity<>(subscriptionList , xTotalCountHeader(paginatedSubscription.getTotal()), HttpStatus.OK);
@@ -589,9 +589,9 @@ public abstract class Ngsi2BaseController {
     /**
      * Query multiple entities in a single operation
      * @param bulkQueryRequest defines the list of entities, attributes and scopes to match entities
-     * @param limit an optional limit (0 for none)
-     * @param offset an optional offset (0 for none)
-     * @param orderBy an optional list of attributes to order the entities (null or empty for none)
+     * @param limit an optional limit
+     * @param offset an optional offset
+     * @param orderBy an optional list of attributes to order the entities
      * @param options an optional list of options separated by comma. Possible value for option: count.
      *        Theses keyValues,values and unique options are not supported.
      *        If count is present then the total number of entities is returned in the response as a HTTP header named `X-Total-Count`.
@@ -613,7 +613,7 @@ public abstract class Ngsi2BaseController {
             }
             count = optionsSet.contains("count");
         }
-        Paginated<Entity> paginatedEntity = bulkQuery(bulkQueryRequest, limit, offset, orderBy, count);
+        Paginated<Entity> paginatedEntity = bulkQuery(bulkQueryRequest, limit.orElse(0), offset.orElse(0), orderBy.orElse(new ArrayList<>()), count);
         if (count) {
             return new ResponseEntity<>(paginatedEntity.getItems(), xTotalCountHeader(paginatedEntity.getTotal()), HttpStatus.OK);
         } else {
@@ -654,7 +654,7 @@ public abstract class Ngsi2BaseController {
             Set<String> optionsSet = options.get();
             count = optionsSet.contains("count");
         }
-        Paginated<Registration> paginatedRegistration = bulkDiscover(bulkQueryRequest, limit, offset, count);
+        Paginated<Registration> paginatedRegistration = bulkDiscover(bulkQueryRequest, limit.orElse(0), offset.orElse(0), count);
         if (count) {
             return new ResponseEntity<>(paginatedRegistration.getItems(), xTotalCountHeader(paginatedRegistration.getTotal()), HttpStatus.OK);
         } else {
@@ -752,21 +752,21 @@ public abstract class Ngsi2BaseController {
 
     /**
      * Retrieve a list of Entities which match different criteria
-     * @param ids an optional list of entity IDs (cannot be used with idPatterns)
-     * @param types an optional list of types of entity
-     * @param idPattern a optional pattern of entity IDs (cannot be used with ids)
+     * @param ids an optional list of entity IDs (cannot be used with idPatterns) (null for none)
+     * @param types an optional list of types of entity (null for none)
+     * @param idPattern a optional pattern of entity IDs (cannot be used with ids) (null for none)
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
-     * @param attrs an optional list of attributes to return for all entities
-     * @param query an optional Simple Query Language query
-     * @param geoQuery an optional Geo query
-     * @param orderBy an option list of attributes to define the order of entities
+     * @param attrs an optional list of attributes to return for all entities (null or empty for none)
+     * @param query an optional Simple Query Language query (null for none)
+     * @param geoQuery an optional Geo query (null for none)
+     * @param orderBy an option list of attributes to define the order of entities (null or empty for none)
      * @return a paginated of list of Entities
      * @throws Exception
      */
-    protected Paginated<Entity> listEntities(Optional<Set<String>> ids, Optional<Set<String>> types, Optional<String> idPattern,
-                                             Optional<Integer> limit, Optional<Integer> offset, Optional<List<String>> attrs,
-                                             Optional<String> query, Optional<GeoQuery> geoQuery, Optional<List<String>> orderBy) throws Exception {
+    protected Paginated<Entity> listEntities(Set<String> ids, Set<String> types, String idPattern,
+                                             int limit, int offset, List<String> attrs,
+                                             String query, GeoQuery geoQuery, List<String> orderBy) throws Exception {
          throw new UnsupportedOperationException("List Entities");
     }
 
@@ -790,23 +790,23 @@ public abstract class Ngsi2BaseController {
     /**
      * Retrieve an Entity by the entity ID
      * @param entityId the entity ID
-     * @param type an optional type of entity
-     * @param attrs an optional list of attributes to return for the entity
+     * @param type an optional type of entity (null for none)
+     * @param attrs an optional list of attributes to return for the entity (null or empty for none)
      * @return the Entity
      * @throws ConflictingEntitiesException
      */
-    protected Entity retrieveEntity(String entityId, Optional<String> type, Optional<List<String>> attrs) throws ConflictingEntitiesException {
+    protected Entity retrieveEntity(String entityId, String type, List<String> attrs) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Retrieve Entity");
     }
 
     /**
      * Update existing or append some attributes to an entity
      * @param entityId the entity ID
-     * @param type an optional type of entity
+     * @param type an optional type of entity (null for none)
      * @param attributes the attributes to update or to append
      * @param append boolean true if the operation is an append operation
      */
-    protected void updateOrAppendEntity(String entityId, Optional<String> type, Map<String, Attribute> attributes, Boolean append){
+    protected void updateOrAppendEntity(String entityId, String type, Map<String, Attribute> attributes, Boolean append){
         throw new UnsupportedOperationException("Update Or Append Entity");
     }
 
@@ -814,20 +814,20 @@ public abstract class Ngsi2BaseController {
      * Update existing attributes to an entity. The entity attributes are updated with the ones in the attributes.
      * If one or more attributes in the payload doesn't exist in the entity, an error if returned
      * @param entityId the entity ID
-     * @param type an optional type of entity
+     * @param type an optional type of entity (null for none)
      * @param attributes the attributes to update
      */
-    protected void updateExistingEntityAttributes(String entityId, Optional<String> type, Map<String, Attribute> attributes){
+    protected void updateExistingEntityAttributes(String entityId, String type, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Update Existing Entity Attributes");
     }
 
     /**
      * Replace all the existing attributes of an entity with a new set of attributes
      * @param entityId the entity ID
-     * @param type an optional type of entity
+     * @param type an optional type of entity (null for none)
      * @param attributes the new set of attributes
      */
-    protected void replaceAllEntityAttributes(String entityId, Optional<String> type, Map<String, Attribute> attributes){
+    protected void replaceAllEntityAttributes(String entityId, String type, Map<String, Attribute> attributes){
         throw new UnsupportedOperationException("Replace All Entity Attributes");
     }
 
@@ -846,7 +846,7 @@ public abstract class Ngsi2BaseController {
      * @param count whether or not to count the total number of entity types
      * @return the list of entity types
      */
-    protected Paginated<EntityType> retrieveEntityTypes(Optional<Integer> offset, Optional<Integer> limit, boolean count) {
+    protected Paginated<EntityType> retrieveEntityTypes(int limit, int offset, boolean count) {
         throw new UnsupportedOperationException("Retrieve Entity Types");
     }
 
@@ -865,10 +865,11 @@ public abstract class Ngsi2BaseController {
      * @param entityId the entity ID
      * @param attrName the attribute name
      * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     *             null for none
      * @return the Attribute
      * @throws ConflictingEntitiesException
      */
-    protected Attribute retrieveAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
+    protected Attribute retrieveAttributeByEntityId(String entityId, String attrName, String type) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Retrieve Attribute by Entity ID");
     }
 
@@ -877,10 +878,11 @@ public abstract class Ngsi2BaseController {
      * @param entityId the entity ID
      * @param attrName the attribute name
      * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     *             null for none
      * @param attribute the new attributes data
      * @throws ConflictingEntitiesException
      */
-    protected void updateAttributeByEntityId(String entityId, String attrName, Optional<String> type, Attribute attribute) throws ConflictingEntitiesException {
+    protected void updateAttributeByEntityId(String entityId, String attrName, String type, Attribute attribute) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Update Attribute by Entity ID");
     }
 
@@ -889,9 +891,10 @@ public abstract class Ngsi2BaseController {
      * @param entityId the entity ID
      * @param attrName the attribute name
      * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     *             null for none
      * @throws ConflictingEntitiesException
      */
-    protected void removeAttributeByEntityId(String entityId, String attrName, Optional<String> type) throws ConflictingEntitiesException {
+    protected void removeAttributeByEntityId(String entityId, String attrName, String type) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Remove Attribute");
     }
 
@@ -900,8 +903,10 @@ public abstract class Ngsi2BaseController {
      * @param entityId the entity ID
      * @param attrName the attribute name
      * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     *             null for none
+     * @return value
      */
-    protected Object retrieveAttributeValue(String entityId, String attrName, Optional<String> type) {
+    protected Object retrieveAttributeValue(String entityId, String attrName, String type) {
         throw new UnsupportedOperationException("Retrieve Attribute Value");
     }
 
@@ -909,11 +914,12 @@ public abstract class Ngsi2BaseController {
      * Update an Attribute Value
      * @param entityId the entity ID
      * @param attrName the attribute name
-     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id
+     * @param type an optional type to avoid ambiguity in the case there are several entities with the same entity id.
+     *             null for none
      * @param value the new value
      * @throws ConflictingEntitiesException
      */
-    protected void updateAttributeValue(String entityId, String attrName, Optional<String> type, Object value) throws ConflictingEntitiesException {
+    protected void updateAttributeValue(String entityId, String attrName, String type, Object value) throws ConflictingEntitiesException {
         throw new UnsupportedOperationException("Update Attribute Value");
     }
 
@@ -966,7 +972,7 @@ public abstract class Ngsi2BaseController {
      * @return a paginated of list of Subscriptions
      * @throws Exception
      */
-    protected Paginated<Subscription> listSubscriptions( Optional<Integer> limit, Optional<Integer> offset) throws Exception {
+    protected Paginated<Subscription> listSubscriptions( int limit, int offset) throws Exception {
         throw new UnsupportedOperationException("List Subscriptions");
     }
 
@@ -1017,11 +1023,11 @@ public abstract class Ngsi2BaseController {
      * @param bulkQueryRequest an optional list of entity IDs (cannot be used with idPatterns)
      * @param limit an optional limit (0 for none)
      * @param offset an optional offset (0 for none)
-     * @param orderBy an option list of attributes to define the order of entities
+     * @param orderBy an option list of attributes to define the order of entities (empty for none)
      * @param count is true if the count is required
      * @return a paginated of list of Entities
      */
-    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Optional<List<String>> orderBy, Boolean count){
+    protected Paginated<Entity> bulkQuery(BulkQueryRequest bulkQueryRequest, int limit, int offset, List<String> orderBy, Boolean count){
         throw new UnsupportedOperationException("Query");
     }
 
@@ -1042,7 +1048,7 @@ public abstract class Ngsi2BaseController {
      * @param count is true if the count is required
      * @return a paginated list of registration
      */
-    protected Paginated<Registration> bulkDiscover(BulkQueryRequest bulkQueryRequest, Optional<Integer> limit, Optional<Integer> offset, Boolean count) {
+    protected Paginated<Registration> bulkDiscover(BulkQueryRequest bulkQueryRequest, int limit, int offset, Boolean count) {
         throw new UnsupportedOperationException("Discover");
     }
 
