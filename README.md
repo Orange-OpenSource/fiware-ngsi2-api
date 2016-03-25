@@ -9,6 +9,12 @@ This project is a Java library for the [NGSI v2 API](http://telefonicaid.github.
 
 This library was originally created for the [Fiware-Cepheus](https://github.com/Orange-OpenSource/fiware-cepheus) project. A library implementing NGSI v1 API can be found at Orange-OpenSource/fiware-ngsi-api
 
+What remains to be done:
+- [ ] Simplified Entity Representation.
+- [ ] Virtual Attribute.
+- [ ] NotifyContext.
+- [ ] NotifyContextAvailability.
+
 ## Usage
 
 ### Client
